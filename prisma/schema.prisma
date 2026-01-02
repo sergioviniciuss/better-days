@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id
+  email            String   @unique
+  timezone         String   @default("UTC")
+  preferredLanguage String  @default("en")
+  createdAt        DateTime @default(now())
+
+  dailyLogs        DailyLog[]
+  ownedChallenges  Challenge[] @relation("ChallengeOwner")
+  challengeMembers ChallengeMember[]
+}
+
+model DailyLog {
+  id           String    @id @default(uuid())
+  userId       String
+  date         String // YYYY-MM-DD in user timezone
+  consumedSugar Boolean
+  confirmedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model Challenge {
+  id            String    @id @default(uuid())
+  ownerUserId   String
+  name          String
+  objectiveType String    @default("NO_SUGAR_STREAK") // enum would be better but using string for simplicity
+  rules         String[]  // Array of rule strings
+  startDate     String    // YYYY-MM-DD
+  createdAt     DateTime  @default(now())
+
+  owner         User      @relation("ChallengeOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  members       ChallengeMember[]
+  invites       Invite[]
+}
+
+model ChallengeMember {
+  id          String    @id @default(uuid())
+  challengeId String
+  userId      String
+  role        String    @default("MEMBER") // "OWNER" | "MEMBER"
+  joinedAt    DateTime  @default(now())
+
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, userId])
+  @@index([challengeId])
+  @@index([userId])
+}
+
+model Invite {
+  id         String    @id @default(uuid())
+  challengeId String
+  code       String    @unique
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime?
+
+  challenge  Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([code])
+  @@index([challengeId])
+}
+

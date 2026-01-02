@@ -1,0 +1,113 @@
+{
+  "common": {
+    "appName": "Melhores Dias",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "yes": "Sim",
+    "no": "Não"
+  },
+  "auth": {
+    "login": "Entrar",
+    "signup": "Cadastrar",
+    "logout": "Sair",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "alreadyHaveAccount": "Já tem uma conta?",
+    "dontHaveAccount": "Não tem uma conta?",
+    "loginError": "Falha ao fazer login",
+    "signupError": "Falha ao cadastrar",
+    "invalidCredentials": "E-mail ou senha inválidos"
+  },
+  "dashboard": {
+    "title": "Painel",
+    "currentStreak": "Sequência Atual",
+    "bestStreak": "Melhor Sequência",
+    "days": "dias",
+    "day": "dia",
+    "pendingDays": "Dias Pendentes",
+    "confirmPendingDays": "Confirmar Dias Pendentes",
+    "confirmToday": "Confirmar Hoje",
+    "noSugar": "Sem Açúcar",
+    "consumedSugar": "Consumiu Açúcar",
+    "todayConfirmed": "Hoje Confirmado",
+    "todayPending": "Hoje Pendente"
+  },
+  "history": {
+    "title": "Histórico",
+    "noLogs": "Nenhum registro ainda",
+    "date": "Data",
+    "status": "Status",
+    "confirmed": "Confirmado",
+    "pending": "Pendente"
+  },
+  "challenges": {
+    "title": "Desafios",
+    "myChallenges": "Meus Desafios",
+    "createChallenge": "Criar Desafio",
+    "joinChallenge": "Entrar em Desafio",
+    "challengeName": "Nome do Desafio",
+    "startDate": "Data de Início",
+    "rules": "Regras",
+    "addedSugarCounts": "Açúcar adicionado conta como falha",
+    "fruitDoesNotCount": "Frutas não contam como açúcar",
+    "missingDaysPending": "Dias faltantes permanecem pendentes até confirmação",
+    "inviteCode": "Código de Convite",
+    "copyInviteLink": "Copiar Link de Convite",
+    "inviteLinkCopied": "Link de convite copiado!",
+    "noChallenges": "Nenhum desafio ainda",
+    "viewChallenge": "Ver Desafio",
+    "leaveChallenge": "Sair do Desafio"
+  },
+  "challengeDetail": {
+    "title": "Detalhes do Desafio",
+    "leaderboard": "Classificação",
+    "yourStatus": "Seu Status",
+    "currentStreak": "Sequência Atual",
+    "bestStreak": "Melhor Sequência",
+    "pendingDays": "Dias Pendentes",
+    "rank": "Posição",
+    "user": "Usuário",
+    "confirmedToday": "Confirmado Hoje",
+    "notConfirmedToday": "Não Confirmado Hoje",
+    "inviteSection": "Convidar Amigos",
+    "inviteDescription": "Compartilhe este código com amigos para entrar no desafio"
+  },
+  "joinChallenge": {
+    "title": "Entrar em Desafio",
+    "enterCode": "Digite o Código de Convite",
+    "join": "Entrar no Desafio",
+    "invalidCode": "Código de convite inválido",
+    "alreadyMember": "Você já é membro deste desafio",
+    "joinSuccess": "Entrou no desafio com sucesso!",
+    "joinError": "Falha ao entrar no desafio"
+  },
+  "pendingDays": {
+    "title": "Confirmar Dias Pendentes",
+    "description": "Você tem dias pendentes para confirmar. Por favor, confirme cada dia:",
+    "markAllNoSugar": "Marcar Todos como Sem Açúcar",
+    "markAllConsumed": "Marcar Todos como Consumiu Açúcar",
+    "confirmSelected": "Confirmar Selecionados",
+    "noPendingDays": "Nenhum dia pendente",
+    "day": "Dia",
+    "status": "Status"
+  },
+  "errors": {
+    "generic": "Algo deu errado",
+    "notFound": "Não encontrado",
+    "unauthorized": "Não autorizado",
+    "networkError": "Erro de rede"
+  }
+}
+

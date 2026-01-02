@@ -1,0 +1,113 @@
+{
+  "common": {
+    "appName": "Better Days",
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "loginError": "Failed to login",
+    "signupError": "Failed to sign up",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "currentStreak": "Current Streak",
+    "bestStreak": "Best Streak",
+    "days": "days",
+    "day": "day",
+    "pendingDays": "Pending Days",
+    "confirmPendingDays": "Confirm Pending Days",
+    "confirmToday": "Confirm Today",
+    "noSugar": "No Sugar",
+    "consumedSugar": "Consumed Sugar",
+    "todayConfirmed": "Today Confirmed",
+    "todayPending": "Today Pending"
+  },
+  "history": {
+    "title": "History",
+    "noLogs": "No logs yet",
+    "date": "Date",
+    "status": "Status",
+    "confirmed": "Confirmed",
+    "pending": "Pending"
+  },
+  "challenges": {
+    "title": "Challenges",
+    "myChallenges": "My Challenges",
+    "createChallenge": "Create Challenge",
+    "joinChallenge": "Join Challenge",
+    "challengeName": "Challenge Name",
+    "startDate": "Start Date",
+    "rules": "Rules",
+    "addedSugarCounts": "Added sugar counts as failure",
+    "fruitDoesNotCount": "Fruit does not count as sugar",
+    "missingDaysPending": "Missing days remain pending until confirmed",
+    "inviteCode": "Invite Code",
+    "copyInviteLink": "Copy Invite Link",
+    "inviteLinkCopied": "Invite link copied!",
+    "noChallenges": "No challenges yet",
+    "viewChallenge": "View Challenge",
+    "leaveChallenge": "Leave Challenge"
+  },
+  "challengeDetail": {
+    "title": "Challenge Details",
+    "leaderboard": "Leaderboard",
+    "yourStatus": "Your Status",
+    "currentStreak": "Current Streak",
+    "bestStreak": "Best Streak",
+    "pendingDays": "Pending Days",
+    "rank": "Rank",
+    "user": "User",
+    "confirmedToday": "Confirmed Today",
+    "notConfirmedToday": "Not Confirmed Today",
+    "inviteSection": "Invite Friends",
+    "inviteDescription": "Share this code with friends to join the challenge"
+  },
+  "joinChallenge": {
+    "title": "Join Challenge",
+    "enterCode": "Enter Invite Code",
+    "join": "Join Challenge",
+    "invalidCode": "Invalid invite code",
+    "alreadyMember": "You are already a member of this challenge",
+    "joinSuccess": "Successfully joined challenge!",
+    "joinError": "Failed to join challenge"
+  },
+  "pendingDays": {
+    "title": "Confirm Pending Days",
+    "description": "You have pending days to confirm. Please confirm each day:",
+    "markAllNoSugar": "Mark All as No Sugar",
+    "markAllConsumed": "Mark All as Consumed Sugar",
+    "confirmSelected": "Confirm Selected",
+    "noPendingDays": "No pending days",
+    "day": "Day",
+    "status": "Status"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "notFound": "Not found",
+    "unauthorized": "Unauthorized",
+    "networkError": "Network error"
+  }
+}
+
