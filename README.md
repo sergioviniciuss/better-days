@@ -1,5 +1,8 @@
 # Better Days - Sugar-Free Streaks App
 
+[![CI](https://github.com/YOUR_USERNAME/betterDays/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/betterDays/actions/workflows/ci.yml)
+[![Deploy to Production](https://github.com/YOUR_USERNAME/betterDays/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/YOUR_USERNAME/betterDays/actions/workflows/deploy-production.yml)
+
 A web application to track sugar-free streaks with group challenges and light competition.
 
 ## Features
@@ -22,9 +25,10 @@ A web application to track sugar-free streaks with group challenges and light co
 
 ## Prerequisites
 
-- Node.js 18+ and yarn
+- Node.js 24+ and yarn
 - Supabase account (free tier)
 - PostgreSQL database (via Supabase)
+- Vercel account (for deployment)
 
 ## Setup
 
@@ -146,30 +150,43 @@ yarn test
 
 ## Deployment
 
-### Automated CI/CD Pipeline
+### 🚀 Deploy to Vercel
 
-This project uses GitHub Actions for continuous integration and deployment to Vercel.
 
-**Quick Setup:**
-1. Follow the step-by-step guide in [`.github/SETUP_CHECKLIST.md`](.github/SETUP_CHECKLIST.md)
-2. See detailed documentation in [`.github/DEPLOYMENT.md`](.github/DEPLOYMENT.md)
 
-**What's Automated:**
-- ✅ Linting and testing on every push
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Click "Import Project" and connect your GitHub repository
+3. Add the required environment variables (see below)
+4. Click "Deploy"
+
+**Required Environment Variables:**
+
+Add these in Vercel Dashboard → Settings → Environment Variables:
+
+| Variable | Value | Environments |
+|----------|-------|--------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project-id.supabase.co` | Production, Preview, Development |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key | Production, Preview, Development |
+| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service_role key | Production, Preview |
+| `DATABASE_URL` (optional) | Your database connection string | Production, Preview, Development |
+
+**Get these from:** Supabase Dashboard → Project Settings → API
+
+### Automated CI/CD
+
+**Continuous Integration (GitHub Actions):**
+- ✅ Linting and testing on every push and PR
+- ✅ Build verification before merge
+
+**Continuous Deployment (Vercel):**
 - ✅ Automatic production deployment when pushing to `main`
-- ✅ Preview deployments for pull requests
-- ✅ Code coverage reports (optional)
+- ✅ Preview deployments for pull requests with URL comments
+- ✅ No configuration needed - handled by Vercel GitHub Integration
 
-### Manual Deployment to Vercel (Frontend)
+### Additional Resources
 
-1. Push your code to GitHub
-2. Import your repository in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy
-
-### Supabase (Backend)
-
-The database and authentication are already hosted on Supabase. Make sure your environment variables are set correctly in Vercel.
+- **Detailed Deployment Guide**: [.github/DEPLOYMENT.md](.github/DEPLOYMENT.md)
+- **Supabase Setup**: [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)
 
 ## Key Features Implementation
 
