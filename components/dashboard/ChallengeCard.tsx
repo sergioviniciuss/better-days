@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { confirmDay, getTodayLog } from '@/app/actions/daily-log';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 import { DailyConfirmation } from './DailyConfirmation';
+import { PendingDaysModal } from './PendingDaysModal';
 
 interface ChallengeCardProps {
   challenge: {
@@ -28,6 +29,7 @@ export function ChallengeCard({ challenge, logs, userTimezone }: ChallengeCardPr
   const tChallenge = useTranslations('challengeConfirmation');
   const [todayLog, setTodayLog] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showPendingModal, setShowPendingModal] = useState(false);
 
   useEffect(() => {
     async function fetchTodayLog() {
@@ -106,9 +108,17 @@ export function ChallengeCard({ challenge, logs, userTimezone }: ChallengeCardPr
       {/* Pending Days Alert */}
       {hasPendingDays && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4">
-          <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-            {t('pendingDays')}: {pendingDays.length}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+              {t('pendingDays')}: {pendingDays.length}
+            </p>
+            <button
+              onClick={() => setShowPendingModal(true)}
+              className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md text-sm font-medium min-h-[36px]"
+            >
+              {t('confirmPendingDays')}
+            </button>
+          </div>
         </div>
       )}
 
@@ -132,6 +142,16 @@ export function ChallengeCard({ challenge, logs, userTimezone }: ChallengeCardPr
           </div>
         )}
       </div>
+
+      {/* Pending Days Modal */}
+      {showPendingModal && (
+        <PendingDaysModal
+          pendingDays={pendingDays}
+          onClose={() => setShowPendingModal(false)}
+          userTimezone={userTimezone}
+          challengeId={challenge.id}
+        />
+      )}
     </div>
   );
 }
