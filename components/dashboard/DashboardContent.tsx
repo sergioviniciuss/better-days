@@ -56,7 +56,7 @@ export function DashboardContent({ user, logs }: DashboardContentProps) {
   const pendingDays = detectPendingDays(streakLogs, user.timezone);
 
   const today = getTodayInTimezone(user.timezone);
-  const todayConfirmed = todayLog?.confirmedAt !== null;
+  const todayConfirmed = todayLog !== null && todayLog.confirmedAt !== null;
   const hasPendingDays = pendingDays.length > 0;
 
   const handleConfirmToday = async (consumedSugar: boolean) => {

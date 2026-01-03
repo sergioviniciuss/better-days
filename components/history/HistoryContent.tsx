@@ -108,4 +108,3 @@ export function HistoryContent({ logs }: HistoryContentProps) {
     </div>
   );
 }
-

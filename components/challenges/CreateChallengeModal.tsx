@@ -149,4 +149,3 @@ export function CreateChallengeModal({ onClose, userTimezone }: CreateChallengeM
     </div>
   );
 }
-

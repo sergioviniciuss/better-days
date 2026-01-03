@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { DashboardContent } from './DashboardContent';
 
 // Mock next-intl
@@ -27,6 +27,13 @@ jest.mock('@/lib/streak-utils', () => ({
   detectPendingDays: jest.fn().mockReturnValue(['2024-01-13']),
 }));
 
+// Mock next/link
+jest.mock('next/link', () => {
+  return ({ children, href }: any) => {
+    return <a href={href}>{children}</a>;
+  };
+});
+
 describe('DashboardContent', () => {
   const mockUser = {
     id: 'user-1',
@@ -44,19 +51,25 @@ describe('DashboardContent', () => {
     },
   ];
 
-  it('should display current streak', () => {
+  it('should display current streak', async () => {
     render(<DashboardContent user={mockUser} logs={mockLogs} />);
-    expect(screen.getByText(/5/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/5/)).toBeInTheDocument();
+    });
   });
 
-  it('should display best streak', () => {
+  it('should display best streak', async () => {
     render(<DashboardContent user={mockUser} logs={mockLogs} />);
-    expect(screen.getByText(/10/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/10/)).toBeInTheDocument();
+    });
   });
 
-  it('should show pending days alert when there are pending days', () => {
+  it('should show pending days alert when there are pending days', async () => {
     render(<DashboardContent user={mockUser} logs={mockLogs} />);
-    expect(screen.getByText(/pendingDays/i)).toBeInTheDocument();
+    await waitFor(() => {
+      // The translation mock returns the key itself, so we look for "confirmPendingDays"
+      expect(screen.getByText(/confirmPendingDays/i)).toBeInTheDocument();
+    });
   });
 });
-

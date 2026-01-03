@@ -19,4 +19,3 @@ export default async function ChallengesPage({
 
   return <ChallengesContent user={user} challenges={challenges} />;
 }
-

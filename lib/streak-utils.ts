@@ -157,15 +157,9 @@ export function detectPendingDays(
     });
 
   if (confirmedLogs.length === 0) {
-    // No confirmed logs - all days from a reasonable start date are pending
-    // For MVP, we'll start from 30 days ago
-    const startDate = getDaysAgoInTimezone(userTimezone, 30);
-    const today = getTodayInTimezone(userTimezone);
-    const allDates = getDatesBetween(startDate, today);
-    
-    // Filter out dates that are already logged (even if not confirmed)
-    const loggedDates = new Set(logs.map((log) => log.date));
-    return allDates.filter((date) => !loggedDates.has(date));
+    // No confirmed logs yet - no pending days for new users
+    // Pending days only start accumulating after the first confirmed day
+    return [];
   }
 
   const lastConfirmedDate = confirmedLogs[confirmedLogs.length - 1].date;

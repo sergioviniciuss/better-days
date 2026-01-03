@@ -26,4 +26,3 @@ export function JoinChallengeContent({ error, inviteCode }: JoinChallengeContent
     </div>
   );
 }
-

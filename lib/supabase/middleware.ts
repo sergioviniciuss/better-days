@@ -11,17 +11,38 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll();
+        get(name: string) {
+          return request.cookies.get(name)?.value;
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
+        set(name: string, value: string, options: any) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          });
           supabaseResponse = NextResponse.next({
             request,
           });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
+          supabaseResponse.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+        },
+        remove(name: string, options: any) {
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          });
+          supabaseResponse = NextResponse.next({
+            request,
+          });
+          supabaseResponse.cookies.set({
+            name,
+            value: '',
+            ...options,
+          });
         },
       },
     }
@@ -31,8 +52,15 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
+  // Refresh session if expired
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
 
   // Extract locale from path
@@ -43,15 +71,30 @@ export async function updateSession(request: NextRequest) {
   const locale = isLocale ? firstPart : 'en';
   const pathWithoutLocale = isLocale ? '/' + pathParts.slice(1).join('/') : pathname;
 
+  // Debug logging
+  const authCookie = request.cookies.get('sb-hlczfedujqhdczrgaxky-auth-token');
+  console.log('[Middleware]', {
+    pathname,
+    hasSession: !!session,
+    hasUser: !!user,
+    userId: user?.id,
+    cookies: request.cookies.getAll().map(c => c.name),
+    sessionExpiry: session?.expires_at,
+    sessionError: sessionError?.message,
+    userError: userError?.message,
+    cookieLength: authCookie?.value?.length,
+  });
+
   if (
     !user &&
     !pathWithoutLocale.startsWith('/login') &&
     !pathname.startsWith('/api') &&
     !pathname.startsWith('/_next')
   ) {
-    // no user, potentially respond by redirecting the user to the login page
+    console.log('[Middleware] Redirecting to login - no user found');
+    // no user, redirect to login page with locale prefix
     const url = request.nextUrl.clone();
-    url.pathname = '/login';
+    url.pathname = `/${locale}/login`;
     return NextResponse.redirect(url);
   }
 
