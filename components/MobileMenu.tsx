@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { signOut } from '@/app/actions/auth';
-import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface MobileMenuProps {
   navItems: Array<{ href: string; label: string }>;
@@ -136,14 +135,6 @@ export function MobileMenu({ navItems, userEmail, pathname }: MobileMenuProps) {
               </Link>
             ))}
           </nav>
-
-          {/* Language Switcher */}
-          <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Language</p>
-            <div className="flex justify-center">
-              <LanguageSwitcher />
-            </div>
-          </div>
 
           {/* Logout Button */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">

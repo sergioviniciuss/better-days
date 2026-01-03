@@ -46,10 +46,12 @@ export function Navigation({ userEmail }: NavigationProps) {
               ))}
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            {/* Desktop: Language Switcher + User Profile Menu */}
-            <div className="hidden md:flex items-center space-x-4">
-              <LanguageSwitcher />
+          <div className="flex items-center space-x-3">
+            {/* Language Switcher - Visible on all screens */}
+            <LanguageSwitcher />
+            
+            {/* Desktop: User Profile Menu */}
+            <div className="hidden md:block">
               <UserProfileMenu userEmail={userEmail} />
             </div>
             
