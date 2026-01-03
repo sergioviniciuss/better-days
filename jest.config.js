@@ -16,6 +16,26 @@ const customJestConfig = {
     '**/__tests__/**/*.[jt]s?(x)',
     '**/*.test.[jt]s?(x)',
   ],
+  collectCoverage: false,
+  collectCoverageFrom: [
+    'app/**/*.{js,jsx,ts,tsx}',
+    'components/**/*.{js,jsx,ts,tsx}',
+    'lib/**/*.{js,jsx,ts,tsx}',
+    '!**/*.d.ts',
+    '!**/node_modules/**',
+    '!**/.next/**',
+    '!**/coverage/**',
+    '!**/jest.config.js',
+    '!**/jest.setup.js',
+  ],
+  coverageThresholds: {
+    global: {
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50,
+    },
+  },
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

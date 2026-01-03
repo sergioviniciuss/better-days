@@ -23,8 +23,15 @@ jobs:
       - name: Linting
         run: yarn lint
 
-      - name: Test
-        run: yarn test
+      - name: Test with Coverage
+        run: yarn test:coverage
+
+      - name: Upload Coverage Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
 
       - name: Build
         run: yarn build
