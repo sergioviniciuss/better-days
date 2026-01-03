@@ -21,6 +21,7 @@ export async function createChallenge(formData: FormData) {
 
   const name = formData.get('name') as string;
   const startDate = formData.get('startDate') as string;
+  const objectiveType = formData.get('objectiveType') as string || 'NO_SUGAR_STREAK';
   const rules: string[] = [];
 
   // Collect rules from form data
@@ -32,6 +33,12 @@ export async function createChallenge(formData: FormData) {
   }
   if (formData.get('missingDaysPending') === 'on') {
     rules.push('missingDaysPending');
+  }
+  if (formData.get('processedSugarOnly') === 'on') {
+    rules.push('processedSugarOnly');
+  }
+  if (formData.get('alcoholPermitted') === 'on') {
+    rules.push('alcoholPermitted');
   }
 
   try {
@@ -61,7 +68,7 @@ export async function createChallenge(formData: FormData) {
       return { error: 'Failed to generate unique invite code' };
     }
 
-    // Create challenge
+    // Create challenge (default to GROUP type for manually created challenges)
     const { data: challenge, error: challengeError } = await supabase
       .from('Challenge')
       .insert({
@@ -69,6 +76,8 @@ export async function createChallenge(formData: FormData) {
         name,
         startDate,
         rules,
+        objectiveType,
+        challengeType: 'GROUP',
         createdAt: new Date().toISOString(),
       })
       .select()
@@ -267,5 +276,123 @@ export async function joinChallengeByCode(inviteCode: string) {
   } catch (error) {
     console.error('Error joining challenge:', error);
     return { error: 'Failed to join challenge' };
+  }
+}
+
+export async function createPersonalChallenge(userId: string, rules: string[] = []) {
+  try {
+    const supabase = await createClient();
+
+    // Get user's timezone
+    const { data: user } = await supabase
+      .from('User')
+      .select('timezone')
+      .eq('id', userId)
+      .single();
+
+    const timezone = user?.timezone || 'UTC';
+    
+    // Get today's date in user's timezone
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: timezone });
+
+    // Create personal "No Sugar Challenge"
+    const { data: challenge, error: challengeError } = await supabase
+      .from('Challenge')
+      .insert({
+        ownerUserId: userId,
+        name: 'No Sugar Challenge',
+        objectiveType: 'NO_SUGAR_STREAK',
+        challengeType: 'PERSONAL',
+        rules: rules,
+        startDate: today,
+        createdAt: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (challengeError || !challenge) {
+      console.error('Error creating personal challenge:', challengeError);
+      return { error: 'Failed to create personal challenge' };
+    }
+
+    // Add user as owner/member
+    const { error: memberError } = await supabase
+      .from('ChallengeMember')
+      .insert({
+        challengeId: challenge.id,
+        userId,
+        role: 'OWNER',
+        joinedAt: new Date().toISOString(),
+      });
+
+    if (memberError) {
+      console.error('Error adding user to personal challenge:', memberError);
+      return { error: 'Failed to add user to personal challenge' };
+    }
+
+    return { success: true, challengeId: challenge.id };
+  } catch (error) {
+    console.error('Error creating personal challenge:', error);
+    return { error: 'Failed to create personal challenge' };
+  }
+}
+
+export async function upgradeToGroupChallenge(challengeId: string) {
+  try {
+    const supabase = await createClient();
+    
+    // Generate unique invite code
+    let inviteCode: string = generateInviteCode();
+    let isUnique = false;
+    let attempts = 0;
+    
+    while (!isUnique && attempts < 10) {
+      const { data: existing } = await supabase
+        .from('Invite')
+        .select('code')
+        .eq('code', inviteCode)
+        .single();
+      
+      if (!existing) {
+        isUnique = true;
+      } else {
+        inviteCode = generateInviteCode();
+      }
+      attempts++;
+    }
+
+    if (!isUnique) {
+      return { error: 'Failed to generate unique invite code' };
+    }
+
+    // Update challenge to GROUP type
+    const { error: updateError } = await supabase
+      .from('Challenge')
+      .update({ challengeType: 'GROUP' })
+      .eq('id', challengeId);
+
+    if (updateError) {
+      console.error('Error upgrading challenge:', updateError);
+      return { error: 'Failed to upgrade challenge' };
+    }
+
+    // Create invite
+    const { error: inviteError } = await supabase
+      .from('Invite')
+      .insert({
+        challengeId,
+        code: inviteCode,
+        createdAt: new Date().toISOString(),
+      });
+
+    if (inviteError) {
+      console.error('Error creating invite:', inviteError);
+      return { error: 'Failed to create invite' };
+    }
+
+    return { success: true, inviteCode };
+  } catch (error) {
+    console.error('Error upgrading challenge:', error);
+    return { error: 'Failed to upgrade challenge' };
   }
 }

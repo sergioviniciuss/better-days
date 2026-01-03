@@ -3,7 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import Link from 'next/link';
-import { CreateChallengeModal } from './CreateChallengeModal';
+import { CreateChallengeWizard } from './CreateChallengeWizard';
+import { ChallengeIcon } from '@/lib/challenge-icons';
 
 interface User {
   id: string;
@@ -15,6 +16,7 @@ interface User {
 interface Challenge {
   id: string;
   name: string;
+  objectiveType?: string;
   startDate: string;
   rules: string[];
   owner: {
@@ -68,9 +70,17 @@ export function ChallengesContent({ user, challenges }: ChallengesContentProps) 
               href={`/${user.preferredLanguage}/challenges/${challenge.id}`}
               className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow min-h-[44px]"
             >
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                {challenge.name}
-              </h2>
+              <div className="flex items-start gap-4 mb-4">
+                <ChallengeIcon 
+                  type={(challenge.objectiveType as any) || 'NO_SUGAR_STREAK'} 
+                  size="lg" 
+                />
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    {challenge.name}
+                  </h2>
+                </div>
+              </div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                 Started: {new Date(challenge.startDate).toLocaleDateString()}
               </p>
@@ -83,7 +93,7 @@ export function ChallengesContent({ user, challenges }: ChallengesContentProps) 
       )}
 
       {showCreateModal && (
-        <CreateChallengeModal
+        <CreateChallengeWizard
           onClose={() => setShowCreateModal(false)}
           userTimezone={user.timezone}
         />

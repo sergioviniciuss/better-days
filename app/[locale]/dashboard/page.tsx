@@ -1,7 +1,9 @@
 import { getCurrentUser } from '@/app/actions/auth';
 import { getDailyLogs } from '@/app/actions/daily-log';
+import { getChallenges } from '@/app/actions/challenge';
 import { redirect } from 'next/navigation';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function DashboardPage({
   params,
@@ -15,8 +17,30 @@ export default async function DashboardPage({
     redirect(`/${locale}/login`);
   }
 
-  const { logs } = await getDailyLogs();
+  // Check if user has completed onboarding
+  const supabase = await createClient();
+  const { data: userData } = await supabase
+    .from('User')
+    .select('hasCompletedOnboarding')
+    .eq('id', user.id)
+    .single();
 
-  return <DashboardContent user={user} logs={logs} />;
+  // Check if user has any challenges
+  const { challenges } = await getChallenges();
+
+  // If user hasn't completed onboarding or has no challenges, redirect to onboarding
+  if (!userData?.hasCompletedOnboarding || !challenges || challenges.length === 0) {
+    redirect(`/${locale}/onboarding`);
+  }
+
+  // Fetch logs for all challenges
+  const challengesWithLogs = await Promise.all(
+    challenges.map(async (challenge) => {
+      const { logs } = await getDailyLogs(challenge.id);
+      return { ...challenge, logs };
+    })
+  );
+
+  return <DashboardContent user={user} challengesWithLogs={challengesWithLogs} />;
 }
 

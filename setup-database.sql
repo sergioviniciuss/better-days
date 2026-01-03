@@ -1,4 +1,4 @@
--- Database Schema for Better Days App
+-- Database Schema for Better Habits App
 -- Run this SQL in Supabase SQL Editor
 
 -- CreateTable

@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Melhores Dias",
+    "appName": "Melhores Hábitos",
     "loading": "Carregando...",
     "error": "Erro",
     "save": "Salvar",
@@ -63,6 +63,8 @@
     "addedSugarCounts": "Açúcar adicionado conta como falha",
     "fruitDoesNotCount": "Frutas não contam como açúcar",
     "missingDaysPending": "Dias faltantes permanecem pendentes até confirmação",
+    "processedSugarOnly": "Apenas açúcar processado conta",
+    "alcoholPermitted": "Álcool permitido",
     "inviteCode": "Código de Convite",
     "copyInviteLink": "Copiar Link de Convite",
     "inviteLinkCopied": "Link de convite copiado!",
@@ -102,6 +104,92 @@
     "noPendingDays": "Nenhum dia pendente",
     "day": "Dia",
     "status": "Status"
+  },
+  "onboarding": {
+    "welcome": "Bem-vindo ao Melhores Habitos!",
+    "welcomeDescription": "Acompanhe seus hábitos, construa sequências e compita com amigos",
+    "whatIsBetterDays": "O que é Melhores Dias?",
+    "whatIsBetterDaysDescription": "Melhores Dias ajuda você a construir melhores hábitos através do acompanhamento diário e competição amigável. Mantenha-se responsável, celebre vitórias e apoie uns aos outros.",
+    "firstChallenge": "Seu Primeiro Desafio",
+    "firstChallengeDescription": "Vamos começar sua jornada com o Desafio Sem Açúcar. Acompanhe seu progresso diariamente e construa uma sequência impressionante!",
+    "challengeName": "Desafio Sem Açúcar",
+    "challengeSubtitle": "Acompanhe seus dias sem açúcar e construa uma sequência impressionante!",
+    "howItWorks": "Como Funciona",
+    "step1Title": "Acompanhe Diariamente",
+    "step1Description": "Confirme cada dia se você manteve seu hábito",
+    "step2Title": "Construa Sequências",
+    "step2Description": "Veja suas sequências atual e melhor crescerem",
+    "step3Title": "Compita Junto",
+    "step3Description": "Crie ou entre em desafios em grupo com amigos",
+    "selectRules": "Personalize as Regras do Seu Desafio",
+    "selectRulesDescription": "Escolha quais regras se aplicam ao seu desafio. Você pode ajustá-las depois.",
+    "nutritionTipTitle": "💡 Como Verificar",
+    "nutritionTip": "Procure por '0g' na linha 'Açúcares' ou 'Açúcares Adicionados' da tabela nutricional para identificar alimentos sem açúcar.",
+    "rules": {
+      "addedSugarCounts": "Açúcar adicionado conta como falha",
+      "addedSugarCountsHelp": "Qualquer alimento com açúcar adicionado/refinado quebra sua sequência",
+      "fruitDoesNotCount": "Frutas não contam como açúcar",
+      "fruitDoesNotCountHelp": "Açúcares naturais em frutas inteiras são permitidos",
+      "missingDaysPending": "Dias faltantes permanecem pendentes",
+      "missingDaysPendingHelp": "Dias que você esquecer de registrar ficam pendentes em vez de falharem automaticamente",
+      "processedSugarOnly": "Apenas açúcar processado conta",
+      "processedSugarOnlyHelp": "Adoçantes naturais como mel e xarope de bordo são permitidos",
+      "alcoholPermitted": "Álcool permitido",
+      "alcoholPermittedHelp": "Bebidas alcoólicas são permitidas mesmo que contenham açúcar"
+    },
+    "noRulesSelected": "Nenhuma regra selecionada - modo livre!",
+    "inviteFriends": "Convidar Amigos? (Opcional)",
+    "inviteFriendsDescription": "Quer competir com amigos? Compartilhe seu desafio!",
+    "inviteFriendsYes": "Sim, Convidar Amigos!",
+    "inviteFriendsSkip": "Não, Solo Por Enquanto",
+    "generatingInvite": "Gerando código de convite...",
+    "inviteCodeReady": "Seu Código de Convite",
+    "inviteCodeReadyDescription": "Compartilhe este código com amigos para entrarem no seu desafio",
+    "inviteCodeLabel": "Código de Convite",
+    "copyCode": "Copiar Link de Convite",
+    "codeCopied": "Link Copiado!",
+    "letsGo": "Vamos Lá!",
+    "startTracking": "Começar a Acompanhar",
+    "skip": "Pular",
+    "creatingChallenge": "Criando seu desafio pessoal..."
+  },
+  "challengeConfirmation": {
+    "noAlcohol": "Sem Álcool",
+    "consumedAlcohol": "Consumiu Álcool",
+    "exercised": "Exercitou",
+    "skippedExercise": "Não Exercitou",
+    "success": "Sucesso",
+    "failed": "Falhou"
+  },
+  "challengeTypes": {
+    "noSugar": {
+      "name": "Desafio Sem Açúcar",
+      "description": "Acompanhe dias sem açúcar e construa sequências",
+      "suggestedName": "Minha Jornada Sem Açúcar"
+    },
+    "zeroAlcohol": {
+      "name": "Desafio Zero Álcool",
+      "description": "Fique sóbrio e acompanhe dias sem álcool",
+      "suggestedName": "Minha Jornada Sóbria"
+    },
+    "dailyExercise": {
+      "name": "Desafio Exercício Diário",
+      "description": "Construa o hábito de atividade física diária",
+      "suggestedName": "Meu Desafio Fitness"
+    }
+  },
+  "createChallengeWizard": {
+    "step1Title": "Escolha o Tipo de Desafio",
+    "step1Description": "Qual hábito você quer acompanhar?",
+    "step2Title": "Nomeie Seu Desafio",
+    "step2Description": "Dê um nome pessoal ao seu desafio",
+    "step3Title": "Personalize as Regras",
+    "step3Description": "Ajuste as regras para seu desafio",
+    "selectType": "Selecione um tipo de desafio",
+    "next": "Próximo",
+    "back": "Voltar",
+    "create": "Criar Desafio",
+    "creating": "Criando..."
   },
   "errors": {
     "generic": "Algo deu errado",

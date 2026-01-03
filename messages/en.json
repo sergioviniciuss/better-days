@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Better Days",
+    "appName": "Better Habits",
     "loading": "Loading...",
     "error": "Error",
     "save": "Save",
@@ -63,6 +63,8 @@
     "addedSugarCounts": "Added sugar counts as failure",
     "fruitDoesNotCount": "Fruit does not count as sugar",
     "missingDaysPending": "Missing days remain pending until confirmed",
+    "processedSugarOnly": "Only processed sugar counts",
+    "alcoholPermitted": "Alcohol is permitted",
     "inviteCode": "Invite Code",
     "copyInviteLink": "Copy Invite Link",
     "inviteLinkCopied": "Invite link copied!",
@@ -102,6 +104,92 @@
     "noPendingDays": "No pending days",
     "day": "Day",
     "status": "Status"
+  },
+  "onboarding": {
+    "welcome": "Welcome to Better Days!",
+    "welcomeDescription": "Track your habits, build streaks, and compete with friends",
+    "whatIsBetterDays": "What is Better Days?",
+    "whatIsBetterDaysDescription": "Better Days helps you build better habits through daily tracking and friendly competition. Stay accountable, celebrate wins, and support each other.",
+    "firstChallenge": "Your First Challenge",
+    "firstChallengeDescription": "Let's start your journey with the No Sugar Challenge. Track your progress daily and build an impressive streak!",
+    "challengeName": "No Sugar Challenge",
+    "challengeSubtitle": "Track your sugar-free days and build an impressive streak!",
+    "howItWorks": "How It Works",
+    "step1Title": "Track Daily",
+    "step1Description": "Confirm each day whether you maintained your habit",
+    "step2Title": "Build Streaks",
+    "step2Description": "Watch your current and best streaks grow",
+    "step3Title": "Compete Together",
+    "step3Description": "Create or join group challenges with friends",
+    "selectRules": "Customize Your Challenge Rules",
+    "selectRulesDescription": "Choose which rules apply to your challenge. You can always adjust these later.",
+    "nutritionTipTitle": "💡 How to Check",
+    "nutritionTip": "Look for '0g' in the 'Sugars' or 'Added Sugars' line of nutrition labels to identify sugar-free foods.",
+    "rules": {
+      "addedSugarCounts": "Added sugar counts as failure",
+      "addedSugarCountsHelp": "Any food with added/refined sugar breaks your streak",
+      "fruitDoesNotCount": "Fruit does not count as sugar",
+      "fruitDoesNotCountHelp": "Natural sugars in whole fruits are allowed",
+      "missingDaysPending": "Missing days remain pending",
+      "missingDaysPendingHelp": "Days you forget to log stay pending instead of auto-failing",
+      "processedSugarOnly": "Only processed sugar counts",
+      "processedSugarOnlyHelp": "Natural sweeteners like honey and maple syrup are allowed",
+      "alcoholPermitted": "Alcohol is permitted",
+      "alcoholPermittedHelp": "Alcoholic beverages are allowed even if they contain sugar"
+    },
+    "noRulesSelected": "No rules selected - freestyle mode!",
+    "inviteFriends": "Invite Friends? (Optional)",
+    "inviteFriendsDescription": "Want to compete with friends? Share your challenge!",
+    "inviteFriendsYes": "Yes, Invite Friends!",
+    "inviteFriendsSkip": "No, Solo for Now",
+    "generatingInvite": "Generating invite code...",
+    "inviteCodeReady": "Your Invite Code",
+    "inviteCodeReadyDescription": "Share this code with friends to join your challenge",
+    "inviteCodeLabel": "Invite Code",
+    "copyCode": "Copy Invite Link",
+    "codeCopied": "Link Copied!",
+    "letsGo": "Let's Go!",
+    "startTracking": "Start Tracking",
+    "skip": "Skip",
+    "creatingChallenge": "Creating your personal challenge..."
+  },
+  "challengeConfirmation": {
+    "noAlcohol": "No Alcohol",
+    "consumedAlcohol": "Consumed Alcohol",
+    "exercised": "Exercised",
+    "skippedExercise": "Skipped Exercise",
+    "success": "Success",
+    "failed": "Failed"
+  },
+  "challengeTypes": {
+    "noSugar": {
+      "name": "No Sugar Challenge",
+      "description": "Track sugar-free days and build streaks",
+      "suggestedName": "My No Sugar Journey"
+    },
+    "zeroAlcohol": {
+      "name": "Zero Alcohol Challenge",
+      "description": "Stay sober and track alcohol-free days",
+      "suggestedName": "My Sober Journey"
+    },
+    "dailyExercise": {
+      "name": "Daily Exercise Challenge",
+      "description": "Build a habit of daily physical activity",
+      "suggestedName": "My Fitness Challenge"
+    }
+  },
+  "createChallengeWizard": {
+    "step1Title": "Choose Challenge Type",
+    "step1Description": "What habit do you want to track?",
+    "step2Title": "Name Your Challenge",
+    "step2Description": "Give your challenge a personal name",
+    "step3Title": "Customize Rules",
+    "step3Description": "Fine-tune the rules for your challenge",
+    "selectType": "Select a challenge type",
+    "next": "Next",
+    "back": "Back",
+    "create": "Create Challenge",
+    "creating": "Creating..."
   },
   "errors": {
     "generic": "Something went wrong",

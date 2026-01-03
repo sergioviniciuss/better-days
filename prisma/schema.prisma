@@ -11,11 +11,12 @@ datasource db {
 }
 
 model User {
-  id               String   @id
-  email            String   @unique
-  timezone         String   @default("UTC")
-  preferredLanguage String  @default("en")
-  createdAt        DateTime @default(now())
+  id                     String   @id
+  email                  String   @unique
+  timezone               String   @default("UTC")
+  preferredLanguage      String   @default("en")
+  hasCompletedOnboarding Boolean  @default(false)
+  createdAt              DateTime @default(now())
 
   dailyLogs        DailyLog[]
   ownedChallenges  Challenge[] @relation("ChallengeOwner")
@@ -25,6 +26,7 @@ model User {
 model DailyLog {
   id           String    @id @default(uuid())
   userId       String
+  challengeId  String
   date         String // YYYY-MM-DD in user timezone
   consumedSugar Boolean
   confirmedAt  DateTime?
@@ -32,9 +34,10 @@ model DailyLog {
   updatedAt    DateTime  @updatedAt
 
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge    Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, date])
-  @@index([userId, date])
+  @@unique([userId, challengeId, date])
+  @@index([userId, challengeId, date])
 }
 
 model Challenge {
@@ -42,6 +45,7 @@ model Challenge {
   ownerUserId   String
   name          String
   objectiveType String    @default("NO_SUGAR_STREAK") // enum would be better but using string for simplicity
+  challengeType String    @default("PERSONAL") // "PERSONAL" | "GROUP"
   rules         String[]  // Array of rule strings
   startDate     String    // YYYY-MM-DD
   createdAt     DateTime  @default(now())
@@ -49,6 +53,7 @@ model Challenge {
   owner         User      @relation("ChallengeOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
   members       ChallengeMember[]
   invites       Invite[]
+  dailyLogs     DailyLog[]
 }
 
 model ChallengeMember {
