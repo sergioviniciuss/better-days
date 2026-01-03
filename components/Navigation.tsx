@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { UserProfileMenu } from './UserProfileMenu';
+import { MobileMenu } from './MobileMenu';
 
 interface NavigationProps {
   userEmail?: string | null;
@@ -46,8 +47,14 @@ export function Navigation({ userEmail }: NavigationProps) {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <LanguageSwitcher />
-            <UserProfileMenu userEmail={userEmail} />
+            {/* Desktop: Language Switcher + User Profile Menu */}
+            <div className="hidden md:flex items-center space-x-4">
+              <LanguageSwitcher />
+              <UserProfileMenu userEmail={userEmail} />
+            </div>
+            
+            {/* Mobile: Hamburger Menu */}
+            <MobileMenu navItems={navItems} userEmail={userEmail} pathname={pathname} />
           </div>
         </div>
       </div>
