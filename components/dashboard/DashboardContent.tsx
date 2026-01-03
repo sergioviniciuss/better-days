@@ -8,6 +8,7 @@ import { confirmDay, getTodayLog } from '@/app/actions/daily-log';
 import { PendingDaysModal } from './PendingDaysModal';
 import { DailyConfirmation } from './DailyConfirmation';
 import Link from 'next/link';
+import { ChallengeIcon } from '@/lib/challenge-icons';
 
 interface User {
   id: string;
@@ -75,7 +76,8 @@ export function DashboardContent({ user, logs }: DashboardContentProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center gap-4">
+        <ChallengeIcon type="NO_SUGAR_STREAK" size="md" />
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
       </div>
 

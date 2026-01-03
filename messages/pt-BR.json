@@ -121,6 +121,8 @@
     "step3Description": "Crie ou entre em desafios em grupo com amigos",
     "selectRules": "Personalize as Regras do Seu Desafio",
     "selectRulesDescription": "Escolha quais regras se aplicam ao seu desafio. Você pode ajustá-las depois.",
+    "nutritionTipTitle": "💡 Como Verificar",
+    "nutritionTip": "Procure por '0g' na linha 'Açúcares' ou 'Açúcares Adicionados' da tabela nutricional para identificar alimentos sem açúcar.",
     "rules": {
       "addedSugarCounts": "Açúcar adicionado conta como falha",
       "addedSugarCountsHelp": "Qualquer alimento com açúcar adicionado/refinado quebra sua sequência",

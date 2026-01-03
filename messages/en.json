@@ -121,6 +121,8 @@
     "step3Description": "Create or join group challenges with friends",
     "selectRules": "Customize Your Challenge Rules",
     "selectRulesDescription": "Choose which rules apply to your challenge. You can always adjust these later.",
+    "nutritionTipTitle": "💡 How to Check",
+    "nutritionTip": "Look for '0g' in the 'Sugars' or 'Added Sugars' line of nutrition labels to identify sugar-free foods.",
     "rules": {
       "addedSugarCounts": "Added sugar counts as failure",
       "addedSugarCountsHelp": "Any food with added/refined sugar breaks your streak",

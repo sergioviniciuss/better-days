@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { createPersonalChallenge } from '@/app/actions/challenge';
+import { ChallengeIcon } from '@/lib/challenge-icons';
 
 interface OnboardingFlowProps {
   userId: string;
@@ -199,7 +200,11 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
               </p>
               
               <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-8 my-8">
-                <div className="text-6xl mb-4">🍬</div>
+                <ChallengeIcon 
+                  type="NO_SUGAR_STREAK" 
+                  size="xl" 
+                  className="mx-auto mb-4"
+                />
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   {t('challengeName')}
                 </h3>
@@ -236,6 +241,16 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300">
                   {t('selectRulesDescription')}
+                </p>
+              </div>
+
+              {/* Nutrition Label Tip */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                  {t('nutritionTipTitle')}
+                </h3>
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  {t('nutritionTip')}
                 </p>
               </div>
 
