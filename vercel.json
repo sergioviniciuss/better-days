@@ -9,7 +9,8 @@
   },
   "build": {
     "env": {
-      "SKIP_ENV_VALIDATION": "true"
+      "SKIP_ENV_VALIDATION": "true",
+      "NODE_VERSION": "24"
     }
   }
 }
