@@ -153,6 +153,44 @@
     "skip": "Pular",
     "creatingChallenge": "Criando seu desafio pessoal..."
   },
+  "challengeConfirmation": {
+    "noAlcohol": "Sem Álcool",
+    "consumedAlcohol": "Consumiu Álcool",
+    "exercised": "Exercitou",
+    "skippedExercise": "Não Exercitou",
+    "success": "Sucesso",
+    "failed": "Falhou"
+  },
+  "challengeTypes": {
+    "noSugar": {
+      "name": "Desafio Sem Açúcar",
+      "description": "Acompanhe dias sem açúcar e construa sequências",
+      "suggestedName": "Minha Jornada Sem Açúcar"
+    },
+    "zeroAlcohol": {
+      "name": "Desafio Zero Álcool",
+      "description": "Fique sóbrio e acompanhe dias sem álcool",
+      "suggestedName": "Minha Jornada Sóbria"
+    },
+    "dailyExercise": {
+      "name": "Desafio Exercício Diário",
+      "description": "Construa o hábito de atividade física diária",
+      "suggestedName": "Meu Desafio Fitness"
+    }
+  },
+  "createChallengeWizard": {
+    "step1Title": "Escolha o Tipo de Desafio",
+    "step1Description": "Qual hábito você quer acompanhar?",
+    "step2Title": "Nomeie Seu Desafio",
+    "step2Description": "Dê um nome pessoal ao seu desafio",
+    "step3Title": "Personalize as Regras",
+    "step3Description": "Ajuste as regras para seu desafio",
+    "selectType": "Selecione um tipo de desafio",
+    "next": "Próximo",
+    "back": "Voltar",
+    "create": "Criar Desafio",
+    "creating": "Criando..."
+  },
   "errors": {
     "generic": "Algo deu errado",
     "notFound": "Não encontrado",

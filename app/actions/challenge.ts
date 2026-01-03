@@ -21,6 +21,7 @@ export async function createChallenge(formData: FormData) {
 
   const name = formData.get('name') as string;
   const startDate = formData.get('startDate') as string;
+  const objectiveType = formData.get('objectiveType') as string || 'NO_SUGAR_STREAK';
   const rules: string[] = [];
 
   // Collect rules from form data
@@ -32,6 +33,12 @@ export async function createChallenge(formData: FormData) {
   }
   if (formData.get('missingDaysPending') === 'on') {
     rules.push('missingDaysPending');
+  }
+  if (formData.get('processedSugarOnly') === 'on') {
+    rules.push('processedSugarOnly');
+  }
+  if (formData.get('alcoholPermitted') === 'on') {
+    rules.push('alcoholPermitted');
   }
 
   try {
@@ -69,6 +76,7 @@ export async function createChallenge(formData: FormData) {
         name,
         startDate,
         rules,
+        objectiveType,
         challengeType: 'GROUP',
         createdAt: new Date().toISOString(),
       })

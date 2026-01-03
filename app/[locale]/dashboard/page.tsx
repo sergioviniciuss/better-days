@@ -33,8 +33,14 @@ export default async function DashboardPage({
     redirect(`/${locale}/onboarding`);
   }
 
-  const { logs } = await getDailyLogs();
+  // Fetch logs for all challenges
+  const challengesWithLogs = await Promise.all(
+    challenges.map(async (challenge) => {
+      const { logs } = await getDailyLogs(challenge.id);
+      return { ...challenge, logs };
+    })
+  );
 
-  return <DashboardContent user={user} logs={logs} />;
+  return <DashboardContent user={user} challengesWithLogs={challengesWithLogs} />;
 }
 

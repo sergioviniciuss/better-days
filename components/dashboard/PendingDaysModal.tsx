@@ -9,9 +9,10 @@ interface PendingDaysModalProps {
   pendingDays: string[];
   onClose: () => void;
   userTimezone: string;
+  challengeId: string;
 }
 
-export function PendingDaysModal({ pendingDays, onClose, userTimezone }: PendingDaysModalProps) {
+export function PendingDaysModal({ pendingDays, onClose, userTimezone, challengeId }: PendingDaysModalProps) {
   const t = useTranslations('pendingDays');
   const [confirmations, setConfirmations] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -36,6 +37,7 @@ export function PendingDaysModal({ pendingDays, onClose, userTimezone }: Pending
     const confirmationsArray = pendingDays.map((date) => ({
       date,
       consumedSugar: confirmations[date] ?? false,
+      challengeId,
     }));
 
     const result = await confirmMultipleDays(confirmationsArray);

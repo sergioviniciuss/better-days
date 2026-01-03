@@ -5,7 +5,7 @@ import { getCurrentUser } from './auth';
 import { getTodayInTimezone } from '@/lib/date-utils';
 import { revalidatePath } from 'next/cache';
 
-export async function confirmDay(date: string, consumedSugar: boolean) {
+export async function confirmDay(date: string, consumedSugar: boolean, challengeId: string) {
   const user = await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated' };
@@ -14,57 +14,48 @@ export async function confirmDay(date: string, consumedSugar: boolean) {
   try {
     const supabase = await createClient();
 
-    // Check if log exists
-    const { data: existing } = await supabase
-      .from('DailyLog')
+    // Verify user is a member of this challenge
+    const { data: membership } = await supabase
+      .from('ChallengeMember')
       .select('*')
+      .eq('challengeId', challengeId)
       .eq('userId', user.id)
-      .eq('date', date)
       .single();
 
-    if (existing) {
-      // Update existing log
-      const { error } = await supabase
-        .from('DailyLog')
-        .update({
-          consumedSugar,
-          confirmedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        })
-        .eq('id', existing.id);
+    if (!membership) {
+      return { error: 'Not a member of this challenge' };
+    }
 
-      if (error) {
-        console.error('Error updating day:', error);
-        return { error: 'Failed to confirm day' };
-      }
-    } else {
-      // Create new log
-      const { error } = await supabase
-        .from('DailyLog')
-        .insert({
-          userId: user.id,
-          date,
-          consumedSugar,
-          confirmedAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+    // Use upsert to create or update
+    const { data, error } = await supabase
+      .from('DailyLog')
+      .upsert({
+        userId: user.id,
+        challengeId,
+        date,
+        consumedSugar,
+        confirmedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }, {
+        onConflict: 'userId,challengeId,date'
+      })
+      .select()
+      .single();
 
-      if (error) {
-        console.error('Error creating day:', error);
-        return { error: 'Failed to confirm day' };
-      }
+    if (error) {
+      console.error('Error confirming day:', error);
+      return { error: `Failed to confirm day: ${error.message}` };
     }
 
     revalidatePath('/dashboard');
-    return { success: true };
+    return { success: true, log: data };
   } catch (error) {
     console.error('Error confirming day:', error);
     return { error: 'Failed to confirm day' };
   }
 }
 
-export async function confirmMultipleDays(confirmations: Array<{ date: string; consumedSugar: boolean }>) {
+export async function confirmMultipleDays(confirmations: Array<{ date: string; consumedSugar: boolean; challengeId: string }>) {
   const user = await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated' };
@@ -72,8 +63,8 @@ export async function confirmMultipleDays(confirmations: Array<{ date: string; c
 
   try {
     await Promise.all(
-      confirmations.map(({ date, consumedSugar }) =>
-        confirmDay(date, consumedSugar)
+      confirmations.map(({ date, consumedSugar, challengeId }) =>
+        confirmDay(date, consumedSugar, challengeId)
       )
     );
 
@@ -85,7 +76,7 @@ export async function confirmMultipleDays(confirmations: Array<{ date: string; c
   }
 }
 
-export async function getDailyLogs() {
+export async function getDailyLogs(challengeId?: string) {
   const user = await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated', logs: [] };
@@ -94,11 +85,17 @@ export async function getDailyLogs() {
   try {
     const supabase = await createClient();
 
-    const { data: logs, error } = await supabase
+    let query = supabase
       .from('DailyLog')
       .select('*')
       .eq('userId', user.id)
       .order('date', { ascending: false });
+    
+    if (challengeId) {
+      query = query.eq('challengeId', challengeId);
+    }
+
+    const { data: logs, error } = await query;
 
     if (error) {
       console.error('Error fetching daily logs:', error);
@@ -112,7 +109,7 @@ export async function getDailyLogs() {
   }
 }
 
-export async function getTodayLog() {
+export async function getTodayLog(challengeId: string) {
   const user = await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated', log: null };
@@ -127,6 +124,7 @@ export async function getTodayLog() {
       .from('DailyLog')
       .select('*')
       .eq('userId', user.id)
+      .eq('challengeId', challengeId)
       .eq('date', today)
       .single();
 
