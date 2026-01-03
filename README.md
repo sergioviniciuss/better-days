@@ -150,56 +150,48 @@ yarn test
 
 ## Deployment
 
-### 🚀 Quick Start: Deploy to Vercel (5 Minutes)
+### 🚀 Deploy to Vercel
 
-**Easy deployment - no CLI required!**
+**Easy deployment via GitHub integration - no CLI required!**
 
 1. Go to [vercel.com/new](https://vercel.com/new)
-2. Import your GitHub repository
-3. Add environment variables (see [VERCEL_SETUP.md](./VERCEL_SETUP.md))
+2. Click "Import Project" and connect your GitHub repository
+3. Add the required environment variables (see below)
 4. Click "Deploy"
 
-📖 **[VERCEL_SETUP.md](./VERCEL_SETUP.md)** - Complete step-by-step guide
-📋 **[DEPLOYMENT_SUMMARY.md](./DEPLOYMENT_SUMMARY.md)** - Quick reference
+**Required Environment Variables:**
+
+Add these in Vercel Dashboard → Settings → Environment Variables:
+
+| Variable | Value | Environments |
+|----------|-------|--------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project-id.supabase.co` | Production, Preview, Development |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key | Production, Preview, Development |
+| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service_role key | Production, Preview |
+| `DATABASE_URL` (optional) | Your database connection string | Production, Preview, Development |
+
+**Get these from:** Supabase Dashboard → Project Settings → API
 
 ### Automated CI/CD Pipeline
 
-This project uses GitHub Actions for continuous integration and deployment to Vercel.
+This project uses GitHub Actions for continuous integration:
 
 **What's Automated:**
-- ✅ Linting and testing on every push
-- ✅ Automatic production deployment when pushing to `main`
+- ✅ Linting and testing on every push and PR
+- ✅ Automatic production deployment to Vercel when pushing to `main`
 - ✅ Preview deployments for pull requests with URL comments
 - ✅ Build verification before deployment
 
-**Setup Guides:**
-1. **Quick Start**: [VERCEL_SETUP.md](./VERCEL_SETUP.md) - Streamlined setup (5-10 minutes)
-2. **Detailed Guide**: [.github/DEPLOYMENT.md](.github/DEPLOYMENT.md) - Comprehensive documentation
-3. **Checklist**: [.github/SETUP_CHECKLIST.md](.github/SETUP_CHECKLIST.md) - Step-by-step checklist
+**How it works:**
+- Push to `main` → Vercel deploys to production automatically
+- Create PR → Vercel creates preview deployment automatically
+- All changes are tested with CI before deployment
 
-### Manual Deployment to Vercel
+### Additional Resources
 
-If you prefer manual deployment:
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy to production
-vercel --prod
-```
-
-**Required Environment Variables in Vercel:**
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `DATABASE_URL` (optional)
-
-See [VERCEL_SETUP.md](./VERCEL_SETUP.md) for detailed environment variable setup.
-
-### Supabase Backend
-
-The database and authentication are hosted on Supabase. See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for setup instructions.
+- **Detailed Deployment Guide**: [.github/DEPLOYMENT.md](.github/DEPLOYMENT.md)
+- **Setup Checklist**: [.github/SETUP_CHECKLIST.md](.github/SETUP_CHECKLIST.md)
+- **Supabase Setup**: [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)
 
 ## Key Features Implementation
 
