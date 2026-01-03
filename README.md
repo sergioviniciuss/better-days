@@ -1,12 +1,13 @@
-# Better Days - Sugar-Free Streaks App
+# Better Habits - Habit Challenge Tracker
 
 [![CI](https://github.com/sergioviniciuss/better-days/actions/workflows/ci.yml/badge.svg)](https://github.com/sergioviniciuss/better-days/actions/workflows/ci.yml)
 
-A web application to track sugar-free streaks with group challenges and light competition.
+A web application to track daily habits through challenges with friends. Build streaks for habits like staying sugar-free, alcohol-free, or exercising daily. Compete on leaderboards and maintain accountability with group challenges.
 
 ## Features
 
-- **Daily Logging**: Confirm each day whether you consumed sugar or not
+- **Multiple Challenge Types**: Support for various habits including no sugar, zero alcohol, and daily exercise
+- **Daily Logging**: Confirm each day whether you maintained your habit
 - **Streak Tracking**: Maintain and track your current and best streaks
 - **Pending Days**: Offline-friendly confirmation of missed days
 - **Group Challenges**: Create and join challenges with friends
