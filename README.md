@@ -146,7 +146,21 @@ yarn test
 
 ## Deployment
 
-### Vercel (Frontend)
+### Automated CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and deployment to Vercel.
+
+**Quick Setup:**
+1. Follow the step-by-step guide in [`.github/SETUP_CHECKLIST.md`](.github/SETUP_CHECKLIST.md)
+2. See detailed documentation in [`.github/DEPLOYMENT.md`](.github/DEPLOYMENT.md)
+
+**What's Automated:**
+- ✅ Linting and testing on every push
+- ✅ Automatic production deployment when pushing to `main`
+- ✅ Preview deployments for pull requests
+- ✅ Code coverage reports (optional)
+
+### Manual Deployment to Vercel (Frontend)
 
 1. Push your code to GitHub
 2. Import your repository in Vercel
