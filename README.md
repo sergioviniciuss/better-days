@@ -172,20 +172,16 @@ Add these in Vercel Dashboard → Settings → Environment Variables:
 
 **Get these from:** Supabase Dashboard → Project Settings → API
 
-### Automated CI/CD Pipeline
+### Automated CI/CD
 
-This project uses GitHub Actions for continuous integration:
-
-**What's Automated:**
+**Continuous Integration (GitHub Actions):**
 - ✅ Linting and testing on every push and PR
-- ✅ Automatic production deployment to Vercel when pushing to `main`
-- ✅ Preview deployments for pull requests with URL comments
-- ✅ Build verification before deployment
+- ✅ Build verification before merge
 
-**How it works:**
-- Push to `main` → Vercel deploys to production automatically
-- Create PR → Vercel creates preview deployment automatically
-- All changes are tested with CI before deployment
+**Continuous Deployment (Vercel):**
+- ✅ Automatic production deployment when pushing to `main`
+- ✅ Preview deployments for pull requests with URL comments
+- ✅ No configuration needed - handled by Vercel GitHub Integration
 
 ### Additional Resources
 
