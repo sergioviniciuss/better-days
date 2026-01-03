@@ -44,7 +44,7 @@ export async function confirmDay(date: string, consumedSugar: boolean, challenge
 
     if (error) {
       console.error('Error confirming day:', error);
-      return { error: 'Failed to confirm day' };
+      return { error: `Failed to confirm day: ${error.message}` };
     }
 
     revalidatePath('/dashboard');

@@ -48,9 +48,13 @@ export function ChallengeCard({ challenge, logs, userTimezone }: ChallengeCardPr
 
   const handleConfirmToday = async (consumedSugar: boolean) => {
     const result = await confirmDay(today, consumedSugar, challenge.id);
+    
     if (result.success) {
       setTodayLog(result.log);
       window.location.reload();
+    } else {
+      console.error('Failed to confirm:', result.error);
+      alert(`Failed to confirm: ${result.error}`);
     }
   };
 
