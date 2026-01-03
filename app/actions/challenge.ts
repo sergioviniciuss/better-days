@@ -61,7 +61,7 @@ export async function createChallenge(formData: FormData) {
       return { error: 'Failed to generate unique invite code' };
     }
 
-    // Create challenge
+    // Create challenge (default to GROUP type for manually created challenges)
     const { data: challenge, error: challengeError } = await supabase
       .from('Challenge')
       .insert({
@@ -69,6 +69,7 @@ export async function createChallenge(formData: FormData) {
         name,
         startDate,
         rules,
+        challengeType: 'GROUP',
         createdAt: new Date().toISOString(),
       })
       .select()
@@ -267,5 +268,63 @@ export async function joinChallengeByCode(inviteCode: string) {
   } catch (error) {
     console.error('Error joining challenge:', error);
     return { error: 'Failed to join challenge' };
+  }
+}
+
+export async function createPersonalChallenge(userId: string, rules: string[] = []) {
+  try {
+    const supabase = await createClient();
+
+    // Get user's timezone
+    const { data: user } = await supabase
+      .from('User')
+      .select('timezone')
+      .eq('id', userId)
+      .single();
+
+    const timezone = user?.timezone || 'UTC';
+    
+    // Get today's date in user's timezone
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: timezone });
+
+    // Create personal "No Sugar Challenge"
+    const { data: challenge, error: challengeError } = await supabase
+      .from('Challenge')
+      .insert({
+        ownerUserId: userId,
+        name: 'No Sugar Challenge',
+        objectiveType: 'NO_SUGAR_STREAK',
+        challengeType: 'PERSONAL',
+        rules: rules,
+        startDate: today,
+        createdAt: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (challengeError || !challenge) {
+      console.error('Error creating personal challenge:', challengeError);
+      return { error: 'Failed to create personal challenge' };
+    }
+
+    // Add user as owner/member
+    const { error: memberError } = await supabase
+      .from('ChallengeMember')
+      .insert({
+        challengeId: challenge.id,
+        userId,
+        role: 'OWNER',
+        joinedAt: new Date().toISOString(),
+      });
+
+    if (memberError) {
+      console.error('Error adding user to personal challenge:', memberError);
+      return { error: 'Failed to add user to personal challenge' };
+    }
+
+    return { success: true, challengeId: challenge.id };
+  } catch (error) {
+    console.error('Error creating personal challenge:', error);
+    return { error: 'Failed to create personal challenge' };
   }
 }

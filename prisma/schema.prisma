@@ -11,11 +11,12 @@ datasource db {
 }
 
 model User {
-  id               String   @id
-  email            String   @unique
-  timezone         String   @default("UTC")
-  preferredLanguage String  @default("en")
-  createdAt        DateTime @default(now())
+  id                     String   @id
+  email                  String   @unique
+  timezone               String   @default("UTC")
+  preferredLanguage      String   @default("en")
+  hasCompletedOnboarding Boolean  @default(false)
+  createdAt              DateTime @default(now())
 
   dailyLogs        DailyLog[]
   ownedChallenges  Challenge[] @relation("ChallengeOwner")
@@ -42,6 +43,7 @@ model Challenge {
   ownerUserId   String
   name          String
   objectiveType String    @default("NO_SUGAR_STREAK") // enum would be better but using string for simplicity
+  challengeType String    @default("PERSONAL") // "PERSONAL" | "GROUP"
   rules         String[]  // Array of rule strings
   startDate     String    // YYYY-MM-DD
   createdAt     DateTime  @default(now())
