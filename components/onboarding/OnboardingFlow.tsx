@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { createPersonalChallenge } from '@/app/actions/challenge';
+import { createPersonalChallenge, upgradeToGroupChallenge } from '@/app/actions/challenge';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 
 interface OnboardingFlowProps {
@@ -18,12 +18,14 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedRules, setSelectedRules] = useState<string[]>(['addedSugarCounts', 'fruitDoesNotCount']);
+  const [inviteChoice, setInviteChoice] = useState<'yes' | 'no' | null>(null);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [challengeId, setChallengeId] = useState<string | null>(null);
+  const [codeCopied, setCodeCopied] = useState(false);
 
   const handleNext = () => {
-    if (step < 4) {
+    if (step < 5) {
       setStep(step + 1);
-    } else {
-      handleComplete();
     }
   };
 
@@ -41,7 +43,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
     }
   };
 
-  const handleComplete = async () => {
+  const handleCreateChallenge = async () => {
     setLoading(true);
     try {
       // Create personal challenge with selected rules
@@ -49,28 +51,57 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
       
       if (result.error) {
         console.error('Failed to create personal challenge:', result.error);
-        // Even if challenge creation fails, proceed
+        setLoading(false);
+        return;
       }
       
-      // Mark onboarding as completed (done via server action)
-      const response = await fetch('/api/complete-onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      
-      if (!response.ok) {
-        console.error('Failed to mark onboarding as complete');
+      if (result.challengeId) {
+        setChallengeId(result.challengeId);
+        setLoading(false);
+        setStep(5); // Go to invite step
       }
-      
-      // Redirect to dashboard
-      router.push(`/${locale}/dashboard`);
-      router.refresh();
     } catch (error) {
-      console.error('Error completing onboarding:', error);
-      // Proceed anyway
-      router.push(`/${locale}/dashboard`);
-      router.refresh();
+      console.error('Error creating challenge:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleInviteFriends = async () => {
+    if (!challengeId) return;
+    
+    setLoading(true);
+    // Upgrade challenge to GROUP and generate invite
+    const result = await upgradeToGroupChallenge(challengeId);
+    
+    if (result.success && result.inviteCode) {
+      setInviteCode(result.inviteCode);
+      setInviteChoice('yes');
+    }
+    setLoading(false);
+  };
+
+  const handleSkipInvite = async () => {
+    setInviteChoice('no');
+    await handleFinishOnboarding();
+  };
+
+  const handleFinishOnboarding = async () => {
+    // Mark onboarding as completed
+    await fetch('/api/complete-onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    
+    router.push(`/${locale}/dashboard`);
+    router.refresh();
+  };
+
+  const handleCopyCode = () => {
+    if (inviteCode) {
+      navigator.clipboard.writeText(inviteCode);
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
     }
   };
 
@@ -79,7 +110,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
       <div className="max-w-2xl w-full h-fit bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12">
         {/* Progress Indicator */}
         <div className="flex justify-center gap-2 mb-8">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
               className={`h-2 w-16 rounded-full transition-colors ${
@@ -362,11 +393,87 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
                 {tCommon('back')}
               </button>
               <button
-                onClick={handleComplete}
+                onClick={handleCreateChallenge}
                 disabled={loading}
-                className="px-8 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-semibold text-lg transition-colors min-h-[56px] min-w-[56px]"
+                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg font-semibold text-lg transition-colors min-h-[56px] min-w-[56px]"
               >
-                {loading ? t('creatingChallenge') : t('letsGo')}
+                {loading ? t('creatingChallenge') : tCommon('next')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: Invite Friends (Optional) */}
+        {step === 5 && !inviteChoice && (
+          <div className="text-center space-y-6 animate-fade-in min-h-[400px] flex flex-col justify-between">
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+                {t('inviteFriends')}
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300">
+                {t('inviteFriendsDescription')}
+              </p>
+              
+              <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-8 my-8">
+                <div className="text-6xl mb-4">👥</div>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Challenge friends, compare streaks, and stay motivated together!
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 pt-4">
+              <button
+                onClick={handleInviteFriends}
+                disabled={loading}
+                className="px-8 py-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg font-semibold text-lg transition-colors min-h-[56px]"
+              >
+                {loading ? t('generatingInvite') : t('inviteFriendsYes')}
+              </button>
+              <button
+                onClick={handleSkipInvite}
+                className="px-8 py-4 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg font-semibold text-lg transition-colors min-h-[56px]"
+              >
+                {t('inviteFriendsSkip')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 5b: Show Invite Code if generated */}
+        {step === 5 && inviteChoice === 'yes' && inviteCode && (
+          <div className="text-center space-y-6 animate-fade-in min-h-[400px] flex flex-col justify-between">
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+                {t('inviteCodeReady')}
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300">
+                {t('inviteCodeReadyDescription')}
+              </p>
+              
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-8 my-8">
+                <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                  {t('inviteCodeLabel')}
+                </p>
+                <code className="text-4xl font-mono font-bold text-blue-600 dark:text-blue-400">
+                  {inviteCode}
+                </code>
+              </div>
+              
+              <button
+                onClick={handleCopyCode}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+              >
+                {codeCopied ? t('codeCopied') : t('copyCode')}
+              </button>
+            </div>
+
+            <div className="pt-4">
+              <button
+                onClick={handleFinishOnboarding}
+                className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-lg transition-colors min-h-[56px]"
+              >
+                {t('letsGo')}
               </button>
             </div>
           </div>

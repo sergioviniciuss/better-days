@@ -328,3 +328,63 @@ export async function createPersonalChallenge(userId: string, rules: string[] = 
     return { error: 'Failed to create personal challenge' };
   }
 }
+
+export async function upgradeToGroupChallenge(challengeId: string) {
+  try {
+    const supabase = await createClient();
+    
+    // Generate unique invite code
+    let inviteCode: string = generateInviteCode();
+    let isUnique = false;
+    let attempts = 0;
+    
+    while (!isUnique && attempts < 10) {
+      const { data: existing } = await supabase
+        .from('Invite')
+        .select('code')
+        .eq('code', inviteCode)
+        .single();
+      
+      if (!existing) {
+        isUnique = true;
+      } else {
+        inviteCode = generateInviteCode();
+      }
+      attempts++;
+    }
+
+    if (!isUnique) {
+      return { error: 'Failed to generate unique invite code' };
+    }
+
+    // Update challenge to GROUP type
+    const { error: updateError } = await supabase
+      .from('Challenge')
+      .update({ challengeType: 'GROUP' })
+      .eq('id', challengeId);
+
+    if (updateError) {
+      console.error('Error upgrading challenge:', updateError);
+      return { error: 'Failed to upgrade challenge' };
+    }
+
+    // Create invite
+    const { error: inviteError } = await supabase
+      .from('Invite')
+      .insert({
+        challengeId,
+        code: inviteCode,
+        createdAt: new Date().toISOString(),
+      });
+
+    if (inviteError) {
+      console.error('Error creating invite:', inviteError);
+      return { error: 'Failed to create invite' };
+    }
+
+    return { success: true, inviteCode };
+  } catch (error) {
+    console.error('Error upgrading challenge:', error);
+    return { error: 'Failed to upgrade challenge' };
+  }
+}
