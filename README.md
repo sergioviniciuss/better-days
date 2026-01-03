@@ -1,7 +1,6 @@
 # Better Days - Sugar-Free Streaks App
 
 [![CI](https://github.com/sergioviniciuss/betterDays/actions/workflows/ci.yml/badge.svg)](https://github.com/sergioviniciuss/betterDays/actions/workflows/ci.yml)
-[![Deploy to Production](https://github.com/sergioviniciuss/betterDays/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/sergioviniciuss/betterDays/actions/workflows/deploy-production.yml)
 
 A web application to track sugar-free streaks with group challenges and light competition.
 
