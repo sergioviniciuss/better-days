@@ -15,6 +15,7 @@ interface User {
 interface Challenge {
   id: string;
   name: string;
+  challengeType?: string;
   startDate: string;
   rules: string[];
   owner: {
@@ -190,28 +191,30 @@ export function ChallengeDetailContent({
         </div>
       </div>
 
-      {/* Invite Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          {t('inviteSection')}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          {t('inviteDescription')}
-        </p>
-        <div className="flex items-center gap-4">
-          <div className="flex-1 bg-gray-50 dark:bg-gray-700 rounded-md p-3">
-            <code className="text-lg font-mono text-gray-900 dark:text-white">
-              {inviteCode}
-            </code>
+      {/* Invite Section - Only show for GROUP challenges */}
+      {challenge.challengeType === 'GROUP' && inviteCode && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            {t('inviteSection')}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            {t('inviteDescription')}
+          </p>
+          <div className="flex items-center gap-4">
+            <div className="flex-1 bg-gray-50 dark:bg-gray-700 rounded-md p-3">
+              <code className="text-lg font-mono text-gray-900 dark:text-white">
+                {inviteCode}
+              </code>
+            </div>
+            <button
+              onClick={copyInviteLink}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium min-h-[44px]"
+            >
+              {inviteLinkCopied ? 'Copied!' : 'Copy Link'}
+            </button>
           </div>
-          <button
-            onClick={copyInviteLink}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium min-h-[44px]"
-          >
-            {inviteLinkCopied ? 'Copied!' : 'Copy Link'}
-          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

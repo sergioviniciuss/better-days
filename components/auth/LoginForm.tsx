@@ -33,16 +33,16 @@ export function LoginForm() {
           return;
         }
         
-        // Wait a moment for cookies to be set, then redirect
+        // After signup, redirect to onboarding
         await new Promise(resolve => setTimeout(resolve, 100));
-        window.location.href = `/${locale}/dashboard`;
+        window.location.href = `/${locale}/onboarding`;
       } else {
         // Use client-side Supabase for login (properly sets cookies)
         const supabase = createClient();
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
         
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -53,10 +53,24 @@ export function LoginForm() {
           return;
         }
         
-        // Success - redirect
+        // Check if user has completed onboarding
         const locale = localStorage.getItem('locale') || 'en';
-        router.push(`/${locale}/dashboard`);
-        router.refresh();
+        
+        if (data.user) {
+          const { data: userData } = await supabase
+            .from('User')
+            .select('hasCompletedOnboarding')
+            .eq('id', data.user.id)
+            .single();
+          
+          // Redirect based on onboarding status
+          if (userData?.hasCompletedOnboarding) {
+            router.push(`/${locale}/dashboard`);
+          } else {
+            router.push(`/${locale}/onboarding`);
+          }
+          router.refresh();
+        }
       }
     } catch (err) {
       setError(t('loginError'));

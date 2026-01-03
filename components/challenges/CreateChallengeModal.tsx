@@ -117,11 +117,30 @@ export function CreateChallengeModal({ onClose, userTimezone }: CreateChallengeM
                   <input
                     type="checkbox"
                     name="missingDaysPending"
-                    defaultChecked
                     className="mr-2 h-5 w-5"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
                     {t('missingDaysPending')}
+                  </span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="processedSugarOnly"
+                    className="mr-2 h-5 w-5"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {t('processedSugarOnly')}
+                  </span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="alcoholPermitted"
+                    className="mr-2 h-5 w-5"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {t('alcoholPermitted')}
                   </span>
                 </label>
               </div>
