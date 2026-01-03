@@ -23,7 +23,7 @@ export function Navigation() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
             <Link href={`/${locale}/dashboard`} className="text-xl font-bold text-gray-900 dark:text-white">
-              Better Days
+              Better Habits
             </Link>
             <div className="hidden md:flex space-x-4">
               {navItems.map((item) => (
