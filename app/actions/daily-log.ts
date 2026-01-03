@@ -1,6 +1,6 @@
 'use server';
 
-import { prisma } from '@/lib/prisma/client';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
 import { getTodayInTimezone } from '@/lib/date-utils';
 import { revalidatePath } from 'next/cache';
@@ -12,25 +12,49 @@ export async function confirmDay(date: string, consumedSugar: boolean) {
   }
 
   try {
-    await prisma.dailyLog.upsert({
-      where: {
-        userId_date: {
+    const supabase = await createClient();
+
+    // Check if log exists
+    const { data: existing } = await supabase
+      .from('DailyLog')
+      .select('*')
+      .eq('userId', user.id)
+      .eq('date', date)
+      .single();
+
+    if (existing) {
+      // Update existing log
+      const { error } = await supabase
+        .from('DailyLog')
+        .update({
+          consumedSugar,
+          confirmedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
+        .eq('id', existing.id);
+
+      if (error) {
+        console.error('Error updating day:', error);
+        return { error: 'Failed to confirm day' };
+      }
+    } else {
+      // Create new log
+      const { error } = await supabase
+        .from('DailyLog')
+        .insert({
           userId: user.id,
           date,
-        },
-      },
-      update: {
-        consumedSugar,
-        confirmedAt: new Date(),
-        updatedAt: new Date(),
-      },
-      create: {
-        userId: user.id,
-        date,
-        consumedSugar,
-        confirmedAt: new Date(),
-      },
-    });
+          consumedSugar,
+          confirmedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+
+      if (error) {
+        console.error('Error creating day:', error);
+        return { error: 'Failed to confirm day' };
+      }
+    }
 
     revalidatePath('/dashboard');
     return { success: true };
@@ -49,25 +73,7 @@ export async function confirmMultipleDays(confirmations: Array<{ date: string; c
   try {
     await Promise.all(
       confirmations.map(({ date, consumedSugar }) =>
-        prisma.dailyLog.upsert({
-          where: {
-            userId_date: {
-              userId: user.id,
-              date,
-            },
-          },
-          update: {
-            consumedSugar,
-            confirmedAt: new Date(),
-            updatedAt: new Date(),
-          },
-          create: {
-            userId: user.id,
-            date,
-            consumedSugar,
-            confirmedAt: new Date(),
-          },
-        })
+        confirmDay(date, consumedSugar)
       )
     );
 
@@ -86,12 +92,20 @@ export async function getDailyLogs() {
   }
 
   try {
-    const logs = await prisma.dailyLog.findMany({
-      where: { userId: user.id },
-      orderBy: { date: 'desc' },
-    });
+    const supabase = await createClient();
 
-    return { logs };
+    const { data: logs, error } = await supabase
+      .from('DailyLog')
+      .select('*')
+      .eq('userId', user.id)
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching daily logs:', error);
+      return { error: 'Failed to fetch logs', logs: [] };
+    }
+
+    return { logs: logs || [] };
   } catch (error) {
     console.error('Error fetching daily logs:', error);
     return { error: 'Failed to fetch logs', logs: [] };
@@ -107,16 +121,21 @@ export async function getTodayLog() {
   const today = getTodayInTimezone(user.timezone);
 
   try {
-    const log = await prisma.dailyLog.findUnique({
-      where: {
-        userId_date: {
-          userId: user.id,
-          date: today,
-        },
-      },
-    });
+    const supabase = await createClient();
 
-    return { log };
+    const { data: log, error } = await supabase
+      .from('DailyLog')
+      .select('*')
+      .eq('userId', user.id)
+      .eq('date', today)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Error fetching today log:', error);
+      return { error: 'Failed to fetch today log', log: null };
+    }
+
+    return { log: log || null };
   } catch (error) {
     console.error('Error fetching today log:', error);
     return { error: 'Failed to fetch today log', log: null };

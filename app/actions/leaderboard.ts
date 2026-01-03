@@ -1,6 +1,6 @@
 'use server';
 
-import { prisma } from '@/lib/prisma/client';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
 import { calculateStreaks, detectPendingDays, type DailyLog as StreakDailyLog } from '@/lib/streak-utils';
 
@@ -11,35 +11,39 @@ export async function getChallengeLeaderboard(challengeId: string) {
   }
 
   try {
-    // Get challenge and members
-    const challenge = await prisma.challenge.findUnique({
-      where: { id: challengeId },
-      include: {
-        members: {
-          include: {
-            user: true,
-          },
-        },
-      },
-    });
+    const supabase = await createClient();
 
-    if (!challenge) {
+    // Get challenge and members
+    const { data: challenge, error: challengeError } = await supabase
+      .from('Challenge')
+      .select(`
+        *,
+        members:ChallengeMember(*, user:User(*))
+      `)
+      .eq('id', challengeId)
+      .single();
+
+    if (challengeError || !challenge) {
       return { error: 'Challenge not found', leaderboard: [] };
     }
 
     // Get all daily logs for all members since challenge start date
-    const memberIds = challenge.members.map((m) => m.userId);
-    const allLogs = await prisma.dailyLog.findMany({
-      where: {
-        userId: { in: memberIds },
-        date: { gte: challenge.startDate },
-      },
-      orderBy: { date: 'desc' },
-    });
+    const memberIds = challenge.members.map((m: any) => m.userId);
+    const { data: allLogs, error: logsError } = await supabase
+      .from('DailyLog')
+      .select('*')
+      .in('userId', memberIds)
+      .gte('date', challenge.startDate)
+      .order('date', { ascending: false });
+
+    if (logsError) {
+      console.error('Error fetching logs:', logsError);
+      return { error: 'Failed to fetch logs', leaderboard: [] };
+    }
 
     // Calculate streaks for each member
-    const leaderboard = challenge.members.map((member) => {
-      const userLogs = allLogs
+    const leaderboard = challenge.members.map((member: any) => {
+      const userLogs = (allLogs || [])
         .filter((log) => log.userId === member.userId)
         .map((log) => ({
           date: log.date,
@@ -63,7 +67,7 @@ export async function getChallengeLeaderboard(challengeId: string) {
     });
 
     // Sort by current streak (desc), then best streak (desc)
-    leaderboard.sort((a, b) => {
+    leaderboard.sort((a: any, b: any) => {
       if (a.currentStreak !== b.currentStreak) {
         return b.currentStreak - a.currentStreak;
       }
