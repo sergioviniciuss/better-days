@@ -1,6 +1,8 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma/client';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -12,6 +14,7 @@ export async function signUp(formData: FormData) {
   const password = formData.get('password') as string;
   const timezone = formData.get('timezone') as string || 'UTC';
   const preferredLanguage = formData.get('preferredLanguage') as string || 'en';
+  const locale = formData.get('locale') as string || 'en';
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -23,19 +26,44 @@ export async function signUp(formData: FormData) {
   }
 
   if (data.user) {
-    // Create user record in database
-    try {
-      await prisma.user.create({
-        data: {
-          id: data.user.id,
-          email: data.user.email!,
-          timezone,
-          preferredLanguage,
+    // Create user record in database using service role key (bypasses RLS)
+    const cookieStore = await cookies();
+    const supabaseAdmin = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Ignore
+            }
+          },
         },
+      }
+    );
+
+    const { error: dbError } = await supabaseAdmin
+      .from('User')
+      .upsert({
+        id: data.user.id,
+        email: data.user.email!,
+        timezone,
+        preferredLanguage,
+        createdAt: new Date().toISOString(),
+      }, {
+        onConflict: 'id'
       });
-    } catch (dbError) {
+
+    if (dbError) {
       console.error('Error creating user:', dbError);
-      return { error: 'Failed to create user profile' };
+      return { error: 'Failed to create user profile: ' + dbError.message };
     }
   }
 
@@ -49,13 +77,69 @@ export async function signIn(formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
+  console.log('[SignIn] Result:', {
+    hasUser: !!data.user,
+    userId: data.user?.id,
+    hasSession: !!data.session,
+    accessToken: data.session?.access_token?.substring(0, 20),
+    error: error?.message,
+  });
+
   if (error) {
+    console.error('[SignIn] Auth error:', error);
     return { error: error.message };
+  }
+
+  if (!data.session) {
+    console.error('[SignIn] No session returned');
+    return { error: 'No session created' };
+  }
+
+  // Check if user profile exists, create it if not
+  if (data.user) {
+    const { data: existingUser } = await supabase
+      .from('User')
+      .select('id')
+      .eq('id', data.user.id)
+      .single();
+
+    if (!existingUser) {
+      // Create missing user profile using service role key
+      const cookieStore = await cookies();
+      const supabaseAdmin = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          cookies: {
+            getAll() {
+              return cookieStore.getAll();
+            },
+            setAll(cookiesToSet) {
+              try {
+                cookiesToSet.forEach(({ name, value, options }) =>
+                  cookieStore.set(name, value, options)
+                );
+              } catch {
+                // Ignore
+              }
+            },
+          },
+        }
+      );
+
+      await supabaseAdmin.from('User').insert({
+        id: data.user.id,
+        email: data.user.email!,
+        timezone: 'UTC',
+        preferredLanguage: 'en',
+        createdAt: new Date().toISOString(),
+      });
+    }
   }
 
   revalidatePath('/', 'layout');
@@ -79,9 +163,17 @@ export async function getCurrentUser() {
     return null;
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-  });
+  // Get user from database using Supabase client
+  const { data: dbUser, error } = await supabase
+    .from('User')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching user:', error);
+    return null;
+  }
 
   return dbUser;
 }

@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { signIn, signUp } from '@/app/actions/auth';
+import { signUp } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 export function LoginForm() {
   const t = useTranslations('auth');
@@ -18,36 +19,36 @@ export function LoginForm() {
 
     try {
       if (isSignUp) {
-        // Get timezone
+        // Get timezone and locale
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const preferredLanguage = localStorage.getItem('locale') || 'en';
+        const locale = localStorage.getItem('locale') || 'en';
         
         formData.append('timezone', timezone);
-        formData.append('preferredLanguage', preferredLanguage);
+        formData.append('preferredLanguage', locale);
         
         const result = await signUp(formData);
-        if (result.error) {
-          setError(result.error);
-          setLoading(false);
-          return;
-        }
-        
-        // Sign up successful, now sign in
-        const signInResult = await signIn(formData);
-        if (signInResult?.error) {
-          setError(signInResult.error);
-          setLoading(false);
-          return;
-        }
-        
-        // Success - redirect
-        const locale = localStorage.getItem('locale') || 'en';
-        router.push(`/${locale}/dashboard`);
-        router.refresh();
-      } else {
-        const result = await signIn(formData);
         if (result?.error) {
           setError(result.error);
+          setLoading(false);
+          return;
+        }
+        
+        // Wait a moment for cookies to be set, then redirect
+        await new Promise(resolve => setTimeout(resolve, 100));
+        window.location.href = `/${locale}/dashboard`;
+      } else {
+        // Use client-side Supabase for login (properly sets cookies)
+        const supabase = createClient();
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+        
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (signInError) {
+          setError(signInError.message);
           setLoading(false);
           return;
         }
