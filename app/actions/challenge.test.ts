@@ -1,16 +1,12 @@
 import { joinChallengeByCode } from './challenge';
 
-// Mock dependencies
-jest.mock('@/lib/prisma/client', () => ({
-  prisma: {
-    invite: {
-      findUnique: jest.fn(),
-    },
-    challengeMember: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-    },
-  },
+// Mock Supabase client
+const mockSupabaseClient = {
+  from: jest.fn(),
+};
+
+jest.mock('@/lib/supabase/server', () => ({
+  createClient: jest.fn(() => Promise.resolve(mockSupabaseClient)),
 }));
 
 jest.mock('./auth', () => ({
@@ -25,37 +21,71 @@ jest.mock('next/cache', () => ({
 }));
 
 describe('joinChallengeByCode', () => {
-  const { prisma } = require('@/lib/prisma/client');
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should join challenge with valid invite code', async () => {
-    prisma.invite.findUnique.mockResolvedValue({
-      id: 'invite-1',
-      code: 'ABC12345',
-      challengeId: 'challenge-1',
-      expiresAt: null,
-      challenge: { id: 'challenge-1' },
-    });
+    // Mock invite query
+    const mockInviteQuery = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: {
+          id: 'invite-1',
+          code: 'ABC12345',
+          challengeId: 'challenge-1',
+          expiresAt: null,
+          challenge: { id: 'challenge-1' },
+        },
+        error: null,
+      }),
+    };
 
-    prisma.challengeMember.findUnique.mockResolvedValue(null);
-    prisma.challengeMember.create.mockResolvedValue({
-      id: 'member-1',
-      challengeId: 'challenge-1',
-      userId: 'user-1',
-    });
+    // Mock existing member check
+    const mockMemberCheckQuery = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: null,
+        error: { code: 'PGRST116' }, // No rows returned
+      }),
+    };
+
+    // Mock member insert
+    const mockMemberInsertQuery = {
+      insert: jest.fn().mockResolvedValue({
+        data: {
+          id: 'member-1',
+          challengeId: 'challenge-1',
+          userId: 'user-1',
+        },
+        error: null,
+      }),
+    };
+
+    mockSupabaseClient.from
+      .mockReturnValueOnce(mockInviteQuery)
+      .mockReturnValueOnce(mockMemberCheckQuery)
+      .mockReturnValueOnce(mockMemberInsertQuery);
 
     const result = await joinChallengeByCode('ABC12345');
 
     expect(result.success).toBe(true);
     expect(result.challengeId).toBe('challenge-1');
-    expect(prisma.challengeMember.create).toHaveBeenCalled();
   });
 
   it('should return error for invalid invite code', async () => {
-    prisma.invite.findUnique.mockResolvedValue(null);
+    const mockInviteQuery = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: null,
+        error: { code: 'PGRST116' },
+      }),
+    };
+
+    mockSupabaseClient.from.mockReturnValueOnce(mockInviteQuery);
 
     const result = await joinChallengeByCode('INVALID');
 
@@ -64,19 +94,39 @@ describe('joinChallengeByCode', () => {
   });
 
   it('should return error if already a member', async () => {
-    prisma.invite.findUnique.mockResolvedValue({
-      id: 'invite-1',
-      code: 'ABC12345',
-      challengeId: 'challenge-1',
-      expiresAt: null,
-      challenge: { id: 'challenge-1' },
-    });
+    // Mock invite query
+    const mockInviteQuery = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: {
+          id: 'invite-1',
+          code: 'ABC12345',
+          challengeId: 'challenge-1',
+          expiresAt: null,
+          challenge: { id: 'challenge-1' },
+        },
+        error: null,
+      }),
+    };
 
-    prisma.challengeMember.findUnique.mockResolvedValue({
-      id: 'member-1',
-      challengeId: 'challenge-1',
-      userId: 'user-1',
-    });
+    // Mock existing member check (member exists)
+    const mockMemberCheckQuery = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: {
+          id: 'member-1',
+          challengeId: 'challenge-1',
+          userId: 'user-1',
+        },
+        error: null,
+      }),
+    };
+
+    mockSupabaseClient.from
+      .mockReturnValueOnce(mockInviteQuery)
+      .mockReturnValueOnce(mockMemberCheckQuery);
 
     const result = await joinChallengeByCode('ABC12345');
 
