@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-export type ChallengeType = 'NO_SUGAR_STREAK' | 'EXERCISE' | 'READING' | 'MEDITATION';
+export type ChallengeType = 'NO_SUGAR_STREAK' | 'ZERO_ALCOHOL' | 'DAILY_EXERCISE' | 'READING' | 'MEDITATION';
 
 interface ChallengeIconConfig {
   image?: string;
@@ -14,11 +14,16 @@ const CHALLENGE_ICONS: Record<ChallengeType, ChallengeIconConfig> = {
     emoji: '🍬',
     alt: 'No Sugar Challenge'
   },
-  // Future challenge types can be added here
-  EXERCISE: {
-    emoji: '💪',
-    alt: 'Exercise Challenge'
+  ZERO_ALCOHOL: {
+    image: '/images/challenges/zero-alcohol.png',
+    emoji: '🚫',
+    alt: 'Zero Alcohol Challenge'
   },
+  DAILY_EXERCISE: {
+    emoji: '💪',
+    alt: 'Daily Exercise Challenge'
+  },
+  // Future challenge types can be added here
   READING: {
     emoji: '📚',
     alt: 'Reading Challenge'
