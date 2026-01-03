@@ -1,6 +1,7 @@
 # Better Habits - Habit Challenge Tracker
 
 [![CI](https://github.com/sergioviniciuss/better-days/actions/workflows/ci.yml/badge.svg)](https://github.com/sergioviniciuss/better-days/actions/workflows/ci.yml)
+![Coverage](https://img.shields.io/badge/coverage-check%20actions-blue)
 
 A web application to track daily habits through challenges with friends. Build streaks for habits like staying sugar-free, alcohol-free, or exercising daily. Compete on leaderboards and maintain accountability with group challenges.
 
