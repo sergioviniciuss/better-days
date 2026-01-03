@@ -84,4 +84,3 @@ export function getDaysAgoInTimezone(timezone: string, days: number): string {
   const date = subDays(new Date(), days);
   return formatInTimeZone(date, timezone, 'yyyy-MM-dd');
 }
-

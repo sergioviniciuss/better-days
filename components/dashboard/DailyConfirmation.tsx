@@ -42,4 +42,3 @@ export function DailyConfirmation({ onConfirm, loading }: DailyConfirmationProps
     </div>
   );
 }
-

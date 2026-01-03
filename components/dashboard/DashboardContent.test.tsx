@@ -59,4 +59,3 @@ describe('DashboardContent', () => {
     expect(screen.getByText(/pendingDays/i)).toBeInTheDocument();
   });
 });
-

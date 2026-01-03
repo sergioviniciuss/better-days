@@ -76,4 +76,3 @@ export async function getChallengeLeaderboard(challengeId: string) {
     return { error: 'Failed to fetch leaderboard', leaderboard: [] };
   }
 }
-

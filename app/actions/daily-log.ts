@@ -122,4 +122,3 @@ export async function getTodayLog() {
     return { error: 'Failed to fetch today log', log: null };
   }
 }
-

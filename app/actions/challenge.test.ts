@@ -84,4 +84,3 @@ describe('joinChallengeByCode', () => {
     expect(result.challengeId).toBe('challenge-1');
   });
 });
-

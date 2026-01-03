@@ -75,4 +75,3 @@ describe('streak-utils', () => {
     });
   });
 });
-

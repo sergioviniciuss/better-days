@@ -239,4 +239,3 @@ export async function joinChallengeByCode(inviteCode: string) {
     return { error: 'Failed to join challenge' };
   }
 }
-

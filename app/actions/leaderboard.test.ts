@@ -98,4 +98,3 @@ describe('getChallengeLeaderboard', () => {
     expect(result.leaderboard.length).toBe(2);
   });
 });
-

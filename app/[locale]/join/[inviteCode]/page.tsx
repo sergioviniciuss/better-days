@@ -28,4 +28,3 @@ export default async function JoinChallengePage({
 
   return <JoinChallengeContent error="Failed to join challenge" inviteCode={inviteCode} />;
 }
-

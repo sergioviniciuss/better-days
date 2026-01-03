@@ -78,4 +78,3 @@ model Invite {
   @@index([code])
   @@index([challengeId])
 }
-

@@ -19,4 +19,3 @@ export default async function HistoryPage({
 
   return <HistoryContent logs={logs} />;
 }
-
