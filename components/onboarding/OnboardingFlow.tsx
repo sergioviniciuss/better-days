@@ -99,7 +99,10 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
 
   const handleCopyCode = () => {
     if (inviteCode) {
-      navigator.clipboard.writeText(inviteCode);
+      const inviteUrl = typeof window !== 'undefined' && window.location?.origin
+        ? `${window.location.origin}/${locale}/join/${inviteCode}`
+        : inviteCode;
+      navigator.clipboard.writeText(inviteUrl);
       setCodeCopied(true);
       setTimeout(() => setCodeCopied(false), 2000);
     }
