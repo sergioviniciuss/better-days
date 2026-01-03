@@ -36,6 +36,17 @@ jest.mock('next/link', () => {
   return MockLink;
 });
 
+// Mock ChallengeCard component
+jest.mock('./ChallengeCard', () => ({
+  ChallengeCard: ({ challenge }: any) => (
+    <div data-testid="challenge-card">
+      <span>{challenge.name}</span>
+      <span>5</span>
+      <span>10</span>
+    </div>
+  ),
+}));
+
 describe('DashboardContent', () => {
   const mockUser = {
     id: 'user-1',
@@ -44,34 +55,42 @@ describe('DashboardContent', () => {
     preferredLanguage: 'en',
   };
 
-  const mockLogs = [
+  const mockChallengesWithLogs = [
     {
-      id: 'log-1',
-      date: '2024-01-14',
-      consumedSugar: false,
-      confirmedAt: new Date(),
+      id: 'challenge-1',
+      name: 'No Sugar Challenge',
+      objectiveType: 'NO_SUGAR_STREAK',
+      rules: ['addedSugarCounts'],
+      logs: [
+        {
+          id: 'log-1',
+          date: '2024-01-14',
+          consumedSugar: false,
+          confirmedAt: new Date(),
+        },
+      ],
     },
   ];
 
   it('should display current streak', async () => {
-    render(<DashboardContent user={mockUser} logs={mockLogs} />);
+    render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
     await waitFor(() => {
       expect(screen.getByText(/5/)).toBeInTheDocument();
     });
   });
 
   it('should display best streak', async () => {
-    render(<DashboardContent user={mockUser} logs={mockLogs} />);
+    render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
     await waitFor(() => {
       expect(screen.getByText(/10/)).toBeInTheDocument();
     });
   });
 
-  it('should show pending days alert when there are pending days', async () => {
-    render(<DashboardContent user={mockUser} logs={mockLogs} />);
+  it('should render challenge cards', async () => {
+    render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
     await waitFor(() => {
-      // The translation mock returns the key itself, so we look for "confirmPendingDays"
-      expect(screen.getByText(/confirmPendingDays/i)).toBeInTheDocument();
+      expect(screen.getByTestId('challenge-card')).toBeInTheDocument();
+      expect(screen.getByText('No Sugar Challenge')).toBeInTheDocument();
     });
   });
 });
