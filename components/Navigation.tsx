@@ -6,7 +6,11 @@ import { useTranslations } from 'next-intl';
 import { signOut } from '@/app/actions/auth';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
-export function Navigation() {
+interface NavigationProps {
+  userEmail?: string | null;
+}
+
+export function Navigation({ userEmail }: NavigationProps) {
   const t = useTranslations('common');
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'en';
@@ -43,6 +47,11 @@ export function Navigation() {
           </div>
           <div className="flex items-center space-x-4">
             <LanguageSwitcher />
+            {userEmail && (
+              <span className="hidden sm:inline-block text-sm text-gray-600 dark:text-gray-400 truncate max-w-[200px]">
+                {userEmail}
+              </span>
+            )}
             <form action={signOut}>
               <button
                 type="submit"
