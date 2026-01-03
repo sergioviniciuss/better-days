@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import Link from 'next/link';
-import { CreateChallengeModal } from './CreateChallengeModal';
+import { CreateChallengeWizard } from './CreateChallengeWizard';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 
 interface User {
@@ -93,7 +93,7 @@ export function ChallengesContent({ user, challenges }: ChallengesContentProps) 
       )}
 
       {showCreateModal && (
-        <CreateChallengeModal
+        <CreateChallengeWizard
           onClose={() => setShowCreateModal(false)}
           userTimezone={user.timezone}
         />

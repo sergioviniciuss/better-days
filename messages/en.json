@@ -153,6 +153,44 @@
     "skip": "Skip",
     "creatingChallenge": "Creating your personal challenge..."
   },
+  "challengeConfirmation": {
+    "noAlcohol": "No Alcohol",
+    "consumedAlcohol": "Consumed Alcohol",
+    "exercised": "Exercised",
+    "skippedExercise": "Skipped Exercise",
+    "success": "Success",
+    "failed": "Failed"
+  },
+  "challengeTypes": {
+    "noSugar": {
+      "name": "No Sugar Challenge",
+      "description": "Track sugar-free days and build streaks",
+      "suggestedName": "My No Sugar Journey"
+    },
+    "zeroAlcohol": {
+      "name": "Zero Alcohol Challenge",
+      "description": "Stay sober and track alcohol-free days",
+      "suggestedName": "My Sober Journey"
+    },
+    "dailyExercise": {
+      "name": "Daily Exercise Challenge",
+      "description": "Build a habit of daily physical activity",
+      "suggestedName": "My Fitness Challenge"
+    }
+  },
+  "createChallengeWizard": {
+    "step1Title": "Choose Challenge Type",
+    "step1Description": "What habit do you want to track?",
+    "step2Title": "Name Your Challenge",
+    "step2Description": "Give your challenge a personal name",
+    "step3Title": "Customize Rules",
+    "step3Description": "Fine-tune the rules for your challenge",
+    "selectType": "Select a challenge type",
+    "next": "Next",
+    "back": "Back",
+    "create": "Create Challenge",
+    "creating": "Creating..."
+  },
   "errors": {
     "generic": "Something went wrong",
     "notFound": "Not found",

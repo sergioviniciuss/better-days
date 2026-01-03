@@ -26,6 +26,7 @@ model User {
 model DailyLog {
   id           String    @id @default(uuid())
   userId       String
+  challengeId  String
   date         String // YYYY-MM-DD in user timezone
   consumedSugar Boolean
   confirmedAt  DateTime?
@@ -33,9 +34,10 @@ model DailyLog {
   updatedAt    DateTime  @updatedAt
 
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge    Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, date])
-  @@index([userId, date])
+  @@unique([userId, challengeId, date])
+  @@index([userId, challengeId, date])
 }
 
 model Challenge {
@@ -51,6 +53,7 @@ model Challenge {
   owner         User      @relation("ChallengeOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
   members       ChallengeMember[]
   invites       Invite[]
+  dailyLogs     DailyLog[]
 }
 
 model ChallengeMember {
