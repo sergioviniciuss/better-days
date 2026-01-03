@@ -63,6 +63,8 @@
     "addedSugarCounts": "Added sugar counts as failure",
     "fruitDoesNotCount": "Fruit does not count as sugar",
     "missingDaysPending": "Missing days remain pending until confirmed",
+    "processedSugarOnly": "Only processed sugar counts",
+    "alcoholPermitted": "Alcohol is permitted",
     "inviteCode": "Invite Code",
     "copyInviteLink": "Copy Invite Link",
     "inviteLinkCopied": "Invite link copied!",
