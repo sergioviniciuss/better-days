@@ -152,7 +152,7 @@ yarn test
 
 ### 🚀 Deploy to Vercel
 
-**Easy deployment via GitHub integration - no CLI required!**
+
 
 1. Go to [vercel.com/new](https://vercel.com/new)
 2. Click "Import Project" and connect your GitHub repository
@@ -190,7 +190,6 @@ This project uses GitHub Actions for continuous integration:
 ### Additional Resources
 
 - **Detailed Deployment Guide**: [.github/DEPLOYMENT.md](.github/DEPLOYMENT.md)
-- **Setup Checklist**: [.github/SETUP_CHECKLIST.md](.github/SETUP_CHECKLIST.md)
 - **Supabase Setup**: [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)
 
 ## Key Features Implementation
