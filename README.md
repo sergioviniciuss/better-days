@@ -1,5 +1,8 @@
 # Better Days - Sugar-Free Streaks App
 
+[![CI](https://github.com/YOUR_USERNAME/betterDays/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/betterDays/actions/workflows/ci.yml)
+[![Deploy to Production](https://github.com/YOUR_USERNAME/betterDays/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/YOUR_USERNAME/betterDays/actions/workflows/deploy-production.yml)
+
 A web application to track sugar-free streaks with group challenges and light competition.
 
 ## Features
@@ -22,9 +25,10 @@ A web application to track sugar-free streaks with group challenges and light co
 
 ## Prerequisites
 
-- Node.js 18+ and yarn
+- Node.js 24+ and yarn
 - Supabase account (free tier)
 - PostgreSQL database (via Supabase)
+- Vercel account (for deployment)
 
 ## Setup
 
@@ -146,30 +150,56 @@ yarn test
 
 ## Deployment
 
+### 🚀 Quick Start: Deploy to Vercel (5 Minutes)
+
+**Easy deployment - no CLI required!**
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import your GitHub repository
+3. Add environment variables (see [VERCEL_SETUP.md](./VERCEL_SETUP.md))
+4. Click "Deploy"
+
+📖 **[VERCEL_SETUP.md](./VERCEL_SETUP.md)** - Complete step-by-step guide
+📋 **[DEPLOYMENT_SUMMARY.md](./DEPLOYMENT_SUMMARY.md)** - Quick reference
+
 ### Automated CI/CD Pipeline
 
 This project uses GitHub Actions for continuous integration and deployment to Vercel.
 
-**Quick Setup:**
-1. Follow the step-by-step guide in [`.github/SETUP_CHECKLIST.md`](.github/SETUP_CHECKLIST.md)
-2. See detailed documentation in [`.github/DEPLOYMENT.md`](.github/DEPLOYMENT.md)
-
 **What's Automated:**
 - ✅ Linting and testing on every push
 - ✅ Automatic production deployment when pushing to `main`
-- ✅ Preview deployments for pull requests
-- ✅ Code coverage reports (optional)
+- ✅ Preview deployments for pull requests with URL comments
+- ✅ Build verification before deployment
 
-### Manual Deployment to Vercel (Frontend)
+**Setup Guides:**
+1. **Quick Start**: [VERCEL_SETUP.md](./VERCEL_SETUP.md) - Streamlined setup (5-10 minutes)
+2. **Detailed Guide**: [.github/DEPLOYMENT.md](.github/DEPLOYMENT.md) - Comprehensive documentation
+3. **Checklist**: [.github/SETUP_CHECKLIST.md](.github/SETUP_CHECKLIST.md) - Step-by-step checklist
 
-1. Push your code to GitHub
-2. Import your repository in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy
+### Manual Deployment to Vercel
 
-### Supabase (Backend)
+If you prefer manual deployment:
 
-The database and authentication are already hosted on Supabase. Make sure your environment variables are set correctly in Vercel.
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy to production
+vercel --prod
+```
+
+**Required Environment Variables in Vercel:**
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `DATABASE_URL` (optional)
+
+See [VERCEL_SETUP.md](./VERCEL_SETUP.md) for detailed environment variable setup.
+
+### Supabase Backend
+
+The database and authentication are hosted on Supabase. See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for setup instructions.
 
 ## Key Features Implementation
 
