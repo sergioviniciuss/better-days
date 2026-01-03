@@ -1,0 +1,16 @@
+{
+  "buildCommand": "yarn build",
+  "framework": "nextjs",
+  "installCommand": "yarn install",
+  "devCommand": "yarn dev",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
+  "env": {
+    "SKIP_ENV_VALIDATION": "true"
+  },
+  "build": {
+    "env": {
+      "SKIP_ENV_VALIDATION": "true"
+    }
+  }
+}
+
