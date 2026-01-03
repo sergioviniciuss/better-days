@@ -22,52 +22,9 @@ async function main() {
 
   console.log(`Using user: ${existingUser.email} (${userId})`);
 
-  // Create sample daily logs
   const today = new Date();
-  const logs = [];
 
-  // Create logs for the last 30 days
-  for (let i = 0; i < 30; i++) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    const dateString = date.toISOString().split('T')[0];
-
-    // Skip some days to create gaps (pending days)
-    if (i % 7 === 0) continue; // Skip every 7th day
-
-    // Most days are no sugar, but some have consumed sugar
-    const consumedSugar = i % 10 === 0; // Every 10th day has sugar
-    const confirmedAt = i < 20 ? new Date() : null; // First 20 days are confirmed
-
-    logs.push({
-      userId,
-      date: dateString,
-      consumedSugar,
-      confirmedAt,
-    });
-  }
-
-  // Create daily logs
-  for (const log of logs) {
-    try {
-      await prisma.dailyLog.upsert({
-        where: {
-          userId_date: {
-            userId: log.userId,
-            date: log.date,
-          },
-        },
-        update: log,
-        create: log,
-      });
-    } catch (error) {
-      console.error(`Error creating log for ${log.date}:`, error);
-    }
-  }
-
-  console.log(`Created ${logs.length} daily logs`);
-
-  // Create a sample challenge
+  // Create a sample challenge first (needed for logs)
   const existingChallenge = await prisma.challenge.findFirst({
     where: { ownerUserId: userId },
   });
@@ -110,6 +67,52 @@ async function main() {
 
   console.log(`Created challenge: ${challenge.name} (${challenge.id})`);
   console.log(`Invite code: ${invite?.code || 'N/A'}`);
+
+  // Create sample daily logs for this challenge
+  const logs = [];
+
+  // Create logs for the last 30 days
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateString = date.toISOString().split('T')[0];
+
+    // Skip some days to create gaps (pending days)
+    if (i % 7 === 0) continue; // Skip every 7th day
+
+    // Most days are no sugar, but some have consumed sugar
+    const consumedSugar = i % 10 === 0; // Every 10th day has sugar
+    const confirmedAt = i < 20 ? new Date() : null; // First 20 days are confirmed
+
+    logs.push({
+      userId,
+      challengeId: challenge.id,
+      date: dateString,
+      consumedSugar,
+      confirmedAt,
+    });
+  }
+
+  // Create daily logs
+  for (const log of logs) {
+    try {
+      await prisma.dailyLog.upsert({
+        where: {
+          userId_challengeId_date: {
+            userId: log.userId,
+            challengeId: log.challengeId,
+            date: log.date,
+          },
+        },
+        update: log,
+        create: log,
+      });
+    } catch (error) {
+      console.error(`Error creating log for ${log.date}:`, error);
+    }
+  }
+
+  console.log(`Created ${logs.length} daily logs for challenge`);
 
   console.log('Seed completed!');
 }
