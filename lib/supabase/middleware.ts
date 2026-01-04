@@ -71,19 +71,6 @@ export async function updateSession(request: NextRequest) {
   const locale = isLocale ? firstPart : 'en';
   const pathWithoutLocale = isLocale ? '/' + pathParts.slice(1).join('/') : pathname;
 
-  // Debug logging
-  const authCookie = request.cookies.get('sb-hlczfedujqhdczrgaxky-auth-token');
-  console.log('[Middleware]', {
-    pathname,
-    hasSession: !!session,
-    hasUser: !!user,
-    userId: user?.id,
-    cookies: request.cookies.getAll().map(c => c.name),
-    sessionExpiry: session?.expires_at,
-    sessionError: sessionError?.message,
-    userError: userError?.message,
-    cookieLength: authCookie?.value?.length,
-  });
 
   if (
     !user &&
@@ -91,10 +78,17 @@ export async function updateSession(request: NextRequest) {
     !pathname.startsWith('/api') &&
     !pathname.startsWith('/_next')
   ) {
-    console.log('[Middleware] Redirecting to login - no user found');
     // no user, redirect to login page with locale prefix
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}/login`;
+    
+    // If redirecting from a join page, preserve the invite code
+    const joinMatch = pathWithoutLocale.match(/^\/join\/([^\/]+)/);
+    if (joinMatch) {
+      const inviteCode = joinMatch[1];
+      url.searchParams.set('invite', inviteCode);
+    }
+    
     return NextResponse.redirect(url);
   }
 

@@ -313,6 +313,65 @@ export async function getChallenge(challengeId: string) {
   }
 }
 
+export async function getChallengeByInviteCode(inviteCode: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: 'Not authenticated', challenge: null, isMember: false };
+  }
+
+  try {
+    const supabase = await createClient();
+
+    // Find invite by code
+    const { data: invite, error: inviteError } = await supabase
+      .from('Invite')
+      .select('*, challenge:Challenge(*)')
+      .eq('code', inviteCode)
+      .single();
+
+    if (inviteError || !invite) {
+      return { error: 'Invalid invite code', challenge: null, isMember: false };
+    }
+
+    // Check if invite is expired
+    if (invite.expiresAt && new Date(invite.expiresAt) < new Date()) {
+      return { error: 'Invite code has expired', challenge: null, isMember: false };
+    }
+
+    // Check if user is already a member
+    const { data: existingMember } = await supabase
+      .from('ChallengeMember')
+      .select('*')
+      .eq('challengeId', invite.challengeId)
+      .eq('userId', user.id)
+      .single();
+
+    const isMember = !!existingMember;
+
+    // Get challenge with owner, members, and invites (accessible via invite code)
+    const { data: challenge, error: challengeError } = await supabase
+      .from('Challenge')
+      .select(`
+        *,
+        owner:User!Challenge_ownerUserId_fkey(id, email),
+        members:ChallengeMember(*, user:User(id, email)),
+        invites:Invite(*)
+      `)
+      .eq('id', invite.challengeId)
+      .single();
+
+    if (challengeError || !challenge) {
+      console.error('Error fetching challenge:', challengeError);
+      return { error: 'Challenge not found', challenge: null, isMember: false };
+    }
+
+    return { challenge, isMember };
+  } catch (error) {
+    console.error('Error fetching challenge by invite code:', error);
+    return { error: 'Failed to fetch challenge', challenge: null, isMember: false };
+  }
+}
+
 export async function joinChallengeByCode(inviteCode: string) {
   const user = await getCurrentUser();
   if (!user) {

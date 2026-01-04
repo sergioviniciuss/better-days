@@ -50,6 +50,7 @@ describe('getChallengeLeaderboard', () => {
     const mockLogsQuery = {
       select: jest.fn().mockReturnThis(),
       in: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
       order: jest.fn().mockResolvedValue({
         data: [
@@ -119,6 +120,7 @@ describe('getChallengeLeaderboard', () => {
     const mockLogsQuery = {
       select: jest.fn().mockReturnThis(),
       in: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
       gte: jest.fn().mockReturnThis(),
       order: jest.fn().mockResolvedValue({
         data: [],

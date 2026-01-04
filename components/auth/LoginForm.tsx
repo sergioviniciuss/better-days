@@ -1,18 +1,46 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { signUp } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
-export function LoginForm() {
+interface LoginFormProps {
+  returnUrl?: string;
+  inviteCode?: string;
+}
+
+export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode }: LoginFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
+  
+  // Get returnUrl or invite code from sessionStorage
+  const getReturnInfo = () => {
+    if (typeof window === 'undefined') return { returnUrl: null, inviteCode: null };
+    
+    const inviteCode = sessionStorage.getItem('pendingInviteCode');
+    const returnUrl = sessionStorage.getItem('loginReturnUrl');
+    
+    return { returnUrl, inviteCode };
+  };
+  
+  // Store invite code and returnUrl in sessionStorage on mount
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    if (propInviteCode) {
+      sessionStorage.setItem('pendingInviteCode', propInviteCode);
+    }
+    
+    if (propReturnUrl) {
+      sessionStorage.setItem('loginReturnUrl', propReturnUrl);
+    }
+  }, [propReturnUrl, propInviteCode]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,15 +95,37 @@ export function LoginForm() {
             .eq('id', data.user.id)
             .single();
           
-          // Redirect based on onboarding status
-          startTransition(() => {
-            if (userData?.hasCompletedOnboarding) {
-              router.push(`/${locale}/dashboard`);
-            } else {
-              router.push(`/${locale}/onboarding`);
-            }
-            router.refresh();
-          });
+          // Redirect based on onboarding status and returnUrl
+          // Wait a bit for session cookies to be fully established before redirecting
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          // Get returnUrl or invite code from sessionStorage
+          const { returnUrl: storedReturnUrl, inviteCode: storedInviteCode } = getReturnInfo();
+          
+          // Clean up sessionStorage
+          if (storedReturnUrl) {
+            sessionStorage.removeItem('loginReturnUrl');
+          }
+          if (storedInviteCode) {
+            sessionStorage.removeItem('pendingInviteCode');
+          }
+          
+          // Wait for session to be established
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          if (!userData?.hasCompletedOnboarding) {
+            // If onboarding not completed, go to onboarding first
+            window.location.href = `/${locale}/onboarding`;
+          } else if (storedInviteCode) {
+            // If invite code is present, redirect to join page
+            window.location.href = `/${locale}/join/${storedInviteCode}`;
+          } else if (storedReturnUrl) {
+            // If returnUrl is provided and onboarding is complete, redirect to it
+            window.location.href = storedReturnUrl;
+          } else {
+            // Default: redirect to dashboard
+            window.location.href = `/${locale}/dashboard`;
+          }
         }
       }
     } catch (err) {

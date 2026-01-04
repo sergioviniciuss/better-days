@@ -128,7 +128,16 @@
     "invalidCode": "Código de convite inválido",
     "alreadyMember": "Você já é membro deste desafio",
     "joinSuccess": "Entrou no desafio com sucesso!",
-    "joinError": "Falha ao entrar no desafio"
+    "joinError": "Falha ao entrar no desafio",
+    "joinConfirmationTitle": "Você foi convidado!",
+    "joinConfirmationMessage": "Está pronto para aceitar e competir com seus amigos?",
+    "challengeRules": "Regras do Desafio",
+    "noRules": "Nenhuma regra específica definida",
+    "joinChallengeButton": "Entrar no Desafio",
+    "maybeLaterButton": "Talvez Depois",
+    "joining": "Entrando...",
+    "member": "membro",
+    "members": "membros"
   },
   "pendingDays": {
     "title": "Confirmar Dias Pendentes",

@@ -128,7 +128,16 @@
     "invalidCode": "Invalid invite code",
     "alreadyMember": "You are already a member of this challenge",
     "joinSuccess": "Successfully joined challenge!",
-    "joinError": "Failed to join challenge"
+    "joinError": "Failed to join challenge",
+    "joinConfirmationTitle": "You've been invited!",
+    "joinConfirmationMessage": "Are you ready to accept and compete with your friends?",
+    "challengeRules": "Challenge Rules",
+    "noRules": "No specific rules defined",
+    "joinChallengeButton": "Join Challenge",
+    "maybeLaterButton": "Maybe Later",
+    "joining": "Joining...",
+    "member": "member",
+    "members": "members"
   },
   "pendingDays": {
     "title": "Confirm Pending Days",
