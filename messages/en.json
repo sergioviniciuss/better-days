@@ -37,7 +37,8 @@
     "emailRequired": "Email is required",
     "emailInvalid": "Please enter a valid email address",
     "creatingAccount": "Creating account...",
-    "signingIn": "Signing in..."
+    "signingIn": "Signing in...",
+    "loggingOut": "Logging out..."
   },
   "dashboard": {
     "title": "Dashboard",
