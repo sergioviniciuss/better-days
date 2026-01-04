@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import { calculateStreaks, detectPendingDays } from '@/lib/streak-utils';
 import { getTodayInTimezone } from '@/lib/date-utils';
 import { useState, useEffect } from 'react';
-import { confirmDay, getTodayLog } from '@/app/actions/daily-log';
+import { useRouter } from 'next/navigation';
+import { confirmDay } from '@/app/actions/daily-log';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 import { DailyConfirmation } from './DailyConfirmation';
 import { PendingDaysModal } from './PendingDaysModal';
@@ -21,42 +22,68 @@ interface ChallengeCardProps {
     consumedSugar: boolean;
     confirmedAt: Date | null;
   }>;
+  todayLog?: {
+    date: string;
+    consumedSugar: boolean;
+    confirmedAt: Date | null;
+  } | null;
   userTimezone: string;
 }
 
-export function ChallengeCard({ challenge, logs, userTimezone }: ChallengeCardProps) {
+export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, userTimezone }: ChallengeCardProps) {
   const t = useTranslations('dashboard');
   const tChallenge = useTranslations('challengeConfirmation');
-  const [todayLog, setTodayLog] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const [todayLog, setTodayLog] = useState(initialTodayLog);
+  const [loading, setLoading] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
 
+  // #region agent log
   useEffect(() => {
-    async function fetchTodayLog() {
-      const result = await getTodayLog(challenge.id);
-      if (result.log) {
-        setTodayLog(result.log);
-      }
-      setLoading(false);
-    }
-    fetchTodayLog();
-  }, [challenge.id]);
+    console.log('[DEBUG ChallengeCard] Mounted', {challengeId: challenge.id, hasTodayLog: !!initialTodayLog, confirmed: !!initialTodayLog?.confirmedAt});
+    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:36',message:'ChallengeCard mounted',data:{challengeId:challenge.id,initialTodayLog:!!initialTodayLog,initialConfirmed:initialTodayLog?.confirmedAt},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+  }, []);
+  // #endregion
+
+  // Sync state with server props on hydration
+  useEffect(() => {
+    setTodayLog(initialTodayLog);
+  }, [initialTodayLog]);
 
   const { currentStreak, bestStreak } = calculateStreaks(logs, userTimezone);
   const pendingDays = detectPendingDays(logs, userTimezone);
   const today = getTodayInTimezone(userTimezone);
-  const todayConfirmed = todayLog !== null && todayLog.confirmedAt !== null;
+  const todayConfirmed = todayLog !== null && todayLog !== undefined && todayLog.confirmedAt !== null;
   const hasPendingDays = pendingDays.length > 0;
 
   const handleConfirmToday = async (consumedSugar: boolean) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:48',message:'Confirm button clicked',data:{consumedSugar,loadingBefore:loading},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    
+    setLoading(true);
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:55',message:'Loading set to true, calling confirmDay',data:{today,challengeId:challenge.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    
     const result = await confirmDay(today, consumedSugar, challenge.id);
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:62',message:'confirmDay completed',data:{success:result.success,hasLog:!!result.log},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     
     if (result.success) {
       setTodayLog(result.log);
-      window.location.reload();
+      // Use router.refresh() instead of window.location.reload() for better UX
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:71',message:'Calling router.refresh()',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+      router.refresh();
     } else {
       console.error('Failed to confirm:', result.error);
       alert(`Failed to confirm: ${result.error}`);
+      setLoading(false);
     }
   };
 

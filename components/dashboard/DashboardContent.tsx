@@ -24,6 +24,7 @@ interface ChallengeWithLogs {
   objectiveType: string;
   rules: string[];
   logs: DailyLog[];
+  todayLog?: DailyLog | null;
 }
 
 interface DashboardContentProps {
@@ -46,6 +47,7 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
           key={challenge.id}
           challenge={challenge}
           logs={challenge.logs}
+          todayLog={challenge.todayLog}
           userTimezone={user.timezone}
         />
       ))}
