@@ -18,11 +18,12 @@ export function Navigation({ userEmail }: NavigationProps) {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'en';
 
-  const navItems = [
+  // Only create navItems if user is authenticated
+  const navItems = userEmail ? [
     { href: `/${locale}/dashboard`, label: tDashboard('title') },
     { href: `/${locale}/history`, label: tHistory('title') },
     { href: `/${locale}/challenges`, label: tChallenges('title') },
-  ];
+  ] : [];
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
