@@ -131,6 +131,8 @@
     "joinError": "Failed to join challenge",
     "joinConfirmationTitle": "You've been invited!",
     "joinConfirmationMessage": "Are you ready to accept and compete with your friends?",
+    "challengeRules": "Challenge Rules",
+    "noRules": "No specific rules defined",
     "joinChallengeButton": "Join Challenge",
     "maybeLaterButton": "Maybe Later",
     "joining": "Joining...",

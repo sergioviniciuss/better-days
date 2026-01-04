@@ -131,6 +131,8 @@
     "joinError": "Falha ao entrar no desafio",
     "joinConfirmationTitle": "Você foi convidado!",
     "joinConfirmationMessage": "Está pronto para aceitar e competir com seus amigos?",
+    "challengeRules": "Regras do Desafio",
+    "noRules": "Nenhuma regra específica definida",
     "joinChallengeButton": "Entrar no Desafio",
     "maybeLaterButton": "Talvez Depois",
     "joining": "Entrando...",

@@ -116,6 +116,7 @@ export function ChallengeDetailContent({
           challengeName={challenge.name}
           inviteCode={inviteCode}
           memberCount={memberCount}
+          rules={challenge.rules}
         />
       )}
 
