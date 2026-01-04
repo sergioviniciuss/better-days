@@ -23,12 +23,15 @@ interface ChallengeWithLogs {
   name: string;
   objectiveType: string;
   rules: string[];
+  startDate: string;
   challengeType?: string;
   logs: DailyLog[];
   todayLog?: DailyLog | null;
   shortId?: string;
   dueDate?: string | null;
   userJoinedAt?: string;
+  userStatus?: string;
+  userLeftAt?: string;
   owner?: {
     email: string;
   };
