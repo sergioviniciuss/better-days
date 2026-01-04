@@ -34,25 +34,13 @@ export default async function DashboardPage({
   }
 
   // Fetch logs and today's log for all challenges
-  // #region agent log
-  const startTime = Date.now();
-  // #endregion
-  
   const challengesWithLogs = await Promise.all(
     challenges.map(async (challenge) => {
       const { logs } = await getDailyLogs(challenge.id);
       const { log: todayLog } = await getTodayLog(challenge.id);
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard/page.tsx:40',message:'Fetched data for challenge',data:{challengeId:challenge.id,logsCount:logs.length,hasTodayLog:!!todayLog,todayLogConfirmed:todayLog?.confirmedAt},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-      // #endregion
       return { ...challenge, logs, todayLog };
     })
   );
-
-  // #region agent log
-  const endTime = Date.now();
-  fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard/page.tsx:49',message:'All challenges data fetched',data:{challengesCount:challengesWithLogs.length,fetchDurationMs:endTime-startTime},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-  // #endregion
 
   return <DashboardContent user={user} challengesWithLogs={challengesWithLogs} />;
 }

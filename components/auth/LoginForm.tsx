@@ -18,16 +18,8 @@ export function LoginForm() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LoginForm.tsx:17',message:'Form submit started',data:{isSignUp,loadingBefore:loading},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
     setLoading(true);
     setError(null);
-
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LoginForm.tsx:25',message:'Loading state set to true',data:{loadingAfter:true},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
 
     try {
       if (isSignUp) {

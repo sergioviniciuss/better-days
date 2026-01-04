@@ -38,13 +38,6 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   const [loading, setLoading] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
 
-  // #region agent log
-  useEffect(() => {
-    console.log('[DEBUG ChallengeCard] Mounted', {challengeId: challenge.id, hasTodayLog: !!initialTodayLog, confirmed: !!initialTodayLog?.confirmedAt});
-    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:36',message:'ChallengeCard mounted',data:{challengeId:challenge.id,initialTodayLog:!!initialTodayLog,initialConfirmed:initialTodayLog?.confirmedAt},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-  }, []);
-  // #endregion
-
   // Sync state with server props on hydration
   useEffect(() => {
     setTodayLog(initialTodayLog);
@@ -57,28 +50,13 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   const hasPendingDays = pendingDays.length > 0;
 
   const handleConfirmToday = async (consumedSugar: boolean) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:48',message:'Confirm button clicked',data:{consumedSugar,loadingBefore:loading},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
-    
     setLoading(true);
     
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:55',message:'Loading set to true, calling confirmDay',data:{today,challengeId:challenge.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
-    
     const result = await confirmDay(today, consumedSugar, challenge.id);
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:62',message:'confirmDay completed',data:{success:result.success,hasLog:!!result.log},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     
     if (result.success) {
       setTodayLog(result.log);
       // Use router.refresh() instead of window.location.reload() for better UX
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ChallengeCard.tsx:71',message:'Calling router.refresh()',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
       router.refresh();
     } else {
       console.error('Failed to confirm:', result.error);

@@ -23,25 +23,8 @@ export function DailyConfirmation({ onConfirm, loading, labels }: DailyConfirmat
   const buttonLabels = labels || defaultLabels;
 
   const handleConfirm = async (consumedSugar: boolean) => {
-    // #region agent log
-    console.log('[DEBUG DailyConfirmation] Button clicked', {consumedSugar, submitting, loading});
-    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DailyConfirmation.tsx:26',message:'handleConfirm called',data:{consumedSugar,submittingBefore:submitting,loading},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
     setSubmitting(true);
-    console.log('[DEBUG DailyConfirmation] Set submitting=true');
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DailyConfirmation.tsx:33',message:'Submitting set to true',data:{submittingAfter:true},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
     await onConfirm(consumedSugar);
-    console.log('[DEBUG DailyConfirmation] onConfirm completed');
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/47edcfc9-24b8-4790-8f1d-efb2fa213a1f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DailyConfirmation.tsx:40',message:'onConfirm completed',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
     setSubmitting(false);
   };
 
