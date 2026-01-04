@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import { calculateStreaks, detectPendingDays } from '@/lib/streak-utils';
 import { getTodayInTimezone } from '@/lib/date-utils';
 import { useState, useEffect } from 'react';
-import { confirmDay, getTodayLog } from '@/app/actions/daily-log';
+import { useRouter } from 'next/navigation';
+import { confirmDay } from '@/app/actions/daily-log';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 import { DailyConfirmation } from './DailyConfirmation';
 import { PendingDaysModal } from './PendingDaysModal';
@@ -21,42 +22,46 @@ interface ChallengeCardProps {
     consumedSugar: boolean;
     confirmedAt: Date | null;
   }>;
+  todayLog?: {
+    date: string;
+    consumedSugar: boolean;
+    confirmedAt: Date | null;
+  } | null;
   userTimezone: string;
 }
 
-export function ChallengeCard({ challenge, logs, userTimezone }: ChallengeCardProps) {
+export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, userTimezone }: ChallengeCardProps) {
   const t = useTranslations('dashboard');
   const tChallenge = useTranslations('challengeConfirmation');
-  const [todayLog, setTodayLog] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const [todayLog, setTodayLog] = useState(initialTodayLog);
+  const [loading, setLoading] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
 
+  // Sync state with server props on hydration
   useEffect(() => {
-    async function fetchTodayLog() {
-      const result = await getTodayLog(challenge.id);
-      if (result.log) {
-        setTodayLog(result.log);
-      }
-      setLoading(false);
-    }
-    fetchTodayLog();
-  }, [challenge.id]);
+    setTodayLog(initialTodayLog);
+  }, [initialTodayLog]);
 
   const { currentStreak, bestStreak } = calculateStreaks(logs, userTimezone);
   const pendingDays = detectPendingDays(logs, userTimezone);
   const today = getTodayInTimezone(userTimezone);
-  const todayConfirmed = todayLog !== null && todayLog.confirmedAt !== null;
+  const todayConfirmed = todayLog !== null && todayLog !== undefined && todayLog.confirmedAt !== null;
   const hasPendingDays = pendingDays.length > 0;
 
   const handleConfirmToday = async (consumedSugar: boolean) => {
+    setLoading(true);
+    
     const result = await confirmDay(today, consumedSugar, challenge.id);
     
     if (result.success) {
       setTodayLog(result.log);
-      window.location.reload();
+      // Use router.refresh() instead of window.location.reload() for better UX
+      router.refresh();
     } else {
       console.error('Failed to confirm:', result.error);
       alert(`Failed to confirm: ${result.error}`);
+      setLoading(false);
     }
   };
 

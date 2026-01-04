@@ -3,10 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { signOut } from '@/app/actions/auth';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { UserProfileMenu } from './UserProfileMenu';
+import { MobileMenu } from './MobileMenu';
 
-export function Navigation() {
+interface NavigationProps {
+  userEmail?: string | null;
+}
+
+export function Navigation({ userEmail }: NavigationProps) {
   const t = useTranslations('common');
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'en';
@@ -41,16 +46,17 @@ export function Navigation() {
               ))}
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            {/* Language Switcher - Visible on all screens */}
             <LanguageSwitcher />
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 min-h-[44px]"
-              >
-                Logout
-              </button>
-            </form>
+            
+            {/* Desktop: User Profile Menu */}
+            <div className="hidden md:block">
+              <UserProfileMenu userEmail={userEmail} />
+            </div>
+            
+            {/* Mobile: Hamburger Menu */}
+            <MobileMenu navItems={navItems} userEmail={userEmail} pathname={pathname} />
           </div>
         </div>
       </div>

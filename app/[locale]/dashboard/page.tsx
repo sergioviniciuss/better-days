@@ -1,5 +1,5 @@
 import { getCurrentUser } from '@/app/actions/auth';
-import { getDailyLogs } from '@/app/actions/daily-log';
+import { getDailyLogs, getTodayLog } from '@/app/actions/daily-log';
 import { getChallenges } from '@/app/actions/challenge';
 import { redirect } from 'next/navigation';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
@@ -33,11 +33,12 @@ export default async function DashboardPage({
     redirect(`/${locale}/onboarding`);
   }
 
-  // Fetch logs for all challenges
+  // Fetch logs and today's log for all challenges
   const challengesWithLogs = await Promise.all(
     challenges.map(async (challenge) => {
       const { logs } = await getDailyLogs(challenge.id);
-      return { ...challenge, logs };
+      const { log: todayLog } = await getTodayLog(challenge.id);
+      return { ...challenge, logs, todayLog };
     })
   );
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { signUp } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
@@ -12,8 +12,12 @@ export function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
     setLoading(true);
     setError(null);
 
@@ -64,12 +68,14 @@ export function LoginForm() {
             .single();
           
           // Redirect based on onboarding status
-          if (userData?.hasCompletedOnboarding) {
-            router.push(`/${locale}/dashboard`);
-          } else {
-            router.push(`/${locale}/onboarding`);
-          }
-          router.refresh();
+          startTransition(() => {
+            if (userData?.hasCompletedOnboarding) {
+              router.push(`/${locale}/dashboard`);
+            } else {
+              router.push(`/${locale}/onboarding`);
+            }
+            router.refresh();
+          });
         }
       }
     } catch (err) {
@@ -78,8 +84,10 @@ export function LoginForm() {
     }
   };
 
+  const isSubmitting = loading || isPending;
+
   return (
-    <form action={handleSubmit} className="mt-8 space-y-6">
+    <form onSubmit={handleSubmit} className="mt-8 space-y-6">
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-md">
           {error}
@@ -97,7 +105,8 @@ export function LoginForm() {
             type="email"
             autoComplete="email"
             required
-            className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+            disabled={isSubmitting}
+            className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder={t('email')}
           />
         </div>
@@ -111,7 +120,8 @@ export function LoginForm() {
             type="password"
             autoComplete={isSignUp ? 'new-password' : 'current-password'}
             required
-            className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+            disabled={isSubmitting}
+            className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder={t('password')}
             minLength={6}
           />
@@ -121,11 +131,17 @@ export function LoginForm() {
       <div>
         <button
           type="submit"
-          disabled={loading}
+          disabled={isSubmitting}
           className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
         >
-          {loading ? (
-            <span className="text-sm">Loading...</span>
+          {isSubmitting ? (
+            <div className="flex items-center space-x-2">
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span className="text-sm">{isSignUp ? 'Creating account...' : 'Signing in...'}</span>
+            </div>
           ) : (
             isSignUp ? t('signup') : t('login')
           )}
