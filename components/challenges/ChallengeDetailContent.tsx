@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { calculateStreaks, detectPendingDays, type DailyLog as StreakDailyLog } from '@/lib/streak-utils';
 import { useState } from 'react';
 import { formatDateString } from '@/lib/date-utils';
+import { JoinChallengeBanner } from './JoinChallengeBanner';
 
 interface User {
   id: string;
@@ -24,6 +25,13 @@ interface Challenge {
   };
   invites: Array<{
     code: string;
+  }>;
+  members?: Array<{
+    userId: string;
+    user: {
+      id: string;
+      email: string;
+    };
   }>;
 }
 
@@ -48,6 +56,9 @@ interface ChallengeDetailContentProps {
   leaderboard: LeaderboardEntry[];
   user: User;
   userLogs: DailyLog[];
+  showJoinConfirmation?: boolean;
+  inviteCode?: string;
+  isMember?: boolean;
 }
 
 export function ChallengeDetailContent({
@@ -55,6 +66,9 @@ export function ChallengeDetailContent({
   leaderboard,
   user,
   userLogs,
+  showJoinConfirmation = false,
+  inviteCode: propInviteCode,
+  isMember = true,
 }: ChallengeDetailContentProps) {
   const t = useTranslations('challengeDetail');
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
@@ -69,7 +83,7 @@ export function ChallengeDetailContent({
   const { currentStreak, bestStreak } = calculateStreaks(streakLogs, user.timezone);
   const pendingDays = detectPendingDays(streakLogs, user.timezone);
 
-  const inviteCode = challenge.invites[0]?.code || '';
+  const inviteCode = propInviteCode || challenge.invites[0]?.code || '';
   const inviteUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}/${user.preferredLanguage}/join/${inviteCode}`
     : '';
@@ -82,6 +96,8 @@ export function ChallengeDetailContent({
     }
   };
 
+  const memberCount = challenge.members?.length || 0;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
@@ -93,8 +109,19 @@ export function ChallengeDetailContent({
         </p>
       </div>
 
-      {/* User Status Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+      {/* Join Confirmation Banner */}
+      {showJoinConfirmation && inviteCode && (
+        <JoinChallengeBanner
+          challengeId={challenge.id}
+          challengeName={challenge.name}
+          inviteCode={inviteCode}
+          memberCount={memberCount}
+        />
+      )}
+
+      {/* User Status Card - Only show if user is a member */}
+      {isMember && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           {t('yourStatus')}
         </h2>
@@ -118,7 +145,8 @@ export function ChallengeDetailContent({
             </p>
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Leaderboard */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
@@ -191,8 +219,8 @@ export function ChallengeDetailContent({
         </div>
       </div>
 
-      {/* Invite Section - Only show for GROUP challenges */}
-      {challenge.challengeType === 'GROUP' && inviteCode && (
+      {/* Invite Section - Only show for GROUP challenges and if user is a member */}
+      {isMember && challenge.challengeType === 'GROUP' && inviteCode && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             {t('inviteSection')}

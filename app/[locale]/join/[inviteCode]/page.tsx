@@ -1,5 +1,5 @@
 import { getCurrentUser } from '@/app/actions/auth';
-import { joinChallengeByCode } from '@/app/actions/challenge';
+import { getChallengeByInviteCode } from '@/app/actions/challenge';
 import { redirect } from 'next/navigation';
 import { JoinChallengeContent } from '@/components/challenges/JoinChallengeContent';
 
@@ -15,16 +15,22 @@ export default async function JoinChallengePage({
     redirect(`/${locale}/login?returnUrl=/${locale}/join/${inviteCode}`);
   }
 
-  const result = await joinChallengeByCode(inviteCode);
+  // Get challenge details without joining
+  const result = await getChallengeByInviteCode(inviteCode);
 
-  if (result.error && result.error !== 'Already a member of this challenge') {
+  if (result.error) {
     return <JoinChallengeContent error={result.error} inviteCode={inviteCode} />;
   }
 
-  // Success or already member - redirect to challenge
-  if (result.challengeId) {
-    redirect(`/${locale}/challenges/${result.challengeId}`);
+  if (!result.challenge) {
+    return <JoinChallengeContent error="Challenge not found" inviteCode={inviteCode} />;
   }
 
-  return <JoinChallengeContent error="Failed to join challenge" inviteCode={inviteCode} />;
+  // If already a member, redirect to challenge without invite param
+  if (result.isMember) {
+    redirect(`/${locale}/challenges/${result.challenge.id}`);
+  }
+
+  // If not a member, redirect to challenge with invite param to show confirmation banner
+  redirect(`/${locale}/challenges/${result.challenge.id}?invite=true`);
 }
