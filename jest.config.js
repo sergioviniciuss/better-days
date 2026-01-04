@@ -28,7 +28,7 @@ const customJestConfig = {
     '!**/jest.config.js',
     '!**/jest.setup.js',
   ],
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       branches: 50,
       functions: 50,
