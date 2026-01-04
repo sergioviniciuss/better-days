@@ -13,6 +13,13 @@ function generateInviteCode(): string {
   return code;
 }
 
+function generateShortId(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  return Array.from({length: 8}, () => 
+    chars[Math.floor(Math.random() * chars.length)]
+  ).join('');
+}
+
 export async function createChallenge(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) {
@@ -21,6 +28,7 @@ export async function createChallenge(formData: FormData) {
 
   const name = formData.get('name') as string;
   const startDate = formData.get('startDate') as string;
+  const dueDate = formData.get('dueDate') as string || null;
   const objectiveType = formData.get('objectiveType') as string || 'NO_SUGAR_STREAK';
   const rules: string[] = [];
 
@@ -68,6 +76,30 @@ export async function createChallenge(formData: FormData) {
       return { error: 'Failed to generate unique invite code' };
     }
 
+    // Generate unique shortId
+    let shortId: string = generateShortId();
+    let shortIdUnique = false;
+    let shortIdAttempts = 0;
+    
+    while (!shortIdUnique && shortIdAttempts < 10) {
+      const { data: existingShortId } = await supabase
+        .from('Challenge')
+        .select('shortId')
+        .eq('shortId', shortId)
+        .single();
+      
+      if (!existingShortId) {
+        shortIdUnique = true;
+      } else {
+        shortId = generateShortId();
+      }
+      shortIdAttempts++;
+    }
+
+    if (!shortIdUnique) {
+      return { error: 'Failed to generate unique short ID' };
+    }
+
     // Create challenge (default to GROUP type for manually created challenges)
     const { data: challenge, error: challengeError } = await supabase
       .from('Challenge')
@@ -75,6 +107,8 @@ export async function createChallenge(formData: FormData) {
         ownerUserId: user.id,
         name,
         startDate,
+        dueDate,
+        shortId,
         rules,
         objectiveType,
         challengeType: 'GROUP',
@@ -125,7 +159,7 @@ export async function createChallenge(formData: FormData) {
   }
 }
 
-export async function getChallenges() {
+export async function getChallenges(includeLeft: boolean = false) {
   const user = await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated', challenges: [] };
@@ -134,11 +168,31 @@ export async function getChallenges() {
   try {
     const supabase = await createClient();
 
-    // Get challenge IDs where user is a member
-    const { data: memberships, error: memberError } = await supabase
+    // Get user timezone for date comparison
+    const { data: userData } = await supabase
+      .from('User')
+      .select('timezone')
+      .eq('id', user.id)
+      .single();
+
+    const timezone = userData?.timezone || 'UTC';
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: timezone });
+
+    // Get challenge IDs where user is a member (active or left)
+    let membershipQuery = supabase
       .from('ChallengeMember')
-      .select('challengeId')
+      .select('challengeId, id, joinedAt, status, leftAt')
       .eq('userId', user.id);
+
+    if (includeLeft) {
+      // Include both active and stopped challenges
+      membershipQuery = membershipQuery.in('status', ['ACTIVE', 'LEFT']);
+    } else {
+      // Only active challenges (default)
+      membershipQuery = membershipQuery.eq('status', 'ACTIVE');
+    }
+
+    const { data: memberships, error: memberError } = await membershipQuery;
 
     if (memberError) {
       console.error('Error fetching memberships:', memberError);
@@ -167,7 +221,47 @@ export async function getChallenges() {
       return { error: 'Failed to fetch challenges', challenges: [] };
     }
 
-    return { challenges: challenges || [] };
+    // Auto-archive expired challenges (skip when includeLeft is true)
+    let filteredChallenges = challenges || [];
+    
+    if (!includeLeft) {
+      const expiredMembershipIds: string[] = [];
+      filteredChallenges = (challenges || []).filter((challenge: any) => {
+        if (challenge.dueDate && challenge.dueDate < today) {
+          // Find this user's membership for this challenge
+          const membership = memberships.find(m => m.challengeId === challenge.id);
+          if (membership) {
+            expiredMembershipIds.push(membership.id);
+          }
+          return false; // Exclude from results
+        }
+        return true; // Include in results
+      });
+
+      // Update expired memberships
+      if (expiredMembershipIds.length > 0) {
+        await supabase
+          .from('ChallengeMember')
+          .update({ 
+            status: 'LEFT',
+            leftAt: new Date().toISOString()
+          })
+          .in('id', expiredMembershipIds);
+      }
+    }
+
+    // Add user's joinedAt, leftAt, and status to each challenge
+    const challengesWithMembershipData = filteredChallenges.map((challenge: any) => {
+      const membership = memberships.find(m => m.challengeId === challenge.id);
+      return {
+        ...challenge,
+        userJoinedAt: membership?.joinedAt,
+        userLeftAt: membership?.leftAt,
+        userStatus: membership?.status
+      };
+    });
+
+    return { challenges: challengesWithMembershipData };
   } catch (error) {
     console.error('Error fetching challenges:', error);
     return { error: 'Failed to fetch challenges', challenges: [] };
@@ -295,6 +389,30 @@ export async function createPersonalChallenge(userId: string, rules: string[] = 
     // Get today's date in user's timezone
     const today = new Date().toLocaleDateString('en-CA', { timeZone: timezone });
 
+    // Generate unique shortId
+    let shortId: string = generateShortId();
+    let shortIdUnique = false;
+    let shortIdAttempts = 0;
+    
+    while (!shortIdUnique && shortIdAttempts < 10) {
+      const { data: existingShortId } = await supabase
+        .from('Challenge')
+        .select('shortId')
+        .eq('shortId', shortId)
+        .single();
+      
+      if (!existingShortId) {
+        shortIdUnique = true;
+      } else {
+        shortId = generateShortId();
+      }
+      shortIdAttempts++;
+    }
+
+    if (!shortIdUnique) {
+      return { error: 'Failed to generate unique short ID' };
+    }
+
     // Create personal "No Sugar Challenge"
     const { data: challenge, error: challengeError } = await supabase
       .from('Challenge')
@@ -305,6 +423,7 @@ export async function createPersonalChallenge(userId: string, rules: string[] = 
         challengeType: 'PERSONAL',
         rules: rules,
         startDate: today,
+        shortId,
         createdAt: new Date().toISOString(),
       })
       .select()
@@ -394,5 +513,50 @@ export async function upgradeToGroupChallenge(challengeId: string) {
   } catch (error) {
     console.error('Error upgrading challenge:', error);
     return { error: 'Failed to upgrade challenge' };
+  }
+}
+
+export async function archiveChallenge(challengeId: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  try {
+    const supabase = await createClient();
+
+    // Verify user is a member of this challenge
+    const { data: membership, error: membershipError } = await supabase
+      .from('ChallengeMember')
+      .select('*')
+      .eq('challengeId', challengeId)
+      .eq('userId', user.id)
+      .eq('status', 'ACTIVE')
+      .single();
+
+    if (membershipError || !membership) {
+      return { error: 'Not a member of this challenge' };
+    }
+
+    // Update membership status to LEFT
+    const { error: updateError } = await supabase
+      .from('ChallengeMember')
+      .update({ 
+        status: 'LEFT',
+        leftAt: new Date().toISOString()
+      })
+      .eq('id', membership.id);
+
+    if (updateError) {
+      console.error('Error archiving challenge:', updateError);
+      return { error: 'Failed to stop challenge' };
+    }
+
+    revalidatePath('/dashboard');
+    revalidatePath('/challenges');
+    return { success: true };
+  } catch (error) {
+    console.error('Error archiving challenge:', error);
+    return { error: 'Failed to stop challenge' };
   }
 }

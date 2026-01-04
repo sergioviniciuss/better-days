@@ -48,6 +48,9 @@ model Challenge {
   challengeType String    @default("PERSONAL") // "PERSONAL" | "GROUP"
   rules         String[]  // Array of rule strings
   startDate     String    // YYYY-MM-DD
+  dueDate       String?   // Optional: YYYY-MM-DD
+  shortId       String    @unique // 8-char unique ID like "A3F2B1C9"
+  status        String    @default("ACTIVE") // "ACTIVE" | "ARCHIVED"
   createdAt     DateTime  @default(now())
 
   owner         User      @relation("ChallengeOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
@@ -61,7 +64,9 @@ model ChallengeMember {
   challengeId String
   userId      String
   role        String    @default("MEMBER") // "OWNER" | "MEMBER"
+  status      String    @default("ACTIVE") // "ACTIVE" | "LEFT"
   joinedAt    DateTime  @default(now())
+  leftAt      DateTime?
 
   challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)

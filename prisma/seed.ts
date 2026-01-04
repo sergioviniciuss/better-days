@@ -2,6 +2,13 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+function generateShortId(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  return Array.from({length: 8}, () => 
+    chars[Math.floor(Math.random() * chars.length)]
+  ).join('');
+}
+
 async function main() {
   console.log('Starting seed...');
 
@@ -36,12 +43,14 @@ async function main() {
   } else {
     const startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const inviteCode = `SAMPLE${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const shortId = generateShortId();
     
     challenge = await prisma.challenge.create({
       data: {
         ownerUserId: userId,
         name: 'Sample Sugar-Free Challenge',
         startDate,
+        shortId,
         rules: ['addedSugarCounts', 'fruitDoesNotCount', 'missingDaysPending'],
         members: {
           create: {

@@ -35,10 +35,16 @@ export default async function DashboardPage({
 
   // Fetch logs and today's log for all challenges
   const challengesWithLogs = await Promise.all(
-    challenges.map(async (challenge) => {
+    challenges.map(async (challenge: any) => {
       const { logs } = await getDailyLogs(challenge.id);
       const { log: todayLog } = await getTodayLog(challenge.id);
-      return { ...challenge, logs, todayLog };
+      return { 
+        ...challenge,
+        logs, 
+        todayLog,
+        // Ensure challengeType defaults to PERSONAL if not set
+        challengeType: challenge.challengeType || 'PERSONAL'
+      };
     })
   );
 

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { ChallengeCard } from './ChallengeCard';
+import { ChallengeTabs } from './ChallengeTabs';
 
 interface User {
   id: string;
@@ -23,8 +23,19 @@ interface ChallengeWithLogs {
   name: string;
   objectiveType: string;
   rules: string[];
+  startDate: string;
+  challengeType?: string;
   logs: DailyLog[];
   todayLog?: DailyLog | null;
+  shortId?: string;
+  dueDate?: string | null;
+  userJoinedAt?: string;
+  userStatus?: string;
+  userLeftAt?: string;
+  owner?: {
+    email: string;
+  };
+  members?: Array<any>;
 }
 
 interface DashboardContentProps {
@@ -35,22 +46,28 @@ interface DashboardContentProps {
 export function DashboardContent({ user, challengesWithLogs }: DashboardContentProps) {
   const t = useTranslations('dashboard');
 
+  // Separate solo and group challenges
+  const soloChallenges = challengesWithLogs.filter(c => c.challengeType === 'PERSONAL');
+  const groupChallenges = challengesWithLogs.filter(c => c.challengeType === 'GROUP');
+
+  // Create todayLogs Map for tabs component
+  const todayLogs = new Map(
+    challengesWithLogs.map(c => [c.id, c.todayLog])
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
         {t('title')}
       </h1>
 
-      {/* Render a card for each challenge */}
-      {challengesWithLogs.map((challenge) => (
-        <ChallengeCard
-          key={challenge.id}
-          challenge={challenge}
-          logs={challenge.logs}
-          todayLog={challenge.todayLog}
-          userTimezone={user.timezone}
-        />
-      ))}
+      {/* Challenge Tabs */}
+      <ChallengeTabs 
+        soloChallenges={soloChallenges}
+        groupChallenges={groupChallenges}
+        todayLogs={todayLogs}
+        userTimezone={user.timezone}
+      />
 
       {/* Quick Links */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
