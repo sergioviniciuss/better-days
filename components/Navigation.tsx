@@ -32,21 +32,23 @@ export function Navigation({ userEmail }: NavigationProps) {
             <Link href={`/${locale}/dashboard`} className="text-xl font-bold text-gray-900 dark:text-white">
               Better Habits
             </Link>
-            <div className="hidden md:flex space-x-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-3 py-2 rounded-md text-sm font-medium min-h-[44px] flex items-center ${
-                    pathname === item.href
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
+            {userEmail && (
+              <div className="hidden md:flex space-x-4">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`px-3 py-2 rounded-md text-sm font-medium min-h-[44px] flex items-center ${
+                      pathname === item.href
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
           <div className="flex items-center space-x-3">
             {/* Language Switcher - Visible on all screens */}
@@ -57,8 +59,10 @@ export function Navigation({ userEmail }: NavigationProps) {
               <UserProfileMenu userEmail={userEmail} />
             </div>
             
-            {/* Mobile: Hamburger Menu */}
-            <MobileMenu navItems={navItems} userEmail={userEmail} pathname={pathname} />
+            {/* Mobile: Hamburger Menu - Only show for authenticated users */}
+            {userEmail && (
+              <MobileMenu navItems={navItems} userEmail={userEmail} pathname={pathname} />
+            )}
           </div>
         </div>
       </div>
