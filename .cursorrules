@@ -5,3 +5,16 @@
 - Do NOT add extra whitespace or empty lines unless necessary for readability
 - Preserve existing formatting unless explicitly asked to reformat
 - When making changes, only modify what's necessary - don't reformat unrelated code
+
+# Database Setup
+
+- Database is hosted on Supabase and is NOT accessible locally
+- Do NOT attempt to run `npx prisma migrate dev` or any local Prisma migrations
+- When database schema changes are needed:
+  1. Update `prisma/schema.prisma` with the new schema
+  2. Create a `.sql` migration file (e.g., `add-feature-name.sql`) in the project root
+  3. Write the SQL DDL statements that need to be run on Supabase
+  4. Instruct the user to run the SQL script in the Supabase SQL Editor
+  5. Include comments in the SQL to explain what each statement does
+- Always ensure migrations are backward compatible with existing data
+- Use DEFAULT values when adding new NOT NULL columns to existing tables
