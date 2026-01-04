@@ -60,6 +60,7 @@ describe('DashboardContent', () => {
       id: 'challenge-1',
       name: 'No Sugar Challenge',
       objectiveType: 'NO_SUGAR_STREAK',
+      challengeType: 'PERSONAL',
       rules: ['addedSugarCounts'],
       logs: [
         {
@@ -72,21 +73,29 @@ describe('DashboardContent', () => {
     },
   ];
 
-  it('should display current streak', async () => {
+  it('should render tabs with challenge counts', async () => {
+    render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
+    await waitFor(() => {
+      expect(screen.getByText(/soloChallenges/)).toBeInTheDocument();
+      expect(screen.getByText(/groupChallenges/)).toBeInTheDocument();
+    });
+  });
+
+  it('should display current streak in challenge card', async () => {
     render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
     await waitFor(() => {
       expect(screen.getByText(/5/)).toBeInTheDocument();
     });
   });
 
-  it('should display best streak', async () => {
+  it('should display best streak in challenge card', async () => {
     render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
     await waitFor(() => {
       expect(screen.getByText(/10/)).toBeInTheDocument();
     });
   });
 
-  it('should render challenge cards', async () => {
+  it('should render challenge cards within tabs', async () => {
     render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
     await waitFor(() => {
       expect(screen.getByTestId('challenge-card')).toBeInTheDocument();
