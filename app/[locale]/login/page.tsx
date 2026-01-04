@@ -7,14 +7,30 @@ import { defaultLocale } from '@/lib/i18n/config';
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ returnUrl?: string }>;
+  searchParams: Promise<{ returnUrl?: string; invite?: string }>;
 }) {
   const user = await getCurrentUser();
   const cookieStore = await cookies();
   const locale = cookieStore.get('locale')?.value || defaultLocale;
-  const { returnUrl } = await searchParams;
+  const resolvedSearchParams = await searchParams;
+  const queryReturnUrl = resolvedSearchParams.returnUrl;
+  const inviteCode = resolvedSearchParams.invite;
+  
+  // Get returnUrl from query param or cookie (cookie takes precedence as it's more reliable)
+  const cookieReturnUrl = cookieStore.get('loginReturnUrl')?.value;
+  const returnUrl = cookieReturnUrl || queryReturnUrl;
   
   if (user) {
+    // Clear the cookie if it exists
+    if (cookieReturnUrl) {
+      cookieStore.delete('loginReturnUrl');
+    }
+    
+    // If user is already logged in, check for invite code first
+    if (inviteCode) {
+      redirect(`/${locale}/join/${inviteCode}`);
+    }
+    
     // If user is already logged in and has a returnUrl, redirect there
     // Otherwise redirect to dashboard
     redirect(returnUrl || `/${locale}/dashboard`);
@@ -31,7 +47,7 @@ export default async function LoginPage({
             Sign in to your account
           </p>
         </div>
-        <LoginForm returnUrl={returnUrl} />
+        <LoginForm returnUrl={returnUrl} inviteCode={inviteCode} />
       </div>
     </div>
   );

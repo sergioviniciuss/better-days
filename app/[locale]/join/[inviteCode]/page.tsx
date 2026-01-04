@@ -11,8 +11,9 @@ export default async function JoinChallengePage({
   const { locale, inviteCode } = await params;
   const user = await getCurrentUser();
 
+  // If no user, middleware will redirect to login with invite code preserved
   if (!user) {
-    redirect(`/${locale}/login?returnUrl=/${locale}/join/${inviteCode}`);
+    redirect(`/${locale}/login`);
   }
 
   // Get challenge details without joining
