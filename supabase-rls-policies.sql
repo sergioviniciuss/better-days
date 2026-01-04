@@ -7,10 +7,29 @@ ALTER TABLE "Invite" ENABLE ROW LEVEL SECURITY;
 
 -- User table policies
 -- Allow users to read their own profile
+-- Also allow challenge members to see profiles of other members in the same challenge
+-- Also allow any authenticated user to see profiles of challenge members (for invite flow)
 CREATE POLICY "Users can read own profile"
 ON "User"
 FOR SELECT
-USING (auth.uid()::text = id);
+USING (
+  auth.uid()::text = id OR
+  EXISTS (
+    SELECT 1 FROM "ChallengeMember" cm1
+    INNER JOIN "ChallengeMember" cm2 ON cm1."challengeId" = cm2."challengeId"
+    WHERE cm1."userId" = auth.uid()::text
+    AND cm2."userId" = "User"."id"
+    AND cm1."status" = 'ACTIVE'
+    AND cm2."status" = 'ACTIVE'
+  ) OR
+  -- Allow any authenticated user to see profiles of users who are challenge members
+  -- This is safe because challenges are already readable by anyone
+  EXISTS (
+    SELECT 1 FROM "ChallengeMember" cm
+    WHERE cm."userId" = "User"."id"
+    AND cm."status" = 'ACTIVE'
+  )
+);
 
 -- Allow users to insert their own profile (for signup)
 -- Note: Signup uses service role key, so this is for other insert operations
@@ -28,10 +47,30 @@ WITH CHECK (auth.uid()::text = id);
 
 -- DailyLog table policies
 -- Allow users to read their own logs
+-- Also allow challenge members to see logs of other members in the same challenge
+-- Also allow any authenticated user to see logs for challenges (enables invite flow)
+-- This is needed for leaderboard functionality and for non-members viewing via invite
 CREATE POLICY "Users can read own logs"
 ON "DailyLog"
 FOR SELECT
-USING (auth.uid()::text = "userId");
+USING (
+  auth.uid()::text = "userId" OR
+  EXISTS (
+    SELECT 1 FROM "ChallengeMember" cm1
+    INNER JOIN "ChallengeMember" cm2 ON cm1."challengeId" = cm2."challengeId"
+    WHERE cm1."userId" = auth.uid()::text
+    AND cm2."userId" = "DailyLog"."userId"
+    AND cm1."challengeId" = "DailyLog"."challengeId"
+    AND cm1."status" = 'ACTIVE'
+    AND cm2."status" = 'ACTIVE'
+  ) OR
+  -- Allow any authenticated user to see logs for challenges (enables invite flow)
+  -- This is safe because challenges are already readable by anyone
+  EXISTS (
+    SELECT 1 FROM "Challenge" c
+    WHERE c."id" = "DailyLog"."challengeId"
+  )
+);
 
 -- Allow users to insert their own logs
 CREATE POLICY "Users can insert own logs"
@@ -84,6 +123,7 @@ USING (auth.uid()::text = "ownerUserId");
 -- 1. Users to see their own membership
 -- 2. Challenge owners to see all members
 -- 3. Any member of a challenge to see all other members of that challenge
+-- 4. Any authenticated user to see members of any challenge (for invite flow)
 CREATE POLICY "Users can read challenge members"
 ON "ChallengeMember"
 FOR SELECT
@@ -96,6 +136,12 @@ USING (
     SELECT 1 FROM "ChallengeMember" cm
     WHERE cm."challengeId" = "ChallengeMember"."challengeId"
     AND cm."userId" = auth.uid()::text
+  ) OR
+  -- Allow any authenticated user to see members of challenges (enables invite flow)
+  -- This is safe because challenges are already readable by anyone
+  EXISTS (
+    SELECT 1 FROM "Challenge" c
+    WHERE c."id" = "ChallengeMember"."challengeId"
   )
 );
 

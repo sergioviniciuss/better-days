@@ -23,48 +23,69 @@ export async function getChallengeLeaderboard(challengeId: string) {
       .eq('id', challengeId)
       .single();
 
-    if (challengeError || !challenge) {
+    if (challengeError) {
+      console.error('Error fetching challenge in leaderboard:', challengeError);
       return { error: 'Challenge not found', leaderboard: [] };
     }
 
+    if (!challenge) {
+      return { error: 'Challenge not found', leaderboard: [] };
+    }
+
+    // Debug: Log members count
+    console.log('Leaderboard - Challenge members count:', challenge.members?.length || 0);
+
     // Get all daily logs for all members since challenge start date
-    const memberIds = challenge.members.map((m: any) => m.userId);
+    const memberIds = challenge.members?.map((m: any) => m.userId) || [];
+    
+    // If no members, return empty leaderboard
+    if (memberIds.length === 0) {
+      return { leaderboard: [] };
+    }
+    
     const { data: allLogs, error: logsError } = await supabase
       .from('DailyLog')
       .select('*')
       .in('userId', memberIds)
+      .eq('challengeId', challengeId)
       .gte('date', challenge.startDate)
       .order('date', { ascending: false });
 
+    // If logs are restricted (e.g., non-member viewing), continue with empty logs
+    // The leaderboard will show members but with 0 streaks
     if (logsError) {
-      console.error('Error fetching logs:', logsError);
-      return { error: 'Failed to fetch logs', leaderboard: [] };
+      console.error('Error fetching logs (may be RLS restriction):', logsError);
+      // Continue with empty logs array instead of returning error
     }
 
     // Calculate streaks for each member
-    const leaderboard = challenge.members.map((member: any) => {
-      const userLogs = (allLogs || [])
-        .filter((log) => log.userId === member.userId)
-        .map((log) => ({
-          date: log.date,
-          consumedSugar: log.consumedSugar,
-          confirmedAt: log.confirmedAt,
-        }));
+    // Handle case where member.user might be null (RLS blocking nested user query)
+    const leaderboard = (challenge.members || [])
+      .filter((member: any) => member && member.user) // Filter out members without user data
+      .map((member: any) => {
+        const userLogs = (allLogs || [])
+          .filter((log) => log.userId === member.userId)
+          .map((log) => ({
+            date: log.date,
+            consumedSugar: log.consumedSugar,
+            confirmedAt: log.confirmedAt,
+          }));
 
-      const { currentStreak, bestStreak } = calculateStreaks(userLogs, member.user.timezone);
-      const pendingDays = detectPendingDays(userLogs, member.user.timezone);
-      const today = new Date().toISOString().split('T')[0];
-      const todayLog = userLogs.find((log) => log.date === today && log.confirmedAt !== null);
+        const timezone = member.user?.timezone || 'UTC';
+        const { currentStreak, bestStreak } = calculateStreaks(userLogs, timezone);
+        const pendingDays = detectPendingDays(userLogs, timezone);
+        const today = new Date().toISOString().split('T')[0];
+        const todayLog = userLogs.find((log) => log.date === today && log.confirmedAt !== null);
 
-      return {
-        userId: member.userId,
-        email: member.user.email,
-        currentStreak,
-        bestStreak,
-        pendingDays: pendingDays.length,
-        confirmedToday: todayLog !== undefined,
-      };
-    });
+        return {
+          userId: member.userId,
+          email: member.user?.email || 'Unknown',
+          currentStreak,
+          bestStreak,
+          pendingDays: pendingDays.length,
+          confirmedToday: todayLog !== undefined,
+        };
+      });
 
     // Sort by current streak (desc), then best streak (desc)
     leaderboard.sort((a: any, b: any) => {

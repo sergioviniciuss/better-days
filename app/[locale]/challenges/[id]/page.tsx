@@ -68,9 +68,9 @@ export default async function ChallengeDetailPage({
     redirect(`/${locale}/challenges`);
   }
 
-  // Get leaderboard (only if member, otherwise it will be empty)
-  // For non-members viewing via invite, leaderboard will be empty but that's okay
-  const { leaderboard } = isMember ? await getChallengeLeaderboard(id) : { leaderboard: [] };
+  // Get leaderboard - always fetch it, especially for non-members viewing via invite
+  // This allows them to see challenge details before deciding to join
+  const { leaderboard } = await getChallengeLeaderboard(id);
   const { logs } = await getDailyLogs();
 
   const inviteCode = challenge.invites?.[0]?.code || '';
