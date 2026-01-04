@@ -12,14 +12,16 @@ interface NavigationProps {
 }
 
 export function Navigation({ userEmail }: NavigationProps) {
-  const t = useTranslations('common');
+  const tDashboard = useTranslations('dashboard');
+  const tHistory = useTranslations('history');
+  const tChallenges = useTranslations('challenges');
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'en';
 
   const navItems = [
-    { href: `/${locale}/dashboard`, label: 'Dashboard' },
-    { href: `/${locale}/history`, label: 'History' },
-    { href: `/${locale}/challenges`, label: 'Challenges' },
+    { href: `/${locale}/dashboard`, label: tDashboard('title') },
+    { href: `/${locale}/history`, label: tHistory('title') },
+    { href: `/${locale}/challenges`, label: tChallenges('title') },
   ];
 
   return (
