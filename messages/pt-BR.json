@@ -42,7 +42,12 @@
     "noSugar": "Sem Açúcar",
     "consumedSugar": "Consumiu Açúcar",
     "todayConfirmed": "Hoje Confirmado",
-    "todayPending": "Hoje Pendente"
+    "todayPending": "Hoje Pendente",
+    "challengeStarted": "Iniciado",
+    "activeFor": "Ativo há",
+    "stopChallenge": "Parar Desafio",
+    "stopChallengeConfirm": "Tem certeza que deseja parar este desafio?",
+    "cancel": "Cancelar"
   },
   "history": {
     "title": "Histórico",

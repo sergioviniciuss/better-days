@@ -134,11 +134,12 @@ export async function getChallenges() {
   try {
     const supabase = await createClient();
 
-    // Get challenge IDs where user is a member
+    // Get challenge IDs where user is an active member
     const { data: memberships, error: memberError } = await supabase
       .from('ChallengeMember')
       .select('challengeId')
-      .eq('userId', user.id);
+      .eq('userId', user.id)
+      .eq('status', 'ACTIVE');
 
     if (memberError) {
       console.error('Error fetching memberships:', memberError);
@@ -394,5 +395,50 @@ export async function upgradeToGroupChallenge(challengeId: string) {
   } catch (error) {
     console.error('Error upgrading challenge:', error);
     return { error: 'Failed to upgrade challenge' };
+  }
+}
+
+export async function archiveChallenge(challengeId: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  try {
+    const supabase = await createClient();
+
+    // Verify user is a member of this challenge
+    const { data: membership, error: membershipError } = await supabase
+      .from('ChallengeMember')
+      .select('*')
+      .eq('challengeId', challengeId)
+      .eq('userId', user.id)
+      .eq('status', 'ACTIVE')
+      .single();
+
+    if (membershipError || !membership) {
+      return { error: 'Not a member of this challenge' };
+    }
+
+    // Update membership status to LEFT
+    const { error: updateError } = await supabase
+      .from('ChallengeMember')
+      .update({ 
+        status: 'LEFT',
+        leftAt: new Date().toISOString()
+      })
+      .eq('id', membership.id);
+
+    if (updateError) {
+      console.error('Error archiving challenge:', updateError);
+      return { error: 'Failed to stop challenge' };
+    }
+
+    revalidatePath('/dashboard');
+    revalidatePath('/challenges');
+    return { success: true };
+  } catch (error) {
+    console.error('Error archiving challenge:', error);
+    return { error: 'Failed to stop challenge' };
   }
 }

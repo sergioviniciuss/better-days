@@ -9,6 +9,7 @@ import { confirmDay } from '@/app/actions/daily-log';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 import { DailyConfirmation } from './DailyConfirmation';
 import { PendingDaysModal } from './PendingDaysModal';
+import { StopChallengeModal } from './StopChallengeModal';
 
 interface ChallengeCardProps {
   challenge: {
@@ -16,6 +17,7 @@ interface ChallengeCardProps {
     name: string;
     objectiveType: string;
     rules: string[];
+    startDate: string;
   };
   logs: Array<{
     date: string;
@@ -37,6 +39,7 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   const [todayLog, setTodayLog] = useState(initialTodayLog);
   const [loading, setLoading] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
+  const [showStopModal, setShowStopModal] = useState(false);
 
   // Sync state with server props on hydration
   useEffect(() => {
@@ -110,6 +113,24 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
         </div>
       </div>
 
+      {/* Challenge Details */}
+      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="flex justify-between items-center text-sm">
+          <div>
+            <span className="text-gray-600 dark:text-gray-400">{t('challengeStarted')}: </span>
+            <span className="text-gray-900 dark:text-white font-medium">
+              {new Date(challenge.startDate).toLocaleDateString()}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600 dark:text-gray-400">{t('activeFor')}: </span>
+            <span className="text-gray-900 dark:text-white font-medium">
+              {Math.floor((Date.now() - new Date(challenge.startDate).getTime()) / (1000 * 60 * 60 * 24))} {t('days')}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Pending Days Alert */}
       {hasPendingDays && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4">
@@ -148,6 +169,16 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
         )}
       </div>
 
+      {/* Stop Challenge Button */}
+      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <button
+          onClick={() => setShowStopModal(true)}
+          className="w-full px-4 py-3 border-2 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-md font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors min-h-[44px]"
+        >
+          {t('stopChallenge')}
+        </button>
+      </div>
+
       {/* Pending Days Modal */}
       {showPendingModal && (
         <PendingDaysModal
@@ -155,6 +186,15 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
           onClose={() => setShowPendingModal(false)}
           userTimezone={userTimezone}
           challengeId={challenge.id}
+        />
+      )}
+
+      {/* Stop Challenge Modal */}
+      {showStopModal && (
+        <StopChallengeModal
+          challengeId={challenge.id}
+          challengeName={challenge.name}
+          onClose={() => setShowStopModal(false)}
         />
       )}
     </div>

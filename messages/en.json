@@ -42,7 +42,12 @@
     "noSugar": "No Sugar",
     "consumedSugar": "Consumed Sugar",
     "todayConfirmed": "Today Confirmed",
-    "todayPending": "Today Pending"
+    "todayPending": "Today Pending",
+    "challengeStarted": "Started",
+    "activeFor": "Active for",
+    "stopChallenge": "Stop Challenge",
+    "stopChallengeConfirm": "Are you sure you want to stop this challenge?",
+    "cancel": "Cancel"
   },
   "history": {
     "title": "History",
