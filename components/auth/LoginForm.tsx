@@ -6,7 +6,11 @@ import { signUp } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
-export function LoginForm() {
+interface LoginFormProps {
+  returnUrl?: string;
+}
+
+export function LoginForm({ returnUrl }: LoginFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
   const [isSignUp, setIsSignUp] = useState(false);
@@ -67,12 +71,17 @@ export function LoginForm() {
             .eq('id', data.user.id)
             .single();
           
-          // Redirect based on onboarding status
+          // Redirect based on onboarding status and returnUrl
           startTransition(() => {
-            if (userData?.hasCompletedOnboarding) {
-              router.push(`/${locale}/dashboard`);
-            } else {
+            if (!userData?.hasCompletedOnboarding) {
+              // If onboarding not completed, go to onboarding first
               router.push(`/${locale}/onboarding`);
+            } else if (returnUrl) {
+              // If returnUrl is provided and onboarding is complete, redirect to returnUrl
+              router.push(returnUrl);
+            } else {
+              // Default: redirect to dashboard
+              router.push(`/${locale}/dashboard`);
             }
             router.refresh();
           });

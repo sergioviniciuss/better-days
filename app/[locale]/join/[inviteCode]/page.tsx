@@ -12,7 +12,7 @@ export default async function JoinChallengePage({
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect(`/${locale}/login`);
+    redirect(`/${locale}/login?returnUrl=/${locale}/join/${inviteCode}`);
   }
 
   const result = await joinChallengeByCode(inviteCode);
