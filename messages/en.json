@@ -28,7 +28,13 @@
     "dontHaveAccount": "Don't have an account?",
     "loginError": "Failed to login",
     "signupError": "Failed to sign up",
-    "invalidCredentials": "Invalid email or password"
+    "invalidCredentials": "Invalid email or password",
+    "passwordMismatch": "Passwords do not match",
+    "passwordRequired": "Password is required",
+    "confirmPasswordRequired": "Please confirm your password",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email address"
   },
   "dashboard": {
     "title": "Dashboard",
