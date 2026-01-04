@@ -48,6 +48,8 @@ model Challenge {
   challengeType String    @default("PERSONAL") // "PERSONAL" | "GROUP"
   rules         String[]  // Array of rule strings
   startDate     String    // YYYY-MM-DD
+  dueDate       String?   // Optional: YYYY-MM-DD
+  shortId       String    @unique // 8-char unique ID like "A3F2B1C9"
   status        String    @default("ACTIVE") // "ACTIVE" | "ARCHIVED"
   createdAt     DateTime  @default(now())
 

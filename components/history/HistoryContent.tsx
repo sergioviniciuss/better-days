@@ -16,6 +16,9 @@ interface Challenge {
   id: string;
   name: string;
   objectiveType: string;
+  shortId?: string;
+  userStatus?: string;
+  userLeftAt?: string;
 }
 
 interface HistoryContentProps {
@@ -75,11 +78,12 @@ export function HistoryContent({ logs, challenges }: HistoryContentProps) {
                     };
                     
                     const labels = getLabels();
+                    const isStopped = challenge.userStatus === 'LEFT';
                     
                     return (
                       <div
                         key={log.id}
-                        className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between"
+                        className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between ${isStopped ? 'opacity-75' : ''}`}
                       >
                         <div className="flex items-center gap-3 flex-1">
                           <ChallengeIcon type={challenge.objectiveType as any} size="sm" />
@@ -87,9 +91,17 @@ export function HistoryContent({ logs, challenges }: HistoryContentProps) {
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
                               {formatDateString(log.date)}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {challenge.name}
-                            </p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {challenge.name}
+                                {challenge.shortId && <span className="font-mono"> #{challenge.shortId}</span>}
+                              </p>
+                              {isStopped && (
+                                <span className="px-1.5 py-0.5 text-xs font-semibold bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded">
+                                  {t('stoppedChallenge')}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -127,11 +139,12 @@ export function HistoryContent({ logs, challenges }: HistoryContentProps) {
                   {unconfirmedLogs.map((log) => {
                     const challenge = challengeMap.get(log.challengeId);
                     if (!challenge) return null;
+                    const isStopped = challenge.userStatus === 'LEFT';
                     
                     return (
                       <div
                         key={log.id}
-                        className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between"
+                        className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between ${isStopped ? 'opacity-75' : ''}`}
                       >
                         <div className="flex items-center gap-3 flex-1">
                           <ChallengeIcon type={challenge.objectiveType as any} size="sm" />
@@ -139,9 +152,17 @@ export function HistoryContent({ logs, challenges }: HistoryContentProps) {
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
                               {formatDateString(log.date)}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {challenge.name}
-                            </p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {challenge.name}
+                                {challenge.shortId && <span className="font-mono"> #{challenge.shortId}</span>}
+                              </p>
+                              {isStopped && (
+                                <span className="px-1.5 py-0.5 text-xs font-semibold bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded">
+                                  {t('stoppedChallenge')}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">

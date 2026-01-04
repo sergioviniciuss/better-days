@@ -21,6 +21,7 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState<ChallengeType | null>(null);
   const [challengeName, setChallengeName] = useState('');
+  const [dueDate, setDueDate] = useState('');
   const [selectedRules, setSelectedRules] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +51,9 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
     const formData = new FormData();
     formData.append('name', challengeName);
     formData.append('startDate', today);
+    if (dueDate) {
+      formData.append('dueDate', dueDate);
+    }
     formData.append('challengeType', 'GROUP');
     formData.append('objectiveType', selectedType);
     
@@ -179,6 +183,23 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
                   required
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
                 />
+              </div>
+
+              <div>
+                <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {tChallenges('dueDate')}
+                </label>
+                <input
+                  type="date"
+                  id="dueDate"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  min={today}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {tChallenges('dueDateHelper')}
+                </p>
               </div>
 
               <div className="flex justify-between gap-4 pt-4">
