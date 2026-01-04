@@ -3,12 +3,14 @@ import { getCurrentUser } from '@/app/actions/auth';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { cookies } from 'next/headers';
 import { defaultLocale } from '@/lib/i18n/config';
+import { getTranslations } from 'next-intl/server';
 
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ returnUrl?: string; invite?: string }>;
 }) {
+  const t = await getTranslations('auth');
   const user = await getCurrentUser();
   const cookieStore = await cookies();
   const locale = cookieStore.get('locale')?.value || defaultLocale;
@@ -44,7 +46,7 @@ export default async function LoginPage({
             Better Habits
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Sign in to your account
+            {t('signInToAccount')}
           </p>
         </div>
         <LoginForm returnUrl={returnUrl} inviteCode={inviteCode} />

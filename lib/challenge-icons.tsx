@@ -10,12 +10,10 @@ interface ChallengeIconConfig {
 
 const CHALLENGE_ICONS: Record<ChallengeType, ChallengeIconConfig> = {
   NO_SUGAR_STREAK: {
-    image: '/images/challenges/no-sugar.png',
     emoji: '🍬',
     alt: 'No Sugar Challenge'
   },
   ZERO_ALCOHOL: {
-    image: '/images/challenges/zero-alcohol.png',
     emoji: '🚫',
     alt: 'Zero Alcohol Challenge'
   },

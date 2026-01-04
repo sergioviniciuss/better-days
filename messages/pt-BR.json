@@ -20,6 +20,7 @@
     "login": "Entrar",
     "signup": "Cadastrar",
     "logout": "Sair",
+    "signInToAccount": "Entre na sua conta",
     "email": "E-mail",
     "password": "Senha",
     "confirmPassword": "Confirmar Senha",
@@ -28,7 +29,16 @@
     "dontHaveAccount": "Não tem uma conta?",
     "loginError": "Falha ao fazer login",
     "signupError": "Falha ao cadastrar",
-    "invalidCredentials": "E-mail ou senha inválidos"
+    "invalidCredentials": "E-mail ou senha inválidos",
+    "passwordMismatch": "As senhas não coincidem",
+    "passwordRequired": "Senha é obrigatória",
+    "confirmPasswordRequired": "Por favor confirme sua senha",
+    "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
+    "emailRequired": "E-mail é obrigatório",
+    "emailInvalid": "Por favor insira um endereço de e-mail válido",
+    "creatingAccount": "Criando conta...",
+    "signingIn": "Entrando...",
+    "loggingOut": "Saindo..."
   },
   "dashboard": {
     "title": "Painel",
