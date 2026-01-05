@@ -66,6 +66,10 @@
     "groupChallenges": "Group Challenges",
     "noSoloChallenges": "No solo challenges yet",
     "noGroupChallenges": "No group challenges yet",
+    "noSoloChallengesDescription": "Create a personal challenge to start tracking your habits and building streaks.",
+    "noGroupChallengesDescription": "Join or create a group challenge to compete with friends!",
+    "createChallenge": "Create Challenge",
+    "joinChallenge": "Join Challenge",
     "createdBy": "Created by",
     "members": "members",
     "member": "member",
@@ -205,7 +209,10 @@
     "letsGo": "Let's Go!",
     "startTracking": "Start Tracking",
     "skip": "Skip",
-    "creatingChallenge": "Creating your personal challenge..."
+    "creatingChallenge": "Creating your personal challenge...",
+    "viewChallenge": "View Challenge",
+    "inviteWelcomeSubtitle": "Track your habits, build streaks, and compete with friends!",
+    "inviteWelcomeMessage": "You've been invited to join a challenge. Let's see what your friends are up to!"
   },
   "challengeConfirmation": {
     "noAlcohol": "No Alcohol",

@@ -149,25 +149,26 @@ export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode
           // Get returnUrl or invite code from sessionStorage
           const { returnUrl: storedReturnUrl, inviteCode: storedInviteCode } = getReturnInfo();
           
-          // Clean up sessionStorage
-          if (storedReturnUrl) {
-            sessionStorage.removeItem('loginReturnUrl');
-          }
-          if (storedInviteCode) {
-            sessionStorage.removeItem('pendingInviteCode');
-          }
-          
           // Wait for session to be established
           await new Promise(resolve => setTimeout(resolve, 300));
           
           if (!userData?.hasCompletedOnboarding) {
             // If onboarding not completed, go to onboarding first
+            // Keep pendingInviteCode in sessionStorage so OnboardingFlow can detect it
+            if (storedReturnUrl) {
+              sessionStorage.removeItem('loginReturnUrl');
+            }
             window.location.href = `/${locale}/onboarding`;
           } else if (storedInviteCode) {
             // If invite code is present, redirect to join page
+            sessionStorage.removeItem('pendingInviteCode');
+            if (storedReturnUrl) {
+              sessionStorage.removeItem('loginReturnUrl');
+            }
             window.location.href = `/${locale}/join/${storedInviteCode}`;
           } else if (storedReturnUrl) {
             // If returnUrl is provided and onboarding is complete, redirect to it
+            sessionStorage.removeItem('loginReturnUrl');
             window.location.href = storedReturnUrl;
           } else {
             // Default: redirect to dashboard

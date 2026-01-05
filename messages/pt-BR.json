@@ -66,6 +66,10 @@
     "groupChallenges": "Desafios em Grupo",
     "noSoloChallenges": "Nenhum desafio solo ainda",
     "noGroupChallenges": "Nenhum desafio em grupo ainda",
+    "noSoloChallengesDescription": "Crie um desafio pessoal para começar a acompanhar seus hábitos e construir sequências.",
+    "noGroupChallengesDescription": "Entre ou crie um desafio em grupo para competir com amigos!",
+    "createChallenge": "Criar Desafio",
+    "joinChallenge": "Entrar em Desafio",
     "createdBy": "Criado por",
     "members": "membros",
     "member": "membro",
@@ -205,7 +209,10 @@
     "letsGo": "Vamos Lá!",
     "startTracking": "Começar a Acompanhar",
     "skip": "Pular",
-    "creatingChallenge": "Criando seu desafio pessoal..."
+    "creatingChallenge": "Criando seu desafio pessoal...",
+    "viewChallenge": "Ver Desafio",
+    "inviteWelcomeSubtitle": "Acompanhe seus hábitos, construa sequências e compita com amigos!",
+    "inviteWelcomeMessage": "Você foi convidado para entrar em um desafio. Vamos ver o que seus amigos estão fazendo!"
   },
   "challengeConfirmation": {
     "noAlcohol": "Sem Álcool",

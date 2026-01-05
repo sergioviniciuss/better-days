@@ -6,6 +6,11 @@ jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }));
 
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useParams: () => ({ locale: 'en' }),
+}));
+
 // Mock ChallengeCard
 jest.mock('./ChallengeCard', () => ({
   ChallengeCard: ({ challenge }: any) => (
@@ -109,7 +114,7 @@ describe('ChallengeTabs', () => {
       />
     );
 
-    expect(screen.getByText(/noSoloChallenges/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /noSoloChallenges/ })).toBeInTheDocument();
   });
 
   it('should show empty state for group challenges when none exist', async () => {
@@ -126,7 +131,7 @@ describe('ChallengeTabs', () => {
     fireEvent.click(groupTab);
 
     await waitFor(() => {
-      expect(screen.getByText(/noGroupChallenges/)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /noGroupChallenges/ })).toBeInTheDocument();
     });
   });
 

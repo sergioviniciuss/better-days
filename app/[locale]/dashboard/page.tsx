@@ -25,28 +25,30 @@ export default async function DashboardPage({
     .eq('id', user.id)
     .single();
 
-  // Check if user has any challenges
-  const { challenges } = await getChallenges();
-
-  // If user hasn't completed onboarding or has no challenges, redirect to onboarding
-  if (!userData?.hasCompletedOnboarding || !challenges || challenges.length === 0) {
+  // Only redirect to onboarding if user hasn't completed it
+  if (!userData?.hasCompletedOnboarding) {
     redirect(`/${locale}/onboarding`);
   }
 
-  // Fetch logs and today's log for all challenges
-  const challengesWithLogs = await Promise.all(
-    challenges.map(async (challenge: any) => {
-      const { logs } = await getDailyLogs(challenge.id);
-      const { log: todayLog } = await getTodayLog(challenge.id);
-      return { 
-        ...challenge,
-        logs, 
-        todayLog,
-        // Ensure challengeType defaults to PERSONAL if not set
-        challengeType: challenge.challengeType || 'PERSONAL'
-      };
-    })
-  );
+  // Check if user has any challenges
+  const { challenges } = await getChallenges();
+
+  // Allow empty challenges array - component will handle empty state
+  const challengesWithLogs = challenges && challenges.length > 0
+    ? await Promise.all(
+        challenges.map(async (challenge: any) => {
+          const { logs } = await getDailyLogs(challenge.id);
+          const { log: todayLog } = await getTodayLog(challenge.id);
+          return { 
+            ...challenge,
+            logs, 
+            todayLog,
+            // Ensure challengeType defaults to PERSONAL if not set
+            challengeType: challenge.challengeType || 'PERSONAL'
+          };
+        })
+      )
+    : [];
 
   return <DashboardContent user={user} challengesWithLogs={challengesWithLogs} />;
 }

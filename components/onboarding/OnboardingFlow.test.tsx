@@ -216,7 +216,7 @@ describe('OnboardingFlow - Invite Link', () => {
     });
 
     // Restore window.location
-    window.location = originalLocation;
+    (window as any).location = originalLocation;
   });
 
   it('should not copy anything if invite code is not available', async () => {

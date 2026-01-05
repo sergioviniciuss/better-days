@@ -28,6 +28,7 @@ describe('PendingDaysModal', () => {
   it('should render pending days', () => {
     render(
       <PendingDaysModal
+        challengeId="challenge-1"
         pendingDays={mockPendingDays}
         onClose={mockOnClose}
         userTimezone="UTC"
@@ -41,6 +42,7 @@ describe('PendingDaysModal', () => {
   it('should allow marking all as no sugar', () => {
     render(
       <PendingDaysModal
+        challengeId="challenge-1"
         pendingDays={mockPendingDays}
         onClose={mockOnClose}
         userTimezone="UTC"
@@ -60,6 +62,7 @@ describe('PendingDaysModal', () => {
 
     render(
       <PendingDaysModal
+        challengeId="challenge-1"
         pendingDays={mockPendingDays}
         onClose={mockOnClose}
         userTimezone="UTC"

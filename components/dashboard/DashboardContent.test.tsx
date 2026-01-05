@@ -6,6 +6,11 @@ jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }));
 
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useParams: () => ({ locale: 'en' }),
+}));
+
 // Mock actions
 jest.mock('@/app/actions/daily-log', () => ({
   getTodayLog: jest.fn().mockResolvedValue({ log: null }),
@@ -61,6 +66,7 @@ describe('DashboardContent', () => {
       name: 'No Sugar Challenge',
       objectiveType: 'NO_SUGAR_STREAK',
       challengeType: 'PERSONAL',
+      startDate: '2024-01-01',
       rules: ['addedSugarCounts'],
       logs: [
         {
