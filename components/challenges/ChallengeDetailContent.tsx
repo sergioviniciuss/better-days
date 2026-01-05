@@ -33,6 +33,7 @@ interface Challenge {
       email: string;
     };
   }>;
+  userJoinedAt?: string;
 }
 
 interface LeaderboardEntry {
