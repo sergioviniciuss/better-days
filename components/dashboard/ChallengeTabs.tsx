@@ -16,6 +16,11 @@ interface Challenge {
   dueDate?: string | null;
   challengeType?: string;
   userJoinedAt?: string;
+  logs?: Array<{
+    date: string;
+    consumedSugar: boolean;
+    confirmedAt: Date | null;
+  }>;
   owner?: {
     email: string;
   };
@@ -81,7 +86,7 @@ export function ChallengeTabs({
             <ChallengeCard
               key={challenge.id}
               challenge={challenge}
-              logs={[]}
+              logs={challenge.logs || []}
               todayLog={todayLogs.get(challenge.id) || null}
               userTimezone={userTimezone}
             />

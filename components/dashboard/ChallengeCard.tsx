@@ -11,6 +11,7 @@ import { ChallengeIcon } from '@/lib/challenge-icons';
 import { DailyConfirmation } from './DailyConfirmation';
 import { PendingDaysModal } from './PendingDaysModal';
 import { StopChallengeModal } from './StopChallengeModal';
+import { StreakAchievement } from './StreakAchievement';
 
 interface ChallengeCardProps {
   challenge: {
@@ -66,6 +67,13 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   const today = getTodayInTimezone(userTimezone);
   const todayConfirmed = todayLog !== null && todayLog !== undefined && todayLog.confirmedAt !== null;
   const hasPendingDays = pendingDays.length > 0;
+
+  // Milestone detection helper
+  const isMilestoneStreak = (streak: number): boolean => {
+    const milestones = [10, 25, 50, 100, 200, 365, 500, 1000];
+    return milestones.includes(streak);
+  };
+  const isMilestone = isMilestoneStreak(currentStreak);
 
   useEffect(() => {
     // Auto-open pending days modal if user has pending days
@@ -145,24 +153,13 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
         </div>
       </div>
 
-      {/* Streaks */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-            {t('currentStreak')}
-          </p>
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            {currentStreak} {currentStreak === 1 ? t('day') : t('days')}
-          </p>
-        </div>
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-            {t('bestStreak')}
-          </p>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-            {bestStreak} {bestStreak === 1 ? t('day') : t('days')}
-          </p>
-        </div>
+      {/* Streaks - Enhanced Achievement Display */}
+      <div className="mb-4">
+        <StreakAchievement
+          currentStreak={currentStreak}
+          bestStreak={bestStreak}
+          isMilestone={isMilestone}
+        />
       </div>
 
       {/* Challenge Details */}

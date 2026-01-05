@@ -167,7 +167,7 @@ describe('ChallengeCard', () => {
   });
 
   it('should display streak information', () => {
-    render(
+    const { container } = render(
       <ChallengeCard
         challenge={mockChallenge}
         logs={mockLogs}
@@ -176,12 +176,17 @@ describe('ChallengeCard', () => {
       />
     );
 
-    expect(screen.getByText(/currentStreak/)).toBeInTheDocument();
-    expect(screen.getByText(/bestStreak/)).toBeInTheDocument();
-    // Verify the actual streak values are displayed (5 and 10)
-    const streakSection = screen.getByText(/currentStreak/).closest('.grid');
-    expect(streakSection).toHaveTextContent('5');
-    expect(streakSection).toHaveTextContent('10');
+    // Find the streak achievement component by its unique gradient background
+    const streakComponent = container.querySelector('.bg-gradient-to-br');
+    expect(streakComponent).toBeInTheDocument();
+    
+    // Verify both streak values are displayed
+    expect(streakComponent).toHaveTextContent('5'); // Current streak
+    expect(streakComponent).toHaveTextContent('10'); // Best streak
+    
+    // Verify streak text labels
+    expect(streakComponent).toHaveTextContent(/streak/i);
+    expect(streakComponent).toHaveTextContent(/best/i);
   });
 
   it('should show daily confirmation when today is not confirmed', () => {
