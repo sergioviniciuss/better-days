@@ -49,7 +49,7 @@ export function StreakAchievement({ currentStreak, bestStreak, isMilestone }: St
         
         {/* Best streak - smaller, below */}
         <div className="text-xs md:text-sm text-cyan-300/70 mt-2 md:mt-3 uppercase tracking-wide">
-          {t('best')}: {t('streak')} {bestStreak} {bestStreak === 1 ? t('daySingular') : t('dayPlural')}
+          {t('best')}: {bestStreak} {bestStreak === 1 ? t('daySingular').toLowerCase() : t('dayPlural').toLowerCase()} {t('streak').toLowerCase()}
         </div>
       </div>
 
