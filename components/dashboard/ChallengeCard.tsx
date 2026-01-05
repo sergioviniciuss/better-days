@@ -55,10 +55,21 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   }, [initialTodayLog]);
 
   const { currentStreak, bestStreak } = calculateStreaks(logs, userTimezone);
-  const pendingDays = detectPendingDays(logs, userTimezone);
+  const pendingDays = detectPendingDays(
+    logs, 
+    userTimezone,
+    challenge.userJoinedAt || challenge.startDate
+  );
   const today = getTodayInTimezone(userTimezone);
   const todayConfirmed = todayLog !== null && todayLog !== undefined && todayLog.confirmedAt !== null;
   const hasPendingDays = pendingDays.length > 0;
+
+  useEffect(() => {
+    // Auto-open pending days modal if user has pending days
+    if (hasPendingDays && !showPendingModal && !todayConfirmed) {
+      setShowPendingModal(true);
+    }
+  }, [hasPendingDays, showPendingModal, todayConfirmed]);
 
   const handleConfirmToday = async (consumedSugar: boolean) => {
     setLoading(true);

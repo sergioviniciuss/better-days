@@ -255,7 +255,9 @@ export async function getChallenges(includeLeft: boolean = false) {
       const membership = memberships.find(m => m.challengeId === challenge.id);
       return {
         ...challenge,
-        userJoinedAt: membership?.joinedAt,
+        userJoinedAt: membership?.joinedAt 
+          ? new Date(membership.joinedAt).toISOString().split('T')[0]
+          : undefined,
         userLeftAt: membership?.leftAt,
         userStatus: membership?.status
       };
@@ -306,7 +308,17 @@ export async function getChallenge(challengeId: string) {
       return { error: 'Challenge not found', challenge: null };
     }
 
-    return { challenge };
+    // Add user's joinedAt to the challenge
+    const challengeWithMembership = {
+      ...challenge,
+      userJoinedAt: membership.joinedAt 
+        ? new Date(membership.joinedAt).toISOString().split('T')[0]
+        : undefined,
+      userLeftAt: membership.leftAt,
+      userStatus: membership.status
+    };
+
+    return { challenge: challengeWithMembership };
   } catch (error) {
     console.error('Error fetching challenge:', error);
     return { error: 'Failed to fetch challenge', challenge: null };

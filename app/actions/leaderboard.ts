@@ -73,7 +73,15 @@ export async function getChallengeLeaderboard(challengeId: string) {
 
         const timezone = member.user?.timezone || 'UTC';
         const { currentStreak, bestStreak } = calculateStreaks(userLogs, timezone);
-        const pendingDays = detectPendingDays(userLogs, timezone);
+        // Convert joinedAt DateTime to YYYY-MM-DD format
+        const joinedAtDate = member.joinedAt 
+          ? new Date(member.joinedAt).toISOString().split('T')[0]
+          : null;
+        const pendingDays = detectPendingDays(
+          userLogs, 
+          timezone,
+          joinedAtDate || challenge.startDate
+        );
         const today = new Date().toISOString().split('T')[0];
         const todayLog = userLogs.find((log) => log.date === today && log.confirmedAt !== null);
 

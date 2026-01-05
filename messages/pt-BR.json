@@ -161,7 +161,9 @@
     "confirmSelected": "Confirmar Selecionados",
     "noPendingDays": "Nenhum dia pendente",
     "day": "Dia",
-    "status": "Status"
+    "status": "Status",
+    "calendarView": "Visualização de Calendário",
+    "listView": "Visualização de Lista"
   },
   "onboarding": {
     "welcome": "Bem-vindo ao Melhores Habitos!",
