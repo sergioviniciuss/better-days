@@ -71,7 +71,7 @@ export default async function ChallengeDetailPage({
   // Get leaderboard - always fetch it, especially for non-members viewing via invite
   // This allows them to see challenge details before deciding to join
   const { leaderboard } = await getChallengeLeaderboard(id);
-  const { logs } = await getDailyLogs();
+  const { logs } = await getDailyLogs(id);
 
   const inviteCode = challenge.invites?.[0]?.code || '';
 
