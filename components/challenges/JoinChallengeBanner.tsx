@@ -27,6 +27,7 @@ export function JoinChallengeBanner({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [isMaybeLaterPending, setIsMaybeLaterPending] = useState(false);
 
   const handleJoin = async () => {
     setError(null);
@@ -46,11 +47,13 @@ export function JoinChallengeBanner({
     });
   };
 
-  const handleMaybeLater = () => {
+  const handleMaybeLater = async () => {
+    setIsMaybeLaterPending(true);
     // Remove invite query param from URL
     const url = new URL(window.location.href);
     url.searchParams.delete('invite');
     router.push(url.pathname + url.search);
+    // Note: No need to set false - component will unmount after navigation
   };
 
   return (
@@ -111,17 +114,17 @@ export function JoinChallengeBanner({
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <button
             onClick={handleJoin}
-            disabled={isPending}
+            disabled={isPending || isMaybeLaterPending}
             className="px-6 py-3 bg-white text-blue-600 rounded-md font-semibold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] whitespace-nowrap"
           >
             {isPending ? t('joining') : t('joinChallengeButton')}
           </button>
           <button
             onClick={handleMaybeLater}
-            disabled={isPending}
+            disabled={isPending || isMaybeLaterPending}
             className="px-6 py-3 bg-blue-500/20 border-2 border-white/50 text-white rounded-md font-semibold hover:bg-blue-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] whitespace-nowrap"
           >
-            {t('maybeLaterButton')}
+            {isMaybeLaterPending ? '...' : t('maybeLaterButton')}
           </button>
         </div>
       </div>

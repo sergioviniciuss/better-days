@@ -18,3 +18,29 @@
   5. Include comments in the SQL to explain what each statement does
 - Always ensure migrations are backward compatible with existing data
 - Use DEFAULT values when adding new NOT NULL columns to existing tables
+
+# Async Actions Pattern
+
+When implementing async actions that involve navigation or state changes:
+
+1. **Loading States**: Always add loading/pending state to buttons/UI elements
+   - Use `useState` for simple async operations with loading feedback
+   - Use `useTransition` for React transitions that don't need explicit loading state
+   - Disable interactive elements during pending state
+   - Show visual feedback (loading text, spinner, etc.)
+
+2. **Navigation After Async Actions**:
+   - Use `router.push()` or `router.refresh()` for client-side navigation
+   - Use `window.location.href` only when session/cookie establishment is critical (e.g., login/logout)
+   - Add delays (`await new Promise(resolve => setTimeout(resolve, 300))`) before redirects when session establishment is needed
+
+3. **Error Handling**: Always handle and display errors from async operations
+   - Store error state in component state
+   - Display error messages clearly to users
+   - Keep UI interactive (don't leave in loading state on error)
+
+4. **Examples**:
+   - Login/Signup: `window.location.href` with 300ms delay (session critical)
+   - Form submissions: `router.refresh()` after successful mutation
+   - Client-side navigation: `router.push()` with loading state
+   - Banner actions: Loading state on buttons, `router.push()` for navigation
