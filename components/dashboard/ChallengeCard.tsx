@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import { calculateStreaks, detectPendingDays } from '@/lib/streak-utils';
 import { getTodayInTimezone } from '@/lib/date-utils';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { confirmDay } from '@/app/actions/daily-log';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 import { DailyConfirmation } from './DailyConfirmation';
@@ -44,6 +45,8 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   const t = useTranslations('dashboard');
   const tChallenge = useTranslations('challengeConfirmation');
   const router = useRouter();
+  const params = useParams();
+  const locale = params.locale as string;
   const [todayLog, setTodayLog] = useState(initialTodayLog);
   const [loading, setLoading] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
@@ -55,10 +58,21 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   }, [initialTodayLog]);
 
   const { currentStreak, bestStreak } = calculateStreaks(logs, userTimezone);
-  const pendingDays = detectPendingDays(logs, userTimezone);
+  const pendingDays = detectPendingDays(
+    logs, 
+    userTimezone,
+    challenge.userJoinedAt || challenge.startDate
+  );
   const today = getTodayInTimezone(userTimezone);
   const todayConfirmed = todayLog !== null && todayLog !== undefined && todayLog.confirmedAt !== null;
   const hasPendingDays = pendingDays.length > 0;
+
+  useEffect(() => {
+    // Auto-open pending days modal if user has pending days
+    if (hasPendingDays && !showPendingModal && !todayConfirmed) {
+      setShowPendingModal(true);
+    }
+  }, [hasPendingDays, showPendingModal, todayConfirmed]);
 
   const handleConfirmToday = async (consumedSugar: boolean) => {
     setLoading(true);
@@ -98,9 +112,11 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
         <div className="flex items-center justify-between gap-3 mb-2">
           <div className="flex items-center gap-3">
             <ChallengeIcon type={challenge.objectiveType as any} size="md" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {challenge.name}
-            </h2>
+            <Link href={`/${locale}/challenges/${challenge.id}`}>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
+                {challenge.name}
+              </h2>
+            </Link>
           </div>
           {challenge.shortId && (
             <span className="px-2 py-1 text-xs font-mono font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">

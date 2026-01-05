@@ -19,6 +19,9 @@ export function LanguageSwitcher() {
   const currentLanguage = languages.find((lang) => lang.code === locale) || languages[0];
 
   const switchLanguage = (newLocale: string) => {
+    // Close dropdown immediately for cleaner UX
+    setIsOpen(false);
+    
     // Set cookie
     document.cookie = `locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
     
@@ -29,7 +32,6 @@ export function LanguageSwitcher() {
 
     startTransition(() => {
       router.refresh();
-      setIsOpen(false);
     });
   };
 
@@ -73,7 +75,9 @@ export function LanguageSwitcher() {
         aria-label="Switch language"
         aria-expanded={isOpen}
         aria-haspopup="true"
-        className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px] transition-colors"
+        className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px] transition-colors ${
+          isPending ? 'opacity-60 cursor-not-allowed' : ''
+        }`}
       >
         {/* Globe Icon */}
         <svg
@@ -93,25 +97,46 @@ export function LanguageSwitcher() {
         {/* Current Language Code */}
         <span>{currentLanguage.displayCode}</span>
         
-        {/* Chevron */}
-        <svg
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        {/* Loading Spinner or Chevron */}
+        {isPending ? (
+          <svg
+            className="w-4 h-4 animate-spin"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+        ) : (
+          <svg
+            className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        )}
       </button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
+      {isOpen && !isPending && (
         <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-50 animate-in fade-in slide-in-from-top-1 duration-200">
           {languages.map((lang) => (
             <button
               key={lang.code}
               onClick={() => switchLanguage(lang.code)}
-              disabled={isPending}
               className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-md last:rounded-b-md min-h-[44px] flex items-center justify-between transition-colors ${
                 lang.code === locale
                   ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium'

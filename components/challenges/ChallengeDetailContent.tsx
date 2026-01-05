@@ -33,6 +33,7 @@ interface Challenge {
       email: string;
     };
   }>;
+  userJoinedAt?: string;
 }
 
 interface LeaderboardEntry {
@@ -81,7 +82,11 @@ export function ChallengeDetailContent({
   }));
 
   const { currentStreak, bestStreak } = calculateStreaks(streakLogs, user.timezone);
-  const pendingDays = detectPendingDays(streakLogs, user.timezone);
+  const pendingDays = detectPendingDays(
+    streakLogs, 
+    user.timezone,
+    challenge.userJoinedAt || challenge.startDate
+  );
 
   const inviteCode = propInviteCode || challenge.invites[0]?.code || '';
   const inviteUrl = typeof window !== 'undefined' 

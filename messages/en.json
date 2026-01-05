@@ -161,7 +161,9 @@
     "confirmSelected": "Confirm Selected",
     "noPendingDays": "No pending days",
     "day": "Day",
-    "status": "Status"
+    "status": "Status",
+    "calendarView": "Calendar View",
+    "listView": "List View"
   },
   "onboarding": {
     "welcome": "Welcome to Better Days!",

@@ -142,11 +142,12 @@ function getNextDate(dateString: string): string {
 }
 
 /**
- * Detect pending days (dates between last confirmed date and today that haven't been confirmed)
+ * Detect pending days (dates between start date and today that haven't been confirmed)
  */
 export function detectPendingDays(
   logs: DailyLog[],
-  userTimezone: string
+  userTimezone: string,
+  startDate?: string // Challenge start date or user join date (YYYY-MM-DD)
 ): string[] {
   const confirmedLogs = logs
     .filter((log) => log.confirmedAt !== null)
@@ -156,22 +157,42 @@ export function detectPendingDays(
       return 0;
     });
 
+  const today = getTodayInTimezone(userTimezone);
+
+  // If no confirmed logs, calculate from start date (or user join date)
   if (confirmedLogs.length === 0) {
-    // No confirmed logs yet - no pending days for new users
-    // Pending days only start accumulating after the first confirmed day
-    return [];
+    if (!startDate) {
+      // No start date provided - legacy behavior (no pending days)
+      return [];
+    }
+    
+    // If start date is today or in the future, no pending days
+    if (!isDateStringBefore(startDate, today)) {
+      return [];
+    }
+    
+    // Get all dates from start date (inclusive) to today (inclusive)
+    const allDates = getDatesBetween(startDate, today);
+    
+    // Filter out dates that have any log (even unconfirmed)
+    const loggedDates = new Set(logs.map((log) => log.date));
+    return allDates.filter((date) => !loggedDates.has(date));
   }
 
   const lastConfirmedDate = confirmedLogs[confirmedLogs.length - 1].date;
-  const today = getTodayInTimezone(userTimezone);
 
-  // If last confirmed is today or in the future, no pending days
-  if (!isDateStringBefore(lastConfirmedDate, today)) {
+  // Determine the effective start date
+  const effectiveStartDate = startDate && isDateStringBefore(startDate, lastConfirmedDate)
+    ? startDate
+    : lastConfirmedDate;
+
+  // If effective start is today or in the future, no pending days
+  if (!isDateStringBefore(effectiveStartDate, today)) {
     return [];
   }
 
-  // Get all dates between last confirmed (exclusive) and today (inclusive)
-  const nextDate = getNextDate(lastConfirmedDate);
+  // Get all dates between effective start (exclusive if confirmed, inclusive if not) and today (inclusive)
+  const nextDate = getNextDate(effectiveStartDate);
   const allDates = getDatesBetween(nextDate, today);
 
   // Filter out dates that are already confirmed
