@@ -281,7 +281,7 @@ export function PendingDaysModal({ pendingDays, onClose, userTimezone, challenge
             </button>
             <button
               onClick={handleSubmit}
-              disabled={submitting || pendingDays.length === 0}
+              disabled={submitting || pendingDays.length === 0 || Object.keys(confirmations).length === 0}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
             >
               {submitting ? 'Loading...' : t('confirmSelected')}

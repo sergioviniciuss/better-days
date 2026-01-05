@@ -81,4 +81,39 @@ describe('PendingDaysModal', () => {
       expect(mockConfirmMultipleDays).toHaveBeenCalled();
     });
   });
+
+  it('should disable confirm button when no days are selected', () => {
+    render(
+      <PendingDaysModal
+        challengeId="challenge-1"
+        pendingDays={mockPendingDays}
+        onClose={mockOnClose}
+        userTimezone="UTC"
+      />
+    );
+
+    const confirmButton = screen.getByText(/confirmSelected/i);
+    expect(confirmButton).toBeDisabled();
+  });
+
+  it('should enable confirm button when at least one day is selected', () => {
+    render(
+      <PendingDaysModal
+        challengeId="challenge-1"
+        pendingDays={mockPendingDays}
+        onClose={mockOnClose}
+        userTimezone="UTC"
+      />
+    );
+
+    const confirmButton = screen.getByText(/confirmSelected/i);
+    expect(confirmButton).toBeDisabled();
+
+    // Select one day
+    const noSugarButton = screen.getAllByText('No Sugar')[0];
+    fireEvent.click(noSugarButton);
+
+    // Button should now be enabled
+    expect(confirmButton).not.toBeDisabled();
+  });
 });
