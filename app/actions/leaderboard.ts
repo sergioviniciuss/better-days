@@ -92,6 +92,8 @@ export async function getChallengeLeaderboard(challengeId: string, providedUser?
           bestStreak,
           pendingDays: pendingDays.length,
           confirmedToday: todayLog !== undefined,
+          role: member.role || 'MEMBER',
+          isAdmin: member.role === 'OWNER',
         };
       });
 

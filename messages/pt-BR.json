@@ -66,6 +66,7 @@
     "stopChallengePreserveData": "Todos os seus dados serão preservados no histórico",
     "stopChallengeViewLogs": "Você pode ver seus registros passados a qualquer momento",
     "cancel": "Cancelar",
+    "loading": "Atualizando...",
     "soloChallenges": "Desafios Solo",
     "groupChallenges": "Desafios em Grupo",
     "noSoloChallenges": "Nenhum desafio solo ainda",
@@ -80,7 +81,16 @@
     "youJoined": "Você entrou",
     "ends": "Termina",
     "endsSoon": "Termina em breve",
-    "endingSoon": "Terminando em breve"
+    "endingSoon": "Terminando em breve",
+    "archiveChallenge": "Arquivar Desafio",
+    "quitChallenge": "Sair do Desafio",
+    "ruleChangeRequired": "Você deve reconhecer as mudanças nas regras para continuar",
+    "viewAndRespond": "Ver Desafio e Responder",
+    "adminWarning": "Isso encerrará o desafio para TODOS os participantes",
+    "groupBadge": "Grupo",
+    "individualBadge": "Individual",
+    "noChallenges": "Nenhum desafio ainda",
+    "noChallengesDescription": "Crie um desafio para começar a acompanhar seus hábitos e construir sequências."
   },
   "history": {
     "title": "Histórico",
@@ -101,7 +111,9 @@
     "joinChallenge": "Entrar em Desafio",
     "challengeName": "Nome do Desafio",
     "startDate": "Data de Início",
-    "dueDate": "Data de Término (Opcional)",
+    "setEndDate": "Definir data de término?",
+    "setEndDateDescription": "Deixe desmarcado para um desafio sem prazo",
+    "dueDate": "Data de Término",
     "dueDateHelper": "Deixe em branco para desafio sem prazo",
     "openEnded": "Sem prazo",
     "ends": "Termina",
@@ -114,7 +126,7 @@
     "member": "membro",
     "youJoined": "Você entrou",
     "rules": "Regras",
-    "addedSugarCounts": "Açúcar adicionado conta como falha",
+    "addedSugarCounts": "Qualquer produto com açúcar adicionado (de acordo com o rótulo) conta como falha",
     "fruitDoesNotCount": "Frutas não contam como açúcar",
     "missingDaysPending": "Dias faltantes permanecem pendentes até confirmação",
     "processedSugarOnly": "Apenas açúcar processado conta",
@@ -139,7 +151,11 @@
     "notConfirmedToday": "Não Confirmado Hoje",
     "inviteSection": "Convidar Amigos",
     "inviteDescription": "Compartilhe este código com amigos para entrar no desafio",
-    "editHistory": "Editar Histórico"
+    "editHistory": "Editar Histórico",
+    "editRules": "Editar Regras",
+    "archiveChallenge": "Arquivar Desafio",
+    "quitChallenge": "Sair do Desafio",
+    "adminBadge": "Admin"
   },
   "joinChallenge": {
     "title": "Entrar em Desafio",
@@ -202,7 +218,7 @@
     "nutritionTip": "Procure por '0g' na linha 'Açúcares' ou 'Açúcares Adicionados' da tabela nutricional para identificar alimentos sem açúcar.",
     "rules": {
       "addedSugarCounts": "Açúcar adicionado conta como falha",
-      "addedSugarCountsHelp": "Qualquer alimento com açúcar adicionado/refinado quebra sua sequência",
+      "addedSugarCountsHelp": "Qualquer produto com açúcar adicionado (de acordo com o rótulo) conta como falha",
       "fruitDoesNotCount": "Frutas não contam como açúcar",
       "fruitDoesNotCountHelp": "Açúcares naturais em frutas inteiras são permitidos",
       "missingDaysPending": "Dias faltantes permanecem pendentes",
@@ -269,6 +285,38 @@
     "back": "Voltar",
     "create": "Criar Desafio",
     "creating": "Criando..."
+  },
+  "editRules": {
+    "title": "Editar Regras do Desafio",
+    "description": "Atualizar regras para este desafio",
+    "warning": "Todos os participantes serão notificados e devem aceitar as mudanças",
+    "saveChanges": "Salvar Alterações",
+    "saveAndNotify": "Salvar e Notificar Participantes",
+    "cancel": "Cancelar"
+  },
+  "ruleChangeNotification": {
+    "title": "⚠️ Regras do Desafio Atualizadas",
+    "message": "O administrador atualizou as regras do desafio. Você deve revisar e aceitá-las para continuar.",
+    "description": "Você não pode registrar confirmações diárias até responder.",
+    "viewNewRules": "Novas Regras:",
+    "acceptAndContinue": "Aceitar e Continuar",
+    "leaveChallenge": "Sair do Desafio",
+    "accepting": "Aceitando..."
+  },
+  "quitChallenge": {
+    "title": "Sair do Desafio",
+    "confirm": "Tem certeza que deseja sair deste desafio?",
+    "warning": "Se você entrar novamente mais tarde, seu progresso começará do zero",
+    "keepData": "Seus registros antigos serão preservados no histórico",
+    "newStreak": "Você terá uma nova data de entrada e sequência nova",
+    "quitButton": "Sair do Desafio",
+    "quitting": "Saindo...",
+    "cancel": "Cancelar",
+    "loading": "Atualizando..."
+  },
+  "archiveChallenge": {
+    "adminWarning": "Isso encerrará o desafio para TODOS os participantes",
+    "archiveForAll": "Arquivar para Todos"
   },
   "errors": {
     "generic": "Algo deu errado",

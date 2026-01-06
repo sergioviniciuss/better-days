@@ -6,6 +6,11 @@ import { useState } from 'react';
 import { formatDateString } from '@/lib/date-utils';
 import { JoinChallengeBanner } from './JoinChallengeBanner';
 import { EditConfirmationsModal } from '@/components/dashboard/EditConfirmationsModal';
+import { EditRulesModal } from './EditRulesModal';
+import { QuitChallengeModal } from './QuitChallengeModal';
+import { RuleChangeNotificationBanner } from './RuleChangeNotificationBanner';
+import { StopChallengeModal } from '@/components/dashboard/StopChallengeModal';
+import { hasUnacknowledgedRuleChanges } from '@/app/actions/challenge';
 
 interface User {
   id: string;
@@ -20,6 +25,7 @@ interface Challenge {
   challengeType?: string;
   startDate: string;
   rules: string[];
+  rulesUpdatedAt?: string | null;
   owner: {
     id: string;
     email: string;
@@ -29,6 +35,9 @@ interface Challenge {
   }>;
   members?: Array<{
     userId: string;
+    role?: string;
+    status?: string;
+    lastAcknowledgedRulesAt?: string | null;
     user: {
       id: string;
       email: string;
@@ -44,6 +53,8 @@ interface LeaderboardEntry {
   bestStreak: number;
   pendingDays: number;
   confirmedToday: boolean;
+  role?: string;
+  isAdmin?: boolean;
 }
 
 interface DailyLog {
@@ -73,10 +84,23 @@ export function ChallengeDetailContent({
   isMember = true,
 }: ChallengeDetailContentProps) {
   const t = useTranslations('challengeDetail');
+  const tDashboard = useTranslations('dashboard');
   const tChallenges = useTranslations('challenges');
   const tJoin = useTranslations('joinChallenge');
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showEditRulesModal, setShowEditRulesModal] = useState(false);
+  const [showQuitModal, setShowQuitModal] = useState(false);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+
+  // Check if current user is admin
+  const userMembership = challenge.members?.find(m => m.userId === user.id);
+  const isAdmin = userMembership?.role === 'OWNER';
+
+  // Check for unacknowledged rule changes
+  const hasUnacknowledgedRules = userMembership && challenge.rulesUpdatedAt
+    ? hasUnacknowledgedRuleChanges(challenge, userMembership)
+    : false;
 
   // Calculate user's stats
   const streakLogs: StreakDailyLog[] = userLogs.map((log) => ({
@@ -105,14 +129,26 @@ export function ChallengeDetailContent({
     }
   };
 
-  const memberCount = challenge.members?.length || 0;
+  // Calculate active member count for badge and invite section
+  const activeMemberCount = challenge.members?.filter(m => m.status === 'ACTIVE').length || 0;
+  const isGroupChallenge = activeMemberCount > 1;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          {challenge.name}
-        </h1>
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {challenge.name}
+          </h1>
+          {/* Badge */}
+          <span className={`px-2 py-1 text-xs font-semibold rounded ${
+            isGroupChallenge
+              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+          }`}>
+            {isGroupChallenge ? tDashboard('groupBadge', { defaultValue: 'Group' }) : tDashboard('individualBadge', { defaultValue: 'Individual' })}
+          </span>
+        </div>
         <p className="text-gray-600 dark:text-gray-400">
           Started: {formatDateString(challenge.startDate)}
         </p>
@@ -124,17 +160,36 @@ export function ChallengeDetailContent({
           challengeId={challenge.id}
           challengeName={challenge.name}
           inviteCode={inviteCode}
-          memberCount={memberCount}
+          memberCount={activeMemberCount}
           rules={challenge.rules}
+        />
+      )}
+
+      {/* Rule Change Notification Banner - BLOCKING */}
+      {isMember && hasUnacknowledgedRules && (
+        <RuleChangeNotificationBanner
+          challengeId={challenge.id}
+          rules={challenge.rules}
+          onQuit={() => setShowQuitModal(true)}
         />
       )}
 
       {/* Challenge Rules Section - Only show if user is a member */}
       {isMember && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            {tChallenges('rules')}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              {tChallenges('rules')}
+            </h2>
+            {isAdmin && !hasUnacknowledgedRules && (
+              <button
+                onClick={() => setShowEditRulesModal(true)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium min-h-[44px]"
+              >
+                {t('editRules')}
+              </button>
+            )}
+          </div>
           {challenge.rules.length > 0 ? (
             <ul className="space-y-3">
               {challenge.rules.map((rule, index) => (
@@ -162,8 +217,8 @@ export function ChallengeDetailContent({
         </div>
       )}
 
-      {/* User Status Card - Only show if user is a member */}
-      {isMember && (
+      {/* User Status Card - Only show if user is a member and no unacknowledged rules */}
+      {isMember && !hasUnacknowledgedRules && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -239,6 +294,9 @@ export function ChallengeDetailContent({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {entry.email}
+                    {entry.isAdmin && (
+                      <span className="ml-2 text-xs text-purple-600 dark:text-purple-400 font-semibold">(Admin)</span>
+                    )}
                     {entry.userId === user.id && (
                       <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">(You)</span>
                     )}
@@ -270,9 +328,9 @@ export function ChallengeDetailContent({
         </div>
       </div>
 
-      {/* Invite Section - Only show for GROUP challenges and if user is a member */}
-      {isMember && challenge.challengeType === 'GROUP' && inviteCode && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      {/* Invite Section - Only show for group challenges (more than 1 member) and if user is a member */}
+      {isMember && !hasUnacknowledgedRules && isGroupChallenge && inviteCode && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             {t('inviteSection')}
           </h2>
@@ -294,7 +352,31 @@ export function ChallengeDetailContent({
           </div>
         </div>
       )}
-      
+
+      {/* Challenge Actions - Only show if no unacknowledged rules */}
+      {isMember && !hasUnacknowledgedRules && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            {isAdmin ? (
+              <button
+                onClick={() => setShowArchiveModal(true)}
+                className="w-full px-4 py-3 border-2 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-md font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors min-h-[44px]"
+              >
+                {t('archiveChallenge')}
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowQuitModal(true)}
+                className="w-full px-4 py-3 border-2 border-orange-300 dark:border-orange-700 text-orange-600 dark:text-orange-400 rounded-md font-medium hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors min-h-[44px]"
+              >
+                {t('quitChallenge')}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modals */}
       {showEditModal && isMember && (
         <EditConfirmationsModal
           confirmedLogs={userLogs.filter(log => log.confirmedAt !== null).map(log => ({
@@ -309,6 +391,30 @@ export function ChallengeDetailContent({
           challengeId={challenge.id}
           userTimezone={user.timezone}
           onClose={() => setShowEditModal(false)}
+        />
+      )}
+
+      {showEditRulesModal && isAdmin && (
+        <EditRulesModal
+          challengeId={challenge.id}
+          currentRules={challenge.rules}
+          onClose={() => setShowEditRulesModal(false)}
+        />
+      )}
+
+      {showQuitModal && !isAdmin && (
+        <QuitChallengeModal
+          challengeId={challenge.id}
+          challengeName={challenge.name}
+          onClose={() => setShowQuitModal(false)}
+        />
+      )}
+
+      {showArchiveModal && isAdmin && (
+        <StopChallengeModal
+          challengeId={challenge.id}
+          challengeName={challenge.name}
+          onClose={() => setShowArchiveModal(false)}
         />
       )}
     </div>

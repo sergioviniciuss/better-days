@@ -12,6 +12,7 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({
     refresh: mockRefresh,
   }),
+  usePathname: () => '/en/dashboard',
 }));
 
 // Mock archiveChallenge action
@@ -92,7 +93,7 @@ describe('StopChallengeModal', () => {
     });
   });
 
-  it('should close modal and refresh after successful archive', async () => {
+  it('should show full page loader and refresh after successful archive', async () => {
     mockArchiveChallenge.mockResolvedValue({ success: true });
 
     render(
@@ -108,12 +109,19 @@ describe('StopChallengeModal', () => {
     fireEvent.click(confirmButton);
 
     await waitFor(() => {
-      expect(mockOnClose).toHaveBeenCalled();
+      expect(mockArchiveChallenge).toHaveBeenCalledWith('challenge-1');
     });
 
-    // Wait for setTimeout to trigger refresh
-    await new Promise(resolve => setTimeout(resolve, 150));
+    // Should show full page loader
+    await waitFor(() => {
+      expect(screen.getByText(/loading/)).toBeInTheDocument();
+    });
+
+    // Should call router.refresh()
     expect(mockRefresh).toHaveBeenCalled();
+    
+    // onClose should NOT be called (modal stays visible with loader)
+    expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   it('should display error message when archive fails', async () => {

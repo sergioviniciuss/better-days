@@ -21,9 +21,11 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState<ChallengeType | null>(null);
   const [challengeName, setChallengeName] = useState('');
+  const [hasEndDate, setHasEndDate] = useState(false);
   const [dueDate, setDueDate] = useState('');
   const [selectedRules, setSelectedRules] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [showFullPageLoader, setShowFullPageLoader] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const today = getTodayInTimezone(userTimezone);
@@ -44,6 +46,7 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
 
   const handleSubmit = async () => {
     if (!selectedType || !challengeName.trim()) return;
+    if (hasEndDate && !dueDate) return;
 
     setSubmitting(true);
     setError(null);
@@ -51,7 +54,7 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
     const formData = new FormData();
     formData.append('name', challengeName);
     formData.append('startDate', today);
-    if (dueDate) {
+    if (hasEndDate && dueDate) {
       formData.append('dueDate', dueDate);
     }
     formData.append('challengeType', 'GROUP');
@@ -67,16 +70,33 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
       setError(result.error);
       setSubmitting(false);
     } else {
-      onClose();
+      setShowFullPageLoader(true);
       router.push(`/challenges/${result.challengeId}`);
       router.refresh();
+      // Don't call onClose() - let the loader stay visible until navigation completes
+      // The modal will be unmounted when we navigate away
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
+    <>
+      {showFullPageLoader && (
+        <div className="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center z-[60]">
+          <div className="text-center">
+            <svg className="animate-spin h-12 w-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p className="text-gray-600 dark:text-gray-400 font-medium">
+              {t('creating')}
+            </p>
+          </div>
+        </div>
+      )}
+      
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -186,20 +206,44 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
               </div>
 
               <div>
-                <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {tChallenges('dueDate')}
+                <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={hasEndDate}
+                    onChange={(e) => {
+                      setHasEndDate(e.target.checked);
+                      if (!e.target.checked) {
+                        setDueDate('');
+                      }
+                    }}
+                    className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {tChallenges('setEndDate')}
+                    </span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      {tChallenges('setEndDateDescription')}
+                    </p>
+                  </div>
                 </label>
-                <input
-                  type="date"
-                  id="dueDate"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  min={today}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
-                />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  {tChallenges('dueDateHelper')}
-                </p>
+
+                {hasEndDate && (
+                  <div className="mt-3">
+                    <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      {tChallenges('dueDate')}
+                    </label>
+                    <input
+                      type="date"
+                      id="dueDate"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      min={today}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between gap-4 pt-4">
@@ -269,6 +313,7 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
         </div>
       </div>
     </div>
+    </>
   );
 }
 

@@ -66,6 +66,7 @@
     "stopChallengePreserveData": "All your data will be preserved in history",
     "stopChallengeViewLogs": "You can view past logs anytime",
     "cancel": "Cancel",
+    "loading": "Updating...",
     "soloChallenges": "Solo Challenges",
     "groupChallenges": "Group Challenges",
     "noSoloChallenges": "No solo challenges yet",
@@ -80,7 +81,16 @@
     "youJoined": "You joined",
     "ends": "Ends",
     "endsSoon": "Ends soon",
-    "endingSoon": "Ending soon"
+    "endingSoon": "Ending soon",
+    "archiveChallenge": "Archive Challenge",
+    "quitChallenge": "Quit Challenge",
+    "ruleChangeRequired": "You must acknowledge rule changes to continue",
+    "viewAndRespond": "View Challenge & Respond",
+    "adminWarning": "This will end the challenge for ALL participants",
+    "groupBadge": "Group",
+    "individualBadge": "Individual",
+    "noChallenges": "No challenges yet",
+    "noChallengesDescription": "Create a challenge to start tracking your habits and building streaks."
   },
   "history": {
     "title": "History",
@@ -101,7 +111,9 @@
     "joinChallenge": "Join Challenge",
     "challengeName": "Challenge Name",
     "startDate": "Start Date",
-    "dueDate": "End Date (Optional)",
+    "setEndDate": "Set an end date?",
+    "setEndDateDescription": "Leave unchecked for an open-ended challenge",
+    "dueDate": "End Date",
     "dueDateHelper": "Leave empty for open-ended challenge",
     "openEnded": "Open-ended",
     "ends": "Ends",
@@ -114,7 +126,7 @@
     "member": "member",
     "youJoined": "You joined",
     "rules": "Rules",
-    "addedSugarCounts": "Added sugar counts as failure",
+    "addedSugarCounts": "Any product with added sugar (according to the label) counts as a failure",
     "fruitDoesNotCount": "Fruit does not count as sugar",
     "missingDaysPending": "Missing days remain pending until confirmed",
     "processedSugarOnly": "Only processed sugar counts",
@@ -139,7 +151,11 @@
     "notConfirmedToday": "Not Confirmed Today",
     "inviteSection": "Invite Friends",
     "inviteDescription": "Share this code with friends to join the challenge",
-    "editHistory": "Edit History"
+    "editHistory": "Edit History",
+    "editRules": "Edit Rules",
+    "archiveChallenge": "Archive Challenge",
+    "quitChallenge": "Quit Challenge",
+    "adminBadge": "Admin"
   },
   "joinChallenge": {
     "title": "Join Challenge",
@@ -202,7 +218,7 @@
     "nutritionTip": "Look for '0g' in the 'Sugars' or 'Added Sugars' line of nutrition labels to identify sugar-free foods.",
     "rules": {
       "addedSugarCounts": "Added sugar counts as failure",
-      "addedSugarCountsHelp": "Any food with added/refined sugar breaks your streak",
+      "addedSugarCountsHelp": "Any product with added sugar (according to the label) counts as a failure",
       "fruitDoesNotCount": "Fruit does not count as sugar",
       "fruitDoesNotCountHelp": "Natural sugars in whole fruits are allowed",
       "missingDaysPending": "Missing days remain pending",
@@ -269,6 +285,38 @@
     "back": "Back",
     "create": "Create Challenge",
     "creating": "Creating..."
+  },
+  "editRules": {
+    "title": "Edit Challenge Rules",
+    "description": "Update rules for this challenge",
+    "warning": "All participants will be notified and must accept the changes",
+    "saveChanges": "Save Changes",
+    "saveAndNotify": "Save & Notify Participants",
+    "cancel": "Cancel"
+  },
+  "ruleChangeNotification": {
+    "title": "⚠️ Challenge Rules Updated",
+    "message": "The admin has updated the challenge rules. You must review and accept them to continue.",
+    "description": "You cannot log daily confirmations until you respond.",
+    "viewNewRules": "New Rules:",
+    "acceptAndContinue": "Accept & Continue",
+    "leaveChallenge": "Leave Challenge",
+    "accepting": "Accepting..."
+  },
+  "quitChallenge": {
+    "title": "Quit Challenge",
+    "confirm": "Are you sure you want to quit this challenge?",
+    "warning": "If you rejoin later, your progress will start fresh",
+    "keepData": "Your old logs will be preserved in history",
+    "newStreak": "You'll get a new joining date and fresh streak",
+    "quitButton": "Quit Challenge",
+    "quitting": "Quitting...",
+    "cancel": "Cancel",
+    "loading": "Updating..."
+  },
+  "archiveChallenge": {
+    "adminWarning": "This will end the challenge for ALL participants",
+    "archiveForAll": "Archive for Everyone"
   },
   "errors": {
     "generic": "Something went wrong",

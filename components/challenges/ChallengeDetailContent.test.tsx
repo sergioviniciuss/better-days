@@ -30,6 +30,11 @@ const mockJoinChallengeTranslations: Record<string, string> = {
   noRules: 'No specific rules defined',
 };
 
+const mockDashboardTranslations: Record<string, string> = {
+  groupBadge: 'Group',
+  individualBadge: 'Individual',
+};
+
 jest.mock('next-intl', () => ({
   useTranslations: (namespace: string) => {
     if (namespace === 'challengeDetail') {
@@ -40,6 +45,9 @@ jest.mock('next-intl', () => ({
     }
     if (namespace === 'joinChallenge') {
       return (key: string) => mockJoinChallengeTranslations[key] || key;
+    }
+    if (namespace === 'dashboard') {
+      return (key: string) => mockDashboardTranslations[key] || key;
     }
     return (key: string) => key;
   },
@@ -112,9 +120,20 @@ describe('ChallengeDetailContent - Rules Display', () => {
     members: [
       {
         userId: 'user-123',
+        status: 'ACTIVE',
+        role: 'MEMBER',
         user: {
           id: 'user-123',
           email: 'user@example.com',
+        },
+      },
+      {
+        userId: 'user-456',
+        status: 'ACTIVE',
+        role: 'OWNER',
+        user: {
+          id: 'user-456',
+          email: 'owner@example.com',
         },
       },
     ],
@@ -378,11 +397,66 @@ describe('ChallengeDetailContent - Rules Display', () => {
     });
   });
 
+  describe('Badge display', () => {
+    it('should display Group badge when challenge has more than 1 active member', () => {
+      render(
+        <ChallengeDetailContent
+          challenge={mockChallenge}
+          leaderboard={mockLeaderboard}
+          user={mockUser}
+          userLogs={mockLogs}
+          isMember={true}
+        />
+      );
+
+      expect(screen.getByText('Group')).toBeVisible();
+    });
+
+    it('should display Individual badge when challenge has 1 active member', () => {
+      const individualChallenge = {
+        ...mockChallenge,
+        members: [
+          {
+            userId: 'user-123',
+            status: 'ACTIVE',
+            role: 'OWNER',
+            user: {
+              id: 'user-123',
+              email: 'user@example.com',
+            },
+          },
+        ],
+      };
+
+      render(
+        <ChallengeDetailContent
+          challenge={individualChallenge}
+          leaderboard={mockLeaderboard}
+          user={mockUser}
+          userLogs={mockLogs}
+          isMember={true}
+        />
+      );
+
+      expect(screen.getByText('Individual')).toBeVisible();
+    });
+  });
+
   describe('Challenge variations', () => {
-    it('should display rules for personal challenges', () => {
+    it('should display rules for challenges with 1 member', () => {
       const personalChallenge = {
         ...mockChallenge,
-        challengeType: 'PERSONAL',
+        members: [
+          {
+            userId: 'user-123',
+            status: 'ACTIVE',
+            role: 'OWNER',
+            user: {
+              id: 'user-123',
+              email: 'user@example.com',
+            },
+          },
+        ],
       };
 
       render(
@@ -399,7 +473,7 @@ describe('ChallengeDetailContent - Rules Display', () => {
       expect(screen.getByText('Added sugar counts as failure')).toBeVisible();
     });
 
-    it('should display rules for group challenges', () => {
+    it('should display rules for challenges with multiple members', () => {
       render(
         <ChallengeDetailContent
           challenge={mockChallenge}
@@ -412,6 +486,49 @@ describe('ChallengeDetailContent - Rules Display', () => {
 
       expect(screen.getByText('Rules')).toBeVisible();
       expect(screen.getByText('Added sugar counts as failure')).toBeVisible();
+    });
+
+    it('should show invite section for challenges with more than 1 member', () => {
+      render(
+        <ChallengeDetailContent
+          challenge={mockChallenge}
+          leaderboard={mockLeaderboard}
+          user={mockUser}
+          userLogs={mockLogs}
+          isMember={true}
+        />
+      );
+
+      expect(screen.getByText('Invite Friends')).toBeVisible();
+    });
+
+    it('should not show invite section for challenges with 1 member', () => {
+      const individualChallenge = {
+        ...mockChallenge,
+        members: [
+          {
+            userId: 'user-123',
+            status: 'ACTIVE',
+            role: 'OWNER',
+            user: {
+              id: 'user-123',
+              email: 'user@example.com',
+            },
+          },
+        ],
+      };
+
+      render(
+        <ChallengeDetailContent
+          challenge={individualChallenge}
+          leaderboard={mockLeaderboard}
+          user={mockUser}
+          userLogs={mockLogs}
+          isMember={true}
+        />
+      );
+
+      expect(screen.queryByText('Invite Friends')).not.toBeInTheDocument();
     });
 
     it('should handle challenges with single rule', () => {

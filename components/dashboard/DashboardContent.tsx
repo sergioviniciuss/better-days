@@ -3,10 +3,11 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { ChallengeTabs } from './ChallengeTabs';
+import { ChallengeCard } from './ChallengeCard';
 import { detectPendingDays, groupPendingDaysByObjective, getTodayInTimezone } from '@/lib/streak-utils';
 import { GroupedPendingDaysModal } from './GroupedPendingDaysModal';
 import { checkReminder, setReminder } from '@/lib/reminder-utils';
+import type { GroupedPendingDays } from '@/lib/streak-utils';
 
 interface User {
   id: string;
@@ -52,11 +53,7 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [activeObjectiveGroup, setActiveObjectiveGroup] = useState<string | null>(null);
 
-  // Separate solo and group challenges
-  const soloChallenges = challengesWithLogs.filter(c => c.challengeType === 'PERSONAL');
-  const groupChallenges = challengesWithLogs.filter(c => c.challengeType === 'GROUP');
-
-  // Create todayLogs Map for tabs component
+  // Create todayLogs Map
   const todayLogs = new Map(
     challengesWithLogs.map(c => [c.id, c.todayLog])
   );
@@ -117,15 +114,48 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
         {t('title')}
       </h1>
 
-      {/* Challenge Tabs */}
-      <ChallengeTabs 
-        soloChallenges={soloChallenges}
-        groupChallenges={groupChallenges}
-        todayLogs={todayLogs}
-        userTimezone={user.timezone}
-        groupedPendingDays={groupedPendingDays}
-        onOpenPendingModal={handleOpenModal}
-      />
+      {/* Challenge Cards */}
+      {challengesWithLogs.length > 0 ? (
+        <div className="space-y-6">
+          {challengesWithLogs.map((challenge) => {
+            const group = groupedPendingDays.find(
+              g => g.objectiveType === challenge.objectiveType
+            );
+            
+            return (
+              <ChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                logs={challenge.logs || []}
+                todayLog={todayLogs.get(challenge.id) || null}
+                userId={user.id}
+                userTimezone={user.timezone}
+                onOpenPendingModal={handleOpenModal}
+                hasGroupPendingDays={group ? group.allPendingDays.length > 0 : false}
+                groupPendingCount={group?.allPendingDays.length || 0}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-lg shadow">
+          <div className="mx-auto max-w-md">
+            <div className="text-6xl mb-4">🎯</div>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              {t('noChallenges', { defaultValue: 'No challenges yet' })}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {t('noChallengesDescription', { defaultValue: 'Create a challenge to start tracking your habits and building streaks.' })}
+            </p>
+            <Link
+              href={`/${user.preferredLanguage}/challenges`}
+              className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+            >
+              {t('createChallenge')}
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Quick Links */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
