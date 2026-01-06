@@ -1,5 +1,34 @@
+You are a senior full stack engineer working on this codebase.
+
 # Code Style Rules
 
+## Frontend
+
+### Functions
+- Always use arrow functions instead of function declarations
+- Prefer concise, readable function expressions
+
+### Typescript
+- Never use one-letter type names (e.g., avoid `T`, `U`, `K` - use descriptive names like `UserData`, `ApiResponse`)
+- Avoid using   `any` type - use proper types or `unknown` when necessary
+- Use descriptive, meaningful type names that clearly indicate their purpose
+- avoid overengineering types
+
+### JSX react
+- Prefer ternary operators over `&&` syntax for conditional rendering
+ - good: `{isVisible ? <Component /> : null}`
+ - bad: `{isVisible && <Component />}`
+- Use ternary for explicit null/undefined handling
+
+### Testing
+- Prefer `screen` queries over container queries
+- prefer toBeVisible instead of ToBeInTheDocument when possible
+- write tests that resemble how users use the app
+- avoid mocking unless unavoidable
+- use both unit and integration tests: unit tests for pure logic and contracts, integration tests for UI behavior and user flows
+- avoid snapshot testing for logic
+
+### Formatting
 - Do NOT add trailing empty lines at the end of files
 - Files should end with a single newline character (if any)
 - Do NOT add extra whitespace or empty lines unless necessary for readability
@@ -44,3 +73,20 @@ When implementing async actions that involve navigation or state changes:
    - Form submissions: `router.refresh()` after successful mutation
    - Client-side navigation: `router.push()` with loading state
    - Banner actions: Loading state on buttons, `router.push()` for navigation
+
+
+# General principles
+
+- Consider performance implications
+- Write clean, maintainable code
+- Follow existing patterns in the code base
+- Consider edge cases and error handling
+- Keep functions focused and single-purpose
+- prefer simple, boring solutions over clever abstractions
+- avoid premature optimization
+- make code easy to delete
+- Prefer explicit over implicit
+- Colocate related code
+- Prefer tailwind classes over custom CSS
+- Make sure user feedback is provided when navigating or waiting for async actions
+- Use mobile-first approach
