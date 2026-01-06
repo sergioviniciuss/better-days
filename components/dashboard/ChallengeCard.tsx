@@ -12,6 +12,7 @@ import { DailyConfirmation } from './DailyConfirmation';
 import { PendingDaysModal } from './PendingDaysModal';
 import { StopChallengeModal } from './StopChallengeModal';
 import { StreakAchievement } from './StreakAchievement';
+import { setReminder, checkReminder, clearReminder } from '@/lib/reminder-utils';
 
 interface ChallengeCardProps {
   challenge: {
@@ -76,11 +77,11 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   const isMilestone = isMilestoneStreak(currentStreak);
 
   useEffect(() => {
-    // Auto-open pending days modal if user has pending days
-    if (hasPendingDays && !showPendingModal && !todayConfirmed) {
+    // Auto-open pending days modal if user has pending days and no active reminder
+    if (hasPendingDays && !showPendingModal && !todayConfirmed && !checkReminder(challenge.id)) {
       setShowPendingModal(true);
     }
-  }, [hasPendingDays, showPendingModal, todayConfirmed]);
+  }, [hasPendingDays, showPendingModal, todayConfirmed, challenge.id]);
 
   const handleConfirmToday = async (consumedSugar: boolean) => {
     setLoading(true);
@@ -89,6 +90,8 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
     
     if (result.success) {
       setTodayLog(result.log);
+      // Clear reminder when user confirms today
+      clearReminder(challenge.id);
       // Use router.refresh() instead of window.location.reload() for better UX
       router.refresh();
     } else {
@@ -96,6 +99,12 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
       alert(`Failed to confirm: ${result.error}`);
       setLoading(false);
     }
+  };
+
+  const handleRemindLater = () => {
+    // Set reminder for 2 hours
+    setReminder(challenge.id, 2);
+    setShowPendingModal(false);
   };
 
   // Get confirmation button labels based on challenge type
@@ -257,7 +266,8 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
       {showPendingModal && (
         <PendingDaysModal
           pendingDays={pendingDays}
-          onClose={() => setShowPendingModal(false)}
+          onClose={handleRemindLater}
+          onRemindLater={handleRemindLater}
           userTimezone={userTimezone}
           challengeId={challenge.id}
         />

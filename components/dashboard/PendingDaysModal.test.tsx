@@ -20,6 +20,7 @@ jest.mock('@/lib/date-utils', () => ({
 describe('PendingDaysModal', () => {
   const mockPendingDays = ['2024-01-13', '2024-01-14'];
   const mockOnClose = jest.fn();
+  const mockOnRemindLater = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -31,6 +32,7 @@ describe('PendingDaysModal', () => {
         challengeId="challenge-1"
         pendingDays={mockPendingDays}
         onClose={mockOnClose}
+        onRemindLater={mockOnRemindLater}
         userTimezone="UTC"
       />
     );
@@ -45,6 +47,7 @@ describe('PendingDaysModal', () => {
         challengeId="challenge-1"
         pendingDays={mockPendingDays}
         onClose={mockOnClose}
+        onRemindLater={mockOnRemindLater}
         userTimezone="UTC"
       />
     );
@@ -65,6 +68,7 @@ describe('PendingDaysModal', () => {
         challengeId="challenge-1"
         pendingDays={mockPendingDays}
         onClose={mockOnClose}
+        onRemindLater={mockOnRemindLater}
         userTimezone="UTC"
       />
     );
@@ -88,6 +92,7 @@ describe('PendingDaysModal', () => {
         challengeId="challenge-1"
         pendingDays={mockPendingDays}
         onClose={mockOnClose}
+        onRemindLater={mockOnRemindLater}
         userTimezone="UTC"
       />
     );
@@ -102,6 +107,7 @@ describe('PendingDaysModal', () => {
         challengeId="challenge-1"
         pendingDays={mockPendingDays}
         onClose={mockOnClose}
+        onRemindLater={mockOnRemindLater}
         userTimezone="UTC"
       />
     );
@@ -115,5 +121,37 @@ describe('PendingDaysModal', () => {
 
     // Button should now be enabled
     expect(confirmButton).not.toBeDisabled();
+  });
+
+  it('should render the Remind Me Later button', () => {
+    render(
+      <PendingDaysModal
+        challengeId="challenge-1"
+        pendingDays={mockPendingDays}
+        onClose={mockOnClose}
+        onRemindLater={mockOnRemindLater}
+        userTimezone="UTC"
+      />
+    );
+
+    const remindLaterButton = screen.getByText(/remindLater/i);
+    expect(remindLaterButton).toBeInTheDocument();
+  });
+
+  it('should call onRemindLater when Remind Me Later button is clicked', () => {
+    render(
+      <PendingDaysModal
+        challengeId="challenge-1"
+        pendingDays={mockPendingDays}
+        onClose={mockOnClose}
+        onRemindLater={mockOnRemindLater}
+        userTimezone="UTC"
+      />
+    );
+
+    const remindLaterButton = screen.getByText(/remindLater/i);
+    fireEvent.click(remindLaterButton);
+
+    expect(mockOnRemindLater).toHaveBeenCalledTimes(1);
   });
 });

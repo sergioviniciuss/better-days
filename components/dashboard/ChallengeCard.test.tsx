@@ -54,9 +54,10 @@ jest.mock('./DailyConfirmation', () => ({
 }));
 
 jest.mock('./PendingDaysModal', () => ({
-  PendingDaysModal: ({ onClose }: any) => (
+  PendingDaysModal: ({ onClose, onRemindLater }: any) => (
     <div data-testid="pending-days-modal">
       <button onClick={onClose}>Close</button>
+      <button onClick={onRemindLater}>Remind Later</button>
     </div>
   ),
 }));
