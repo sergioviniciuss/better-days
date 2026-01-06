@@ -78,6 +78,10 @@ export function ChallengeCard({
     ? hasUnacknowledgedRuleChanges(challenge, userMembership)
     : false;
 
+  // Calculate active member count for badge
+  const activeMemberCount = challenge.members?.filter(m => m.status === 'ACTIVE').length || 0;
+  const isGroupChallenge = activeMemberCount > 1;
+
   // Sync state with server props on hydration
   useEffect(() => {
     setTodayLog(initialTodayLog);
@@ -166,11 +170,21 @@ export function ChallengeCard({
         <div className="flex items-center justify-between gap-3 mb-2">
           <div className="flex items-center gap-3">
             <ChallengeIcon type={challenge.objectiveType as any} size="md" />
-            <Link href={`/${locale}/challenges/${challenge.id}`}>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                {challenge.name}
-              </h2>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href={`/${locale}/challenges/${challenge.id}`}>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
+                  {challenge.name}
+                </h2>
+              </Link>
+              {/* Badge */}
+              <span className={`px-2 py-1 text-xs font-semibold rounded ${
+                isGroupChallenge
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}>
+                {isGroupChallenge ? t('groupBadge', { defaultValue: 'Group' }) : t('individualBadge', { defaultValue: 'Individual' })}
+              </span>
+            </div>
           </div>
           {challenge.shortId && (
             <span className="px-2 py-1 text-xs font-mono font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
@@ -181,14 +195,14 @@ export function ChallengeCard({
         
         {/* Challenge metadata */}
         <div className="ml-11 space-y-1">
-          {challenge.challengeType === 'GROUP' && challenge.owner && (
+          {challenge.owner && (
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {t('createdBy')} {challenge.owner.email}
             </p>
           )}
-          {challenge.members && challenge.challengeType === 'GROUP' && (
+          {challenge.members && (
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {challenge.members.filter(m => m.status === 'ACTIVE').length} {challenge.members.filter(m => m.status === 'ACTIVE').length === 1 ? t('member') : t('members')}
+              {activeMemberCount} {activeMemberCount === 1 ? t('member') : t('members')}
             </p>
           )}
           {challenge.userJoinedAt && (

@@ -86,7 +86,11 @@
     "quitChallenge": "Sair do Desafio",
     "ruleChangeRequired": "Você deve reconhecer as mudanças nas regras para continuar",
     "viewAndRespond": "Ver Desafio e Responder",
-    "adminWarning": "Isso encerrará o desafio para TODOS os participantes"
+    "adminWarning": "Isso encerrará o desafio para TODOS os participantes",
+    "groupBadge": "Grupo",
+    "individualBadge": "Individual",
+    "noChallenges": "Nenhum desafio ainda",
+    "noChallengesDescription": "Crie um desafio para começar a acompanhar seus hábitos e construir sequências."
   },
   "history": {
     "title": "Histórico",
@@ -107,7 +111,9 @@
     "joinChallenge": "Entrar em Desafio",
     "challengeName": "Nome do Desafio",
     "startDate": "Data de Início",
-    "dueDate": "Data de Término (Opcional)",
+    "setEndDate": "Definir data de término?",
+    "setEndDateDescription": "Deixe desmarcado para um desafio sem prazo",
+    "dueDate": "Data de Término",
     "dueDateHelper": "Deixe em branco para desafio sem prazo",
     "openEnded": "Sem prazo",
     "ends": "Termina",
@@ -120,7 +126,7 @@
     "member": "membro",
     "youJoined": "Você entrou",
     "rules": "Regras",
-    "addedSugarCounts": "Açúcar adicionado conta como falha",
+    "addedSugarCounts": "Qualquer produto com açúcar adicionado (de acordo com o rótulo) conta como falha",
     "fruitDoesNotCount": "Frutas não contam como açúcar",
     "missingDaysPending": "Dias faltantes permanecem pendentes até confirmação",
     "processedSugarOnly": "Apenas açúcar processado conta",
@@ -212,7 +218,7 @@
     "nutritionTip": "Procure por '0g' na linha 'Açúcares' ou 'Açúcares Adicionados' da tabela nutricional para identificar alimentos sem açúcar.",
     "rules": {
       "addedSugarCounts": "Açúcar adicionado conta como falha",
-      "addedSugarCountsHelp": "Qualquer alimento com açúcar adicionado/refinado quebra sua sequência",
+      "addedSugarCountsHelp": "Qualquer produto com açúcar adicionado (de acordo com o rótulo) conta como falha",
       "fruitDoesNotCount": "Frutas não contam como açúcar",
       "fruitDoesNotCountHelp": "Açúcares naturais em frutas inteiras são permitidos",
       "missingDaysPending": "Dias faltantes permanecem pendentes",

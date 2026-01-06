@@ -21,6 +21,7 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState<ChallengeType | null>(null);
   const [challengeName, setChallengeName] = useState('');
+  const [hasEndDate, setHasEndDate] = useState(false);
   const [dueDate, setDueDate] = useState('');
   const [selectedRules, setSelectedRules] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -45,6 +46,7 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
 
   const handleSubmit = async () => {
     if (!selectedType || !challengeName.trim()) return;
+    if (hasEndDate && !dueDate) return;
 
     setSubmitting(true);
     setError(null);
@@ -52,7 +54,7 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
     const formData = new FormData();
     formData.append('name', challengeName);
     formData.append('startDate', today);
-    if (dueDate) {
+    if (hasEndDate && dueDate) {
       formData.append('dueDate', dueDate);
     }
     formData.append('challengeType', 'GROUP');
@@ -204,20 +206,44 @@ export function CreateChallengeWizard({ onClose, userTimezone }: CreateChallenge
               </div>
 
               <div>
-                <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {tChallenges('dueDate')}
+                <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={hasEndDate}
+                    onChange={(e) => {
+                      setHasEndDate(e.target.checked);
+                      if (!e.target.checked) {
+                        setDueDate('');
+                      }
+                    }}
+                    className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {tChallenges('setEndDate')}
+                    </span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      {tChallenges('setEndDateDescription')}
+                    </p>
+                  </div>
                 </label>
-                <input
-                  type="date"
-                  id="dueDate"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  min={today}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
-                />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  {tChallenges('dueDateHelper')}
-                </p>
+
+                {hasEndDate && (
+                  <div className="mt-3">
+                    <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      {tChallenges('dueDate')}
+                    </label>
+                    <input
+                      type="date"
+                      id="dueDate"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      min={today}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between gap-4 pt-4">

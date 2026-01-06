@@ -86,7 +86,11 @@
     "quitChallenge": "Quit Challenge",
     "ruleChangeRequired": "You must acknowledge rule changes to continue",
     "viewAndRespond": "View Challenge & Respond",
-    "adminWarning": "This will end the challenge for ALL participants"
+    "adminWarning": "This will end the challenge for ALL participants",
+    "groupBadge": "Group",
+    "individualBadge": "Individual",
+    "noChallenges": "No challenges yet",
+    "noChallengesDescription": "Create a challenge to start tracking your habits and building streaks."
   },
   "history": {
     "title": "History",
@@ -107,7 +111,9 @@
     "joinChallenge": "Join Challenge",
     "challengeName": "Challenge Name",
     "startDate": "Start Date",
-    "dueDate": "End Date (Optional)",
+    "setEndDate": "Set an end date?",
+    "setEndDateDescription": "Leave unchecked for an open-ended challenge",
+    "dueDate": "End Date",
     "dueDateHelper": "Leave empty for open-ended challenge",
     "openEnded": "Open-ended",
     "ends": "Ends",
@@ -120,7 +126,7 @@
     "member": "member",
     "youJoined": "You joined",
     "rules": "Rules",
-    "addedSugarCounts": "Added sugar counts as failure",
+    "addedSugarCounts": "Any product with added sugar (according to the label) counts as a failure",
     "fruitDoesNotCount": "Fruit does not count as sugar",
     "missingDaysPending": "Missing days remain pending until confirmed",
     "processedSugarOnly": "Only processed sugar counts",
@@ -212,7 +218,7 @@
     "nutritionTip": "Look for '0g' in the 'Sugars' or 'Added Sugars' line of nutrition labels to identify sugar-free foods.",
     "rules": {
       "addedSugarCounts": "Added sugar counts as failure",
-      "addedSugarCountsHelp": "Any food with added/refined sugar breaks your streak",
+      "addedSugarCountsHelp": "Any product with added sugar (according to the label) counts as a failure",
       "fruitDoesNotCount": "Fruit does not count as sugar",
       "fruitDoesNotCountHelp": "Natural sugars in whole fruits are allowed",
       "missingDaysPending": "Missing days remain pending",

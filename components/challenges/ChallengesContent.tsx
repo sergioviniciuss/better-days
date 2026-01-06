@@ -26,6 +26,7 @@ interface Challenge {
   members: Array<{
     userId: string;
     role: string;
+    status?: string;
   }>;
 }
 
@@ -36,6 +37,7 @@ interface ChallengesContentProps {
 
 export function ChallengesContent({ user, challenges }: ChallengesContentProps) {
   const t = useTranslations('challenges');
+  const tDashboard = useTranslations('dashboard');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   return (
@@ -64,31 +66,46 @@ export function ChallengesContent({ user, challenges }: ChallengesContentProps) 
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {challenges.map((challenge) => (
-            <Link
-              key={challenge.id}
-              href={`/${user.preferredLanguage}/challenges/${challenge.id}`}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow min-h-[44px]"
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <ChallengeIcon 
-                  type={(challenge.objectiveType as any) || 'NO_SUGAR_STREAK'} 
-                  size="lg" 
-                />
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {challenge.name}
-                  </h2>
+          {challenges.map((challenge) => {
+            const activeMemberCount = challenge.members?.filter(m => m.status === 'ACTIVE' || !m.status).length || 0;
+            const isGroupChallenge = activeMemberCount > 1;
+            
+            return (
+              <Link
+                key={challenge.id}
+                href={`/${user.preferredLanguage}/challenges/${challenge.id}`}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow min-h-[44px]"
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <ChallengeIcon 
+                    type={(challenge.objectiveType as any) || 'NO_SUGAR_STREAK'} 
+                    size="lg" 
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        {challenge.name}
+                      </h2>
+                      {/* Badge */}
+                      <span className={`px-2 py-1 text-xs font-semibold rounded ${
+                        isGroupChallenge
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}>
+                        {isGroupChallenge ? tDashboard('groupBadge', { defaultValue: 'Group' }) : tDashboard('individualBadge', { defaultValue: 'Individual' })}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Started: {new Date(challenge.startDate).toLocaleDateString()}
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Members: {challenge.members.length}
-              </p>
-            </Link>
-          ))}
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  Started: {new Date(challenge.startDate).toLocaleDateString()}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Members: {activeMemberCount}
+                </p>
+              </Link>
+            );
+          })}
         </div>
       )}
 

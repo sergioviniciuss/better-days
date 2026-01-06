@@ -36,6 +36,7 @@ interface Challenge {
   members?: Array<{
     userId: string;
     role?: string;
+    status?: string;
     lastAcknowledgedRulesAt?: string | null;
     user: {
       id: string;
@@ -83,6 +84,7 @@ export function ChallengeDetailContent({
   isMember = true,
 }: ChallengeDetailContentProps) {
   const t = useTranslations('challengeDetail');
+  const tDashboard = useTranslations('dashboard');
   const tChallenges = useTranslations('challenges');
   const tJoin = useTranslations('joinChallenge');
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
@@ -127,14 +129,26 @@ export function ChallengeDetailContent({
     }
   };
 
-  const memberCount = challenge.members?.length || 0;
+  // Calculate active member count for badge and invite section
+  const activeMemberCount = challenge.members?.filter(m => m.status === 'ACTIVE').length || 0;
+  const isGroupChallenge = activeMemberCount > 1;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          {challenge.name}
-        </h1>
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {challenge.name}
+          </h1>
+          {/* Badge */}
+          <span className={`px-2 py-1 text-xs font-semibold rounded ${
+            isGroupChallenge
+              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+          }`}>
+            {isGroupChallenge ? tDashboard('groupBadge', { defaultValue: 'Group' }) : tDashboard('individualBadge', { defaultValue: 'Individual' })}
+          </span>
+        </div>
         <p className="text-gray-600 dark:text-gray-400">
           Started: {formatDateString(challenge.startDate)}
         </p>
@@ -146,7 +160,7 @@ export function ChallengeDetailContent({
           challengeId={challenge.id}
           challengeName={challenge.name}
           inviteCode={inviteCode}
-          memberCount={memberCount}
+          memberCount={activeMemberCount}
           rules={challenge.rules}
         />
       )}
@@ -314,8 +328,8 @@ export function ChallengeDetailContent({
         </div>
       </div>
 
-      {/* Invite Section - Only show for GROUP challenges and if user is a member */}
-      {isMember && !hasUnacknowledgedRules && challenge.challengeType === 'GROUP' && inviteCode && (
+      {/* Invite Section - Only show for group challenges (more than 1 member) and if user is a member */}
+      {isMember && !hasUnacknowledgedRules && isGroupChallenge && inviteCode && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             {t('inviteSection')}

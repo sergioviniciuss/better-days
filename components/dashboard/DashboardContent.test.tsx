@@ -66,23 +66,6 @@ jest.mock('./GroupedPendingDaysModal', () => ({
   GroupedPendingDaysModal: () => null,
 }));
 
-// Mock ChallengeTabs component
-jest.mock('./ChallengeTabs', () => ({
-  ChallengeTabs: ({ soloChallenges, groupChallenges }: any) => (
-    <div>
-      <div>{`soloChallenges (${soloChallenges.length})`}</div>
-      <div>{`groupChallenges (${groupChallenges.length})`}</div>
-      {soloChallenges.map((challenge: any) => (
-        <div key={challenge.id} data-testid="challenge-card">
-          <span>{challenge.name}</span>
-          <span>5</span>
-          <span>10</span>
-        </div>
-      ))}
-    </div>
-  ),
-}));
-
 describe('DashboardContent', () => {
   const mockUser = {
     id: 'user-1',
@@ -107,14 +90,16 @@ describe('DashboardContent', () => {
           confirmedAt: new Date(),
         },
       ],
+      todayLog: null,
+      members: [{ userId: 'user-1', role: 'OWNER', status: 'ACTIVE' }],
     },
   ];
 
-  it('should render tabs with challenge counts', async () => {
+  it('should render all challenges in a single list', async () => {
     render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
     await waitFor(() => {
-      expect(screen.getByText(/soloChallenges/)).toBeInTheDocument();
-      expect(screen.getByText(/groupChallenges/)).toBeInTheDocument();
+      expect(screen.getByTestId('challenge-card')).toBeInTheDocument();
+      expect(screen.getByText('No Sugar Challenge')).toBeInTheDocument();
     });
   });
 
@@ -132,11 +117,10 @@ describe('DashboardContent', () => {
     });
   });
 
-  it('should render challenge cards within tabs', async () => {
-    render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
+  it('should show empty state when no challenges exist', async () => {
+    render(<DashboardContent user={mockUser} challengesWithLogs={[]} />);
     await waitFor(() => {
-      expect(screen.getByTestId('challenge-card')).toBeInTheDocument();
-      expect(screen.getByText('No Sugar Challenge')).toBeInTheDocument();
+      expect(screen.getByText('noChallenges')).toBeInTheDocument();
     });
   });
 });
