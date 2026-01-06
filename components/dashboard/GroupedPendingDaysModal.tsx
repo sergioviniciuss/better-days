@@ -6,6 +6,8 @@ import { confirmMultipleDays } from '@/app/actions/daily-log';
 import { formatDateString } from '@/lib/date-utils';
 import { ConfirmationCalendar } from './ConfirmationCalendar';
 import { ChallengeIcon } from '@/lib/challenge-icons';
+import { clearReminder } from '@/lib/reminder-utils';
+import { useRouter } from 'next/navigation';
 import type { GroupedPendingDays } from '@/lib/streak-utils';
 
 interface GroupedPendingDaysModalProps {
@@ -17,6 +19,7 @@ interface GroupedPendingDaysModalProps {
 
 export function GroupedPendingDaysModal({ group, onClose, onRemindLater, userTimezone }: GroupedPendingDaysModalProps) {
   const t = useTranslations('pendingDays');
+  const router = useRouter();
   const [confirmations, setConfirmations] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
@@ -62,7 +65,15 @@ export function GroupedPendingDaysModal({ group, onClose, onRemindLater, userTim
 
     const result = await confirmMultipleDays(confirmationsArray);
     if (result.success) {
-      window.location.reload();
+      // Clear reminder for this group
+      clearReminder(`pending_${group.objectiveType}`);
+      // Clear reminders for individual challenges in the group
+      group.challenges.forEach(challenge => {
+        clearReminder(challenge.id);
+      });
+      // Close modal and refresh
+      onClose();
+      router.refresh();
     } else {
       alert(result.error || 'Failed to confirm days');
       setSubmitting(false);

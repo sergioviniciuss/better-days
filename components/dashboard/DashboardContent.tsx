@@ -122,6 +122,7 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
         soloChallenges={soloChallenges}
         groupChallenges={groupChallenges}
         todayLogs={todayLogs}
+        userId={user.id}
         userTimezone={user.timezone}
         groupedPendingDays={groupedPendingDays}
         onOpenPendingModal={handleOpenModal}

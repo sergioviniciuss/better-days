@@ -403,19 +403,31 @@ export async function joinChallengeByCode(inviteCode: string) {
       return { error: 'Invite code has expired' };
     }
 
-    // Check if user is already a member
-    const { data: existingMember } = await supabase
+    // Check if user has an ACTIVE membership
+    const { data: activeMember } = await supabase
       .from('ChallengeMember')
       .select('*')
       .eq('challengeId', invite.challengeId)
       .eq('userId', user.id)
+      .eq('status', 'ACTIVE')
       .single();
 
-    if (existingMember) {
+    if (activeMember) {
       return { error: 'Already a member of this challenge', challengeId: invite.challengeId };
     }
 
-    // Add user as member
+    // Check if user previously left this challenge
+    // If they did, we create a NEW membership (fresh start)
+    const { data: leftMember } = await supabase
+      .from('ChallengeMember')
+      .select('*')
+      .eq('challengeId', invite.challengeId)
+      .eq('userId', user.id)
+      .eq('status', 'LEFT')
+      .single();
+
+    // Whether rejoining or joining for first time, create new membership
+    // This ensures fresh joinedAt date for rejoins
     const { error: memberError } = await supabase
       .from('ChallengeMember')
       .insert({
@@ -431,7 +443,7 @@ export async function joinChallengeByCode(inviteCode: string) {
     }
 
     revalidatePath('/challenges');
-    return { success: true, challengeId: invite.challengeId };
+    return { success: true, challengeId: invite.challengeId, isRejoin: !!leftMember };
   } catch (error) {
     console.error('Error joining challenge:', error);
     return { error: 'Failed to join challenge' };
@@ -603,6 +615,123 @@ export async function archiveChallenge(challengeId: string) {
       return { error: 'Not a member of this challenge' };
     }
 
+    const isAdmin = membership.role === 'OWNER';
+
+    if (isAdmin) {
+      // Admin: Archive challenge for ALL members
+      const { error: updateError } = await supabase
+        .from('ChallengeMember')
+        .update({ 
+          status: 'LEFT',
+          leftAt: new Date().toISOString()
+        })
+        .eq('challengeId', challengeId)
+        .eq('status', 'ACTIVE');
+
+      if (updateError) {
+        console.error('Error archiving challenge for all:', updateError);
+        return { error: 'Failed to archive challenge' };
+      }
+    } else {
+      // Regular member: Only update their own membership
+      const { error: updateError } = await supabase
+        .from('ChallengeMember')
+        .update({ 
+          status: 'LEFT',
+          leftAt: new Date().toISOString()
+        })
+        .eq('id', membership.id);
+
+      if (updateError) {
+        console.error('Error archiving challenge:', updateError);
+        return { error: 'Failed to stop challenge' };
+      }
+    }
+
+    revalidatePath('/dashboard');
+    revalidatePath('/challenges');
+    return { success: true };
+  } catch (error) {
+    console.error('Error archiving challenge:', error);
+    return { error: 'Failed to stop challenge' };
+  }
+}
+
+export async function updateChallengeRules(challengeId: string, newRules: string[]) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  try {
+    const supabase = await createClient();
+
+    // Verify user is the admin (owner) of this challenge
+    const { data: membership, error: membershipError } = await supabase
+      .from('ChallengeMember')
+      .select('*')
+      .eq('challengeId', challengeId)
+      .eq('userId', user.id)
+      .eq('status', 'ACTIVE')
+      .single();
+
+    if (membershipError || !membership) {
+      return { error: 'Not a member of this challenge' };
+    }
+
+    if (membership.role !== 'OWNER') {
+      return { error: 'Only the challenge admin can update rules' };
+    }
+
+    // Update challenge rules and set rulesUpdatedAt
+    const { error: updateError } = await supabase
+      .from('Challenge')
+      .update({ 
+        rules: newRules,
+        rulesUpdatedAt: new Date().toISOString()
+      })
+      .eq('id', challengeId);
+
+    if (updateError) {
+      console.error('Error updating challenge rules:', updateError);
+      return { error: 'Failed to update challenge rules' };
+    }
+
+    revalidatePath('/challenges');
+    revalidatePath(`/challenges/${challengeId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating challenge rules:', error);
+    return { error: 'Failed to update challenge rules' };
+  }
+}
+
+export async function quitChallenge(challengeId: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  try {
+    const supabase = await createClient();
+
+    // Verify user is a member of this challenge
+    const { data: membership, error: membershipError } = await supabase
+      .from('ChallengeMember')
+      .select('*')
+      .eq('challengeId', challengeId)
+      .eq('userId', user.id)
+      .eq('status', 'ACTIVE')
+      .single();
+
+    if (membershipError || !membership) {
+      return { error: 'Not a member of this challenge' };
+    }
+
+    if (membership.role === 'OWNER') {
+      return { error: 'Challenge admin should use archive instead of quit' };
+    }
+
     // Update membership status to LEFT
     const { error: updateError } = await supabase
       .from('ChallengeMember')
@@ -613,15 +742,91 @@ export async function archiveChallenge(challengeId: string) {
       .eq('id', membership.id);
 
     if (updateError) {
-      console.error('Error archiving challenge:', updateError);
-      return { error: 'Failed to stop challenge' };
+      console.error('Error quitting challenge:', updateError);
+      return { error: 'Failed to quit challenge' };
     }
 
     revalidatePath('/dashboard');
     revalidatePath('/challenges');
     return { success: true };
   } catch (error) {
-    console.error('Error archiving challenge:', error);
-    return { error: 'Failed to stop challenge' };
+    console.error('Error quitting challenge:', error);
+    return { error: 'Failed to quit challenge' };
+  }
+}
+
+export async function acknowledgeRuleChanges(challengeId: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  try {
+    const supabase = await createClient();
+
+    // Verify user is a member of this challenge
+    const { data: membership, error: membershipError } = await supabase
+      .from('ChallengeMember')
+      .select('*')
+      .eq('challengeId', challengeId)
+      .eq('userId', user.id)
+      .eq('status', 'ACTIVE')
+      .single();
+
+    if (membershipError || !membership) {
+      return { error: 'Not a member of this challenge' };
+    }
+
+    // Update lastAcknowledgedRulesAt
+    const { error: updateError } = await supabase
+      .from('ChallengeMember')
+      .update({ 
+        lastAcknowledgedRulesAt: new Date().toISOString()
+      })
+      .eq('id', membership.id);
+
+    if (updateError) {
+      console.error('Error acknowledging rule changes:', updateError);
+      return { error: 'Failed to acknowledge rule changes' };
+    }
+
+    revalidatePath('/dashboard');
+    revalidatePath('/challenges');
+    revalidatePath(`/challenges/${challengeId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error acknowledging rule changes:', error);
+    return { error: 'Failed to acknowledge rule changes' };
+  }
+}
+
+// Helper function to check if a member has unacknowledged rule changes
+export const hasUnacknowledgedRuleChanges = (challenge: any, membership: any): boolean => {
+  // If rulesUpdatedAt is null, undefined, or doesn't exist, rules have never been updated
+  // This handles cases where the migration hasn't been run or existing challenges
+  if (!challenge || !challenge.rulesUpdatedAt || challenge.rulesUpdatedAt === null) {
+    return false;
+  }
+  
+  // Admin doesn't need to acknowledge their own changes
+  if (!membership || membership.role === 'OWNER') {
+    return false;
+  }
+  
+  // If there's a valid rulesUpdatedAt timestamp and member hasn't acknowledged yet
+  if (!membership.lastAcknowledgedRulesAt || membership.lastAcknowledgedRulesAt === null) {
+    return true;
+  }
+  
+  // Compare timestamps
+  try {
+    const rulesUpdatedAt = new Date(challenge.rulesUpdatedAt);
+    const lastAcknowledgedAt = new Date(membership.lastAcknowledgedRulesAt);
+    
+    return rulesUpdatedAt > lastAcknowledgedAt;
+  } catch (error) {
+    // If there's any error parsing dates, don't block the user
+    console.error('Error comparing rule acknowledgment dates:', error);
+    return false;
   }
 }

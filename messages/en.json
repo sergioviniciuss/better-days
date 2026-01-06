@@ -80,7 +80,12 @@
     "youJoined": "You joined",
     "ends": "Ends",
     "endsSoon": "Ends soon",
-    "endingSoon": "Ending soon"
+    "endingSoon": "Ending soon",
+    "archiveChallenge": "Archive Challenge",
+    "quitChallenge": "Quit Challenge",
+    "ruleChangeRequired": "You must acknowledge rule changes to continue",
+    "viewAndRespond": "View Challenge & Respond",
+    "adminWarning": "This will end the challenge for ALL participants"
   },
   "history": {
     "title": "History",
@@ -139,7 +144,11 @@
     "notConfirmedToday": "Not Confirmed Today",
     "inviteSection": "Invite Friends",
     "inviteDescription": "Share this code with friends to join the challenge",
-    "editHistory": "Edit History"
+    "editHistory": "Edit History",
+    "editRules": "Edit Rules",
+    "archiveChallenge": "Archive Challenge",
+    "quitChallenge": "Quit Challenge",
+    "adminBadge": "Admin"
   },
   "joinChallenge": {
     "title": "Join Challenge",
@@ -269,6 +278,37 @@
     "back": "Back",
     "create": "Create Challenge",
     "creating": "Creating..."
+  },
+  "editRules": {
+    "title": "Edit Challenge Rules",
+    "description": "Update rules for this challenge",
+    "warning": "All participants will be notified and must accept the changes",
+    "saveChanges": "Save Changes",
+    "saveAndNotify": "Save & Notify Participants",
+    "cancel": "Cancel"
+  },
+  "ruleChangeNotification": {
+    "title": "⚠️ Challenge Rules Updated",
+    "message": "The admin has updated the challenge rules. You must review and accept them to continue.",
+    "description": "You cannot log daily confirmations until you respond.",
+    "viewNewRules": "New Rules:",
+    "acceptAndContinue": "Accept & Continue",
+    "leaveChallenge": "Leave Challenge",
+    "accepting": "Accepting..."
+  },
+  "quitChallenge": {
+    "title": "Quit Challenge",
+    "confirm": "Are you sure you want to quit this challenge?",
+    "warning": "If you rejoin later, your progress will start fresh",
+    "keepData": "Your old logs will be preserved in history",
+    "newStreak": "You'll get a new joining date and fresh streak",
+    "quitButton": "Quit Challenge",
+    "quitting": "Quitting...",
+    "cancel": "Cancel"
+  },
+  "archiveChallenge": {
+    "adminWarning": "This will end the challenge for ALL participants",
+    "archiveForAll": "Archive for Everyone"
   },
   "errors": {
     "generic": "Something went wrong",

@@ -80,7 +80,12 @@
     "youJoined": "Você entrou",
     "ends": "Termina",
     "endsSoon": "Termina em breve",
-    "endingSoon": "Terminando em breve"
+    "endingSoon": "Terminando em breve",
+    "archiveChallenge": "Arquivar Desafio",
+    "quitChallenge": "Sair do Desafio",
+    "ruleChangeRequired": "Você deve reconhecer as mudanças nas regras para continuar",
+    "viewAndRespond": "Ver Desafio e Responder",
+    "adminWarning": "Isso encerrará o desafio para TODOS os participantes"
   },
   "history": {
     "title": "Histórico",
@@ -139,7 +144,11 @@
     "notConfirmedToday": "Não Confirmado Hoje",
     "inviteSection": "Convidar Amigos",
     "inviteDescription": "Compartilhe este código com amigos para entrar no desafio",
-    "editHistory": "Editar Histórico"
+    "editHistory": "Editar Histórico",
+    "editRules": "Editar Regras",
+    "archiveChallenge": "Arquivar Desafio",
+    "quitChallenge": "Sair do Desafio",
+    "adminBadge": "Admin"
   },
   "joinChallenge": {
     "title": "Entrar em Desafio",
@@ -269,6 +278,37 @@
     "back": "Voltar",
     "create": "Criar Desafio",
     "creating": "Criando..."
+  },
+  "editRules": {
+    "title": "Editar Regras do Desafio",
+    "description": "Atualizar regras para este desafio",
+    "warning": "Todos os participantes serão notificados e devem aceitar as mudanças",
+    "saveChanges": "Salvar Alterações",
+    "saveAndNotify": "Salvar e Notificar Participantes",
+    "cancel": "Cancelar"
+  },
+  "ruleChangeNotification": {
+    "title": "⚠️ Regras do Desafio Atualizadas",
+    "message": "O administrador atualizou as regras do desafio. Você deve revisar e aceitá-las para continuar.",
+    "description": "Você não pode registrar confirmações diárias até responder.",
+    "viewNewRules": "Novas Regras:",
+    "acceptAndContinue": "Aceitar e Continuar",
+    "leaveChallenge": "Sair do Desafio",
+    "accepting": "Aceitando..."
+  },
+  "quitChallenge": {
+    "title": "Sair do Desafio",
+    "confirm": "Tem certeza que deseja sair deste desafio?",
+    "warning": "Se você entrar novamente mais tarde, seu progresso começará do zero",
+    "keepData": "Seus registros antigos serão preservados no histórico",
+    "newStreak": "Você terá uma nova data de entrada e sequência nova",
+    "quitButton": "Sair do Desafio",
+    "quitting": "Saindo...",
+    "cancel": "Cancelar"
+  },
+  "archiveChallenge": {
+    "adminWarning": "Isso encerrará o desafio para TODOS os participantes",
+    "archiveForAll": "Arquivar para Todos"
   },
   "errors": {
     "generic": "Algo deu errado",

@@ -70,7 +70,16 @@ jest.mock('./StopChallengeModal', () => ({
   ),
 }));
 
+jest.mock('@/components/challenges/QuitChallengeModal', () => ({
+  QuitChallengeModal: ({ onClose }: any) => (
+    <div data-testid="quit-challenge-modal">
+      <button onClick={onClose}>Close</button>
+    </div>
+  ),
+}));
+
 describe('ChallengeCard', () => {
+  const mockUserId = 'user-123';
   const mockChallenge = {
     id: 'challenge-123',
     name: 'Test Challenge',
@@ -84,8 +93,8 @@ describe('ChallengeCard', () => {
       email: 'owner@example.com',
     },
     members: [
-      { status: 'ACTIVE', email: 'member1@example.com' },
-      { status: 'ACTIVE', email: 'member2@example.com' },
+      { userId: mockUserId, status: 'ACTIVE', email: 'member1@example.com', role: 'OWNER' },
+      { userId: 'user-456', status: 'ACTIVE', email: 'member2@example.com', role: 'MEMBER' },
     ],
   };
 
@@ -196,6 +205,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={null}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -209,6 +219,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -227,6 +238,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={null}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -250,6 +262,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={null}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -268,6 +281,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -275,34 +289,84 @@ describe('ChallengeCard', () => {
     expect(screen.getByTestId('challenge-icon')).toBeInTheDocument();
   });
 
-  it('should show stop challenge button', () => {
+  it('should show archive challenge button for admin', () => {
     render(
       <ChallengeCard
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
 
-    const stopButton = screen.getByText(/stopChallenge/);
-    expect(stopButton).toBeInTheDocument();
+    const archiveButton = screen.getByText(/archiveChallenge/);
+    expect(archiveButton).toBeInTheDocument();
   });
 
-  it('should open stop challenge modal when clicking stop button', () => {
+  it('should open stop challenge modal when clicking archive button', () => {
     render(
       <ChallengeCard
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
 
-    const stopButton = screen.getByText(/stopChallenge/);
-    fireEvent.click(stopButton);
+    const archiveButton = screen.getByText(/archiveChallenge/);
+    fireEvent.click(archiveButton);
 
     expect(screen.getByTestId('stop-challenge-modal')).toBeInTheDocument();
+  });
+
+  it('should show quit challenge button for members', () => {
+    const memberChallenge = {
+      ...mockChallenge,
+      members: [
+        { userId: 'owner-id', status: 'ACTIVE', email: 'owner@example.com', role: 'OWNER' },
+        { userId: mockUserId, status: 'ACTIVE', email: 'member@example.com', role: 'MEMBER' },
+      ],
+    };
+
+    render(
+      <ChallengeCard
+        challenge={memberChallenge}
+        logs={mockLogs}
+        todayLog={mockTodayLog}
+        userId={mockUserId}
+        userTimezone="UTC"
+      />
+    );
+
+    const quitButton = screen.getByText(/quitChallenge/);
+    expect(quitButton).toBeInTheDocument();
+  });
+
+  it('should open quit challenge modal when clicking quit button', () => {
+    const memberChallenge = {
+      ...mockChallenge,
+      members: [
+        { userId: 'owner-id', status: 'ACTIVE', email: 'owner@example.com', role: 'OWNER' },
+        { userId: mockUserId, status: 'ACTIVE', email: 'member@example.com', role: 'MEMBER' },
+      ],
+    };
+
+    render(
+      <ChallengeCard
+        challenge={memberChallenge}
+        logs={mockLogs}
+        todayLog={mockTodayLog}
+        userId={mockUserId}
+        userTimezone="UTC"
+      />
+    );
+
+    const quitButton = screen.getByText(/quitChallenge/);
+    fireEvent.click(quitButton);
+
+    expect(screen.getByTestId('quit-challenge-modal')).toBeInTheDocument();
   });
 
   it('should display challenge start date and active duration', () => {
@@ -311,6 +375,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -332,6 +397,7 @@ describe('ChallengeCard', () => {
         challenge={personalChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );

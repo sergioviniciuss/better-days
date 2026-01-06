@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
 import { getTodayInTimezone } from '@/lib/date-utils';
 import { revalidatePath } from 'next/cache';
+import { hasUnacknowledgedRuleChanges } from './challenge';
 
 export async function confirmDay(date: string, consumedSugar: boolean, challengeId: string) {
   const user = await getCurrentUser();
@@ -24,6 +25,26 @@ export async function confirmDay(date: string, consumedSugar: boolean, challenge
 
     if (!membership) {
       return { error: 'Not a member of this challenge' };
+    }
+
+    // Get challenge to check for unacknowledged rule changes
+    const { data: challenge } = await supabase
+      .from('Challenge')
+      .select('*')
+      .eq('id', challengeId)
+      .single();
+
+    if (!challenge) {
+      return { error: 'Challenge not found' };
+    }
+
+    // Check for unacknowledged rule changes - block confirmation if needed
+    const needsAck = await Promise.resolve(hasUnacknowledgedRuleChanges(challenge, membership));
+    if (needsAck) {
+      return { 
+        error: 'You must acknowledge the updated challenge rules before continuing',
+        requiresRuleAcknowledgment: true 
+      };
     }
 
     // Use upsert to create or update
@@ -66,11 +87,23 @@ export async function confirmMultipleDays(confirmations: Array<{ date: string; c
   try {
     const challengeIds = new Set(confirmations.map(c => c.challengeId));
     
-    await Promise.all(
+    // Execute all confirmations and check for errors
+    const results = await Promise.all(
       confirmations.map(({ date, consumedSugar, challengeId }) =>
         confirmDay(date, consumedSugar, challengeId)
       )
     );
+
+    // Check if any confirmations failed
+    const failedResults = results.filter(r => r.error);
+    if (failedResults.length > 0) {
+      // If there are rule acknowledgment issues, return specific error
+      const ruleAckError = failedResults.find(r => r.requiresRuleAcknowledgment);
+      if (ruleAckError) {
+        return { error: 'You must acknowledge updated challenge rules before confirming days' };
+      }
+      return { error: `Failed to confirm ${failedResults.length} day(s)` };
+    }
 
     revalidatePath('/dashboard');
     revalidatePath('/history');

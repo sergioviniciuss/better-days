@@ -43,8 +43,18 @@ describe('joinChallengeByCode', () => {
       }),
     };
 
-    // Mock existing member check
-    const mockMemberCheckQuery = {
+    // Mock active member check
+    const mockActiveMemberCheckQuery = {
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: null,
+        error: { code: 'PGRST116' }, // No rows returned
+      }),
+    };
+
+    // Mock left member check
+    const mockLeftMemberCheckQuery = {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({
@@ -67,7 +77,8 @@ describe('joinChallengeByCode', () => {
 
     mockSupabaseClient.from
       .mockReturnValueOnce(mockInviteQuery)
-      .mockReturnValueOnce(mockMemberCheckQuery)
+      .mockReturnValueOnce(mockActiveMemberCheckQuery)
+      .mockReturnValueOnce(mockLeftMemberCheckQuery)
       .mockReturnValueOnce(mockMemberInsertQuery);
 
     const result = await joinChallengeByCode('ABC12345');

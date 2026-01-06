@@ -55,6 +55,13 @@ export function StopChallengeModal({ challengeId, challengeName, onClose }: Stop
                         {t('stopChallengeConfirm')}
                     </p>
 
+                    {/* Admin Warning */}
+                    <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 mb-4">
+                        <p className="text-sm text-orange-800 dark:text-orange-200 font-medium">
+                            ⚠️ {t('adminWarning', { defaultValue: 'This will end the challenge for ALL participants' })}
+                        </p>
+                    </div>
+
                     {/* Info Box */}
                     <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                         <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
@@ -76,7 +83,7 @@ export function StopChallengeModal({ challengeId, challengeName, onClose }: Stop
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-3">
+                <div className="flex flex-col-reverse sm:flex-row gap-3">
                     <button
                         onClick={onClose}
                         disabled={loading}

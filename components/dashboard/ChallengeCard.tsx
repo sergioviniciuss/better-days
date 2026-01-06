@@ -12,6 +12,8 @@ import { DailyConfirmation } from './DailyConfirmation';
 import { StopChallengeModal } from './StopChallengeModal';
 import { StreakAchievement } from './StreakAchievement';
 import { clearReminder } from '@/lib/reminder-utils';
+import { QuitChallengeModal } from '@/components/challenges/QuitChallengeModal';
+import { hasUnacknowledgedRuleChanges } from '@/app/actions/challenge';
 
 interface ChallengeCardProps {
   challenge: {
@@ -19,6 +21,7 @@ interface ChallengeCardProps {
     name: string;
     objectiveType: string;
     rules: string[];
+    rulesUpdatedAt?: string | null;
     startDate: string;
     shortId?: string;
     dueDate?: string | null;
@@ -39,6 +42,7 @@ interface ChallengeCardProps {
     consumedSugar: boolean;
     confirmedAt: Date | null;
   } | null;
+  userId: string;
   userTimezone: string;
   onOpenPendingModal?: (objectiveType: string) => void;
   hasGroupPendingDays?: boolean;
@@ -48,7 +52,8 @@ interface ChallengeCardProps {
 export function ChallengeCard({ 
   challenge, 
   logs, 
-  todayLog: initialTodayLog, 
+  todayLog: initialTodayLog,
+  userId,
   userTimezone,
   onOpenPendingModal,
   hasGroupPendingDays = false,
@@ -62,6 +67,16 @@ export function ChallengeCard({
   const [todayLog, setTodayLog] = useState(initialTodayLog);
   const [loading, setLoading] = useState(false);
   const [showStopModal, setShowStopModal] = useState(false);
+  const [showQuitModal, setShowQuitModal] = useState(false);
+
+  // Check if current user is admin
+  const userMembership = challenge.members?.find(m => m.userId === userId);
+  const isAdmin = userMembership?.role === 'OWNER';
+
+  // Check for unacknowledged rule changes
+  const hasUnacknowledgedRules = userMembership && challenge.rulesUpdatedAt
+    ? hasUnacknowledgedRuleChanges(challenge, userMembership)
+    : false;
 
   // Sync state with server props on hydration
   useEffect(() => {
@@ -236,8 +251,28 @@ export function ChallengeCard({
         </div>
       </div>
 
+      {/* Rule Change Warning Banner - BLOCKING */}
+      {hasUnacknowledgedRules && (
+        <div className="bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-400 dark:border-orange-600 rounded-lg p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 text-2xl">⚠️</div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-2">
+                {t('ruleChangeRequired')}
+              </p>
+              <Link 
+                href={`/${locale}/challenges/${challenge.id}`}
+                className="inline-block px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md text-sm font-medium min-h-[44px]"
+              >
+                {t('viewAndRespond')}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Pending Days Alert - Always show if there are past pending days */}
-      {hasGroupPendingDays && (
+      {hasGroupPendingDays && !hasUnacknowledgedRules && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
@@ -253,43 +288,62 @@ export function ChallengeCard({
         </div>
       )}
 
-      {/* Today's Confirmation */}
-      <div className="mt-4">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-          {todayConfirmed ? t('todayConfirmed') : t('todayPending')}
-        </h3>
-        {!todayConfirmed && (
-          <DailyConfirmation 
-            onConfirm={handleConfirmToday} 
-            loading={loading}
-            labels={getConfirmationLabels()}
-          />
-        )}
-        {todayConfirmed && todayLog && (
-          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              {todayLog.consumedSugar ? getConfirmationLabels().failure : getConfirmationLabels().success}
-            </p>
-          </div>
-        )}
-      </div>
+      {/* Today's Confirmation - Hide if unacknowledged rules */}
+      {!hasUnacknowledgedRules && (
+        <div className="mt-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            {todayConfirmed ? t('todayConfirmed') : t('todayPending')}
+          </h3>
+          {!todayConfirmed && (
+            <DailyConfirmation 
+              onConfirm={handleConfirmToday} 
+              loading={loading}
+              labels={getConfirmationLabels()}
+            />
+          )}
+          {todayConfirmed && todayLog && (
+            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                {todayLog.consumedSugar ? getConfirmationLabels().failure : getConfirmationLabels().success}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Stop Challenge Button */}
+      {/* Challenge Actions - Show appropriate button */}
       <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <button
-          onClick={() => setShowStopModal(true)}
-          className="w-full px-4 py-3 border-2 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-md font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors min-h-[44px]"
-        >
-          {t('stopChallenge')}
-        </button>
+        {isAdmin ? (
+          <button
+            onClick={() => setShowStopModal(true)}
+            className="w-full px-4 py-3 border-2 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-md font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors min-h-[44px]"
+          >
+            {t('archiveChallenge', { defaultValue: 'Archive Challenge' })}
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowQuitModal(true)}
+            className="w-full px-4 py-3 border-2 border-orange-300 dark:border-orange-700 text-orange-600 dark:text-orange-400 rounded-md font-medium hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors min-h-[44px]"
+          >
+            {t('quitChallenge', { defaultValue: 'Quit Challenge' })}
+          </button>
+        )}
       </div>
 
-      {/* Stop Challenge Modal */}
-      {showStopModal && (
+      {/* Modals */}
+      {showStopModal && isAdmin && (
         <StopChallengeModal
           challengeId={challenge.id}
           challengeName={challenge.name}
           onClose={() => setShowStopModal(false)}
+        />
+      )}
+      
+      {showQuitModal && !isAdmin && (
+        <QuitChallengeModal
+          challengeId={challenge.id}
+          challengeName={challenge.name}
+          onClose={() => setShowQuitModal(false)}
         />
       )}
     </div>

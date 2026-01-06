@@ -32,6 +32,7 @@ interface ChallengeTabsProps {
   soloChallenges: Challenge[];
   groupChallenges: Challenge[];
   todayLogs: Map<string, any>;
+  userId: string;
   userTimezone: string;
   groupedPendingDays: GroupedPendingDays[];
   onOpenPendingModal: (objectiveType: string) => void;
@@ -40,7 +41,8 @@ interface ChallengeTabsProps {
 export function ChallengeTabs({ 
   soloChallenges, 
   groupChallenges, 
-  todayLogs, 
+  todayLogs,
+  userId,
   userTimezone,
   groupedPendingDays,
   onOpenPendingModal
@@ -98,6 +100,7 @@ export function ChallengeTabs({
                 challenge={challenge}
                 logs={challenge.logs || []}
                 todayLog={todayLogs.get(challenge.id) || null}
+                userId={userId}
                 userTimezone={userTimezone}
                 onOpenPendingModal={onOpenPendingModal}
                 hasGroupPendingDays={group ? group.allPendingDays.length > 0 : false}
