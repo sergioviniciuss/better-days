@@ -73,6 +73,8 @@ export function ChallengeDetailContent({
   isMember = true,
 }: ChallengeDetailContentProps) {
   const t = useTranslations('challengeDetail');
+  const tChallenges = useTranslations('challenges');
+  const tJoin = useTranslations('joinChallenge');
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -125,6 +127,39 @@ export function ChallengeDetailContent({
           memberCount={memberCount}
           rules={challenge.rules}
         />
+      )}
+
+      {/* Challenge Rules Section - Only show if user is a member */}
+      {isMember && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            {tChallenges('rules')}
+          </h2>
+          {challenge.rules.length > 0 ? (
+            <ul className="space-y-3">
+              {challenge.rules.map((rule, index) => (
+                <li key={index} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
+                  <svg 
+                    className="w-5 h-5 mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400" 
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                  >
+                    <path 
+                      fillRule="evenodd" 
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+                      clipRule="evenodd" 
+                    />
+                  </svg>
+                  <span>{tChallenges(rule as any)}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-600 dark:text-gray-400 italic">
+              {tJoin('noRules')}
+            </p>
+          )}
+        </div>
       )}
 
       {/* User Status Card - Only show if user is a member */}
