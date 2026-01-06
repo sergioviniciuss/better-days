@@ -5,6 +5,7 @@ import { calculateStreaks, detectPendingDays, type DailyLog as StreakDailyLog } 
 import { useState } from 'react';
 import { formatDateString } from '@/lib/date-utils';
 import { JoinChallengeBanner } from './JoinChallengeBanner';
+import { EditConfirmationsModal } from '@/components/dashboard/EditConfirmationsModal';
 
 interface User {
   id: string;
@@ -73,6 +74,7 @@ export function ChallengeDetailContent({
 }: ChallengeDetailContentProps) {
   const t = useTranslations('challengeDetail');
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Calculate user's stats
   const streakLogs: StreakDailyLog[] = userLogs.map((log) => ({
@@ -128,9 +130,17 @@ export function ChallengeDetailContent({
       {/* User Status Card - Only show if user is a member */}
       {isMember && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          {t('yourStatus')}
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            {t('yourStatus')}
+          </h2>
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium min-h-[44px]"
+          >
+            {t('editHistory')}
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
@@ -248,6 +258,23 @@ export function ChallengeDetailContent({
             </button>
           </div>
         </div>
+      )}
+      
+      {showEditModal && isMember && (
+        <EditConfirmationsModal
+          confirmedLogs={userLogs.filter(log => log.confirmedAt !== null).map(log => ({
+            ...log,
+            challengeId: challenge.id,
+          }))}
+          challenges={[{
+            id: challenge.id,
+            name: challenge.name,
+            objectiveType: (challenge as any).objectiveType || 'NO_SUGAR_STREAK',
+          }]}
+          challengeId={challenge.id}
+          userTimezone={user.timezone}
+          onClose={() => setShowEditModal(false)}
+        />
       )}
     </div>
   );

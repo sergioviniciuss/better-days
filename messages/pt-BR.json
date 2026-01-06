@@ -91,7 +91,8 @@
     "pending": "Pendente",
     "stoppedChallenge": "Parado",
     "stoppedOn": "Parado em",
-    "activeChallenge": "Ativo"
+    "activeChallenge": "Ativo",
+    "editConfirmations": "Editar Confirmações"
   },
   "challenges": {
     "title": "Desafios",
@@ -137,7 +138,8 @@
     "confirmedToday": "Confirmado Hoje",
     "notConfirmedToday": "Não Confirmado Hoje",
     "inviteSection": "Convidar Amigos",
-    "inviteDescription": "Compartilhe este código com amigos para entrar no desafio"
+    "inviteDescription": "Compartilhe este código com amigos para entrar no desafio",
+    "editHistory": "Editar Histórico"
   },
   "joinChallenge": {
     "title": "Entrar em Desafio",
@@ -168,7 +170,15 @@
     "day": "Dia",
     "status": "Status",
     "calendarView": "Visualização de Calendário",
-    "listView": "Visualização de Lista"
+    "listView": "Visualização de Lista",
+    "forChallenges": "Para desafios: {challenges}",
+    "applyToAll": "Isso será aplicado a todos os desafios listados"
+  },
+  "editConfirmations": {
+    "title": "Editar Confirmações",
+    "description": "Edite suas confirmações dos últimos 30 dias",
+    "saveChanges": "Salvar Alterações",
+    "noEditableConfirmations": "Nenhuma confirmação para editar nos últimos 30 dias"
   },
   "onboarding": {
     "welcome": "Bem-vindo ao Melhores Habitos!",

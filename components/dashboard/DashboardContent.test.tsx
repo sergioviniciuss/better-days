@@ -30,6 +30,8 @@ jest.mock('@/lib/streak-utils', () => ({
     lastConfirmedDate: '2024-01-14',
   }),
   detectPendingDays: jest.fn().mockReturnValue(['2024-01-13']),
+  getTodayInTimezone: jest.fn().mockReturnValue('2024-01-15'),
+  groupPendingDaysByObjective: jest.fn().mockReturnValue([]),
 }));
 
 // Mock next/link
@@ -41,6 +43,13 @@ jest.mock('next/link', () => {
   return MockLink;
 });
 
+// Mock reminder utils
+jest.mock('@/lib/reminder-utils', () => ({
+  checkReminder: jest.fn().mockReturnValue(false),
+  setReminder: jest.fn(),
+  clearReminder: jest.fn(),
+}));
+
 // Mock ChallengeCard component
 jest.mock('./ChallengeCard', () => ({
   ChallengeCard: ({ challenge }: any) => (
@@ -48,6 +57,28 @@ jest.mock('./ChallengeCard', () => ({
       <span>{challenge.name}</span>
       <span>5</span>
       <span>10</span>
+    </div>
+  ),
+}));
+
+// Mock GroupedPendingDaysModal component
+jest.mock('./GroupedPendingDaysModal', () => ({
+  GroupedPendingDaysModal: () => null,
+}));
+
+// Mock ChallengeTabs component
+jest.mock('./ChallengeTabs', () => ({
+  ChallengeTabs: ({ soloChallenges, groupChallenges }: any) => (
+    <div>
+      <div>{`soloChallenges (${soloChallenges.length})`}</div>
+      <div>{`groupChallenges (${groupChallenges.length})`}</div>
+      {soloChallenges.map((challenge: any) => (
+        <div key={challenge.id} data-testid="challenge-card">
+          <span>{challenge.name}</span>
+          <span>5</span>
+          <span>10</span>
+        </div>
+      ))}
     </div>
   ),
 }));

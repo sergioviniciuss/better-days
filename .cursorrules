@@ -90,3 +90,4 @@ When implementing async actions that involve navigation or state changes:
 - Prefer tailwind classes over custom CSS
 - Make sure user feedback is provided when navigating or waiting for async actions
 - Use mobile-first approach
+- this project uses yarn as package manager

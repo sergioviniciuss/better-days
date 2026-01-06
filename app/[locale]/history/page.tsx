@@ -20,5 +20,5 @@ export default async function HistoryPage({
   const { challenges } = await getChallenges(true, user);
   const { logs } = await getDailyLogs(undefined, user);
 
-  return <HistoryContent logs={logs} challenges={challenges} />;
+  return <HistoryContent logs={logs} challenges={challenges} userTimezone={user.timezone} />;
 }
