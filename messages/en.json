@@ -66,6 +66,7 @@
     "stopChallengePreserveData": "All your data will be preserved in history",
     "stopChallengeViewLogs": "You can view past logs anytime",
     "cancel": "Cancel",
+    "loading": "Updating...",
     "soloChallenges": "Solo Challenges",
     "groupChallenges": "Group Challenges",
     "noSoloChallenges": "No solo challenges yet",
@@ -304,7 +305,8 @@
     "newStreak": "You'll get a new joining date and fresh streak",
     "quitButton": "Quit Challenge",
     "quitting": "Quitting...",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "loading": "Updating..."
   },
   "archiveChallenge": {
     "adminWarning": "This will end the challenge for ALL participants",

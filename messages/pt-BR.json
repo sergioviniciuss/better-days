@@ -66,6 +66,7 @@
     "stopChallengePreserveData": "Todos os seus dados serão preservados no histórico",
     "stopChallengeViewLogs": "Você pode ver seus registros passados a qualquer momento",
     "cancel": "Cancelar",
+    "loading": "Atualizando...",
     "soloChallenges": "Desafios Solo",
     "groupChallenges": "Desafios em Grupo",
     "noSoloChallenges": "Nenhum desafio solo ainda",
@@ -304,7 +305,8 @@
     "newStreak": "Você terá uma nova data de entrada e sequência nova",
     "quitButton": "Sair do Desafio",
     "quitting": "Saindo...",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "loading": "Atualizando..."
   },
   "archiveChallenge": {
     "adminWarning": "Isso encerrará o desafio para TODOS os participantes",
