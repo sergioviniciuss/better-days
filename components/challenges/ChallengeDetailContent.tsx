@@ -5,6 +5,7 @@ import { calculateStreaks, detectPendingDays, type DailyLog as StreakDailyLog } 
 import { useState } from 'react';
 import { formatDateString } from '@/lib/date-utils';
 import { JoinChallengeBanner } from './JoinChallengeBanner';
+import { EditConfirmationsModal } from '@/components/dashboard/EditConfirmationsModal';
 
 interface User {
   id: string;
@@ -72,7 +73,10 @@ export function ChallengeDetailContent({
   isMember = true,
 }: ChallengeDetailContentProps) {
   const t = useTranslations('challengeDetail');
+  const tChallenges = useTranslations('challenges');
+  const tJoin = useTranslations('joinChallenge');
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Calculate user's stats
   const streakLogs: StreakDailyLog[] = userLogs.map((log) => ({
@@ -125,12 +129,53 @@ export function ChallengeDetailContent({
         />
       )}
 
+      {/* Challenge Rules Section - Only show if user is a member */}
+      {isMember && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            {tChallenges('rules')}
+          </h2>
+          {challenge.rules.length > 0 ? (
+            <ul className="space-y-3">
+              {challenge.rules.map((rule, index) => (
+                <li key={index} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
+                  <svg 
+                    className="w-5 h-5 mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400" 
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                  >
+                    <path 
+                      fillRule="evenodd" 
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+                      clipRule="evenodd" 
+                    />
+                  </svg>
+                  <span>{tChallenges(rule as any)}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-600 dark:text-gray-400 italic">
+              {tJoin('noRules')}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* User Status Card - Only show if user is a member */}
       {isMember && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          {t('yourStatus')}
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            {t('yourStatus')}
+          </h2>
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium min-h-[44px]"
+          >
+            {t('editHistory')}
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
@@ -248,6 +293,23 @@ export function ChallengeDetailContent({
             </button>
           </div>
         </div>
+      )}
+      
+      {showEditModal && isMember && (
+        <EditConfirmationsModal
+          confirmedLogs={userLogs.filter(log => log.confirmedAt !== null).map(log => ({
+            ...log,
+            challengeId: challenge.id,
+          }))}
+          challenges={[{
+            id: challenge.id,
+            name: challenge.name,
+            objectiveType: (challenge as any).objectiveType || 'NO_SUGAR_STREAK',
+          }]}
+          challengeId={challenge.id}
+          userTimezone={user.timezone}
+          onClose={() => setShowEditModal(false)}
+        />
       )}
     </div>
   );

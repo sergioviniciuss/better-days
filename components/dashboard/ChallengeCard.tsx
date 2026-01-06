@@ -9,10 +9,9 @@ import Link from 'next/link';
 import { confirmDay } from '@/app/actions/daily-log';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 import { DailyConfirmation } from './DailyConfirmation';
-import { PendingDaysModal } from './PendingDaysModal';
 import { StopChallengeModal } from './StopChallengeModal';
 import { StreakAchievement } from './StreakAchievement';
-import { setReminder, checkReminder, clearReminder } from '@/lib/reminder-utils';
+import { clearReminder } from '@/lib/reminder-utils';
 
 interface ChallengeCardProps {
   challenge: {
@@ -41,9 +40,20 @@ interface ChallengeCardProps {
     confirmedAt: Date | null;
   } | null;
   userTimezone: string;
+  onOpenPendingModal?: (objectiveType: string) => void;
+  hasGroupPendingDays?: boolean;
+  groupPendingCount?: number;
 }
 
-export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, userTimezone }: ChallengeCardProps) {
+export function ChallengeCard({ 
+  challenge, 
+  logs, 
+  todayLog: initialTodayLog, 
+  userTimezone,
+  onOpenPendingModal,
+  hasGroupPendingDays = false,
+  groupPendingCount = 0
+}: ChallengeCardProps) {
   const t = useTranslations('dashboard');
   const tChallenge = useTranslations('challengeConfirmation');
   const router = useRouter();
@@ -51,7 +61,6 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   const locale = params.locale as string;
   const [todayLog, setTodayLog] = useState(initialTodayLog);
   const [loading, setLoading] = useState(false);
-  const [showPendingModal, setShowPendingModal] = useState(false);
   const [showStopModal, setShowStopModal] = useState(false);
 
   // Sync state with server props on hydration
@@ -67,7 +76,11 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   );
   const today = getTodayInTimezone(userTimezone);
   const todayConfirmed = todayLog !== null && todayLog !== undefined && todayLog.confirmedAt !== null;
+  
+  // Filter out today from pending days for display purposes (today has its own section)
+  const pastPendingDays = pendingDays.filter(date => date !== today);
   const hasPendingDays = pendingDays.length > 0;
+  const hasPastPendingDays = pastPendingDays.length > 0;
 
   // Milestone detection helper
   const isMilestoneStreak = (streak: number): boolean => {
@@ -76,12 +89,7 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
   };
   const isMilestone = isMilestoneStreak(currentStreak);
 
-  useEffect(() => {
-    // Auto-open pending days modal if user has pending days and no active reminder
-    if (hasPendingDays && !showPendingModal && !todayConfirmed && !checkReminder(challenge.id)) {
-      setShowPendingModal(true);
-    }
-  }, [hasPendingDays, showPendingModal, todayConfirmed, challenge.id]);
+  // Note: Auto-open is now handled at dashboard level for grouped pending days
 
   const handleConfirmToday = async (consumedSugar: boolean) => {
     setLoading(true);
@@ -92,6 +100,25 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
       setTodayLog(result.log);
       // Clear reminder when user confirms today
       clearReminder(challenge.id);
+      
+      // Check if there are pending days after confirming today
+      // Recalculate pending days with the new log
+      const updatedLogs = [...logs, result.log];
+      const updatedPendingDays = detectPendingDays(
+        updatedLogs,
+        userTimezone,
+        challenge.userJoinedAt || challenge.startDate
+      );
+      const updatedPastPendingDays = updatedPendingDays.filter(date => date !== today);
+      
+      // If there are past pending days, prompt the user via grouped modal
+      if (updatedPastPendingDays.length > 0 && onOpenPendingModal) {
+        // Small delay to let the UI update first
+        setTimeout(() => {
+          onOpenPendingModal(challenge.objectiveType);
+        }, 300);
+      }
+      
       // Use router.refresh() instead of window.location.reload() for better UX
       router.refresh();
     } else {
@@ -101,11 +128,6 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
     }
   };
 
-  const handleRemindLater = () => {
-    // Set reminder for 2 hours
-    setReminder(challenge.id, 2);
-    setShowPendingModal(false);
-  };
 
   // Get confirmation button labels based on challenge type
   const getConfirmationLabels = () => {
@@ -214,15 +236,15 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
         </div>
       </div>
 
-      {/* Pending Days Alert */}
-      {hasPendingDays && (
+      {/* Pending Days Alert - Always show if there are past pending days */}
+      {hasGroupPendingDays && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-4">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-              {t('pendingDays')}: {pendingDays.length}
+              {t('pendingDays')}: {groupPendingCount}
             </p>
             <button
-              onClick={() => setShowPendingModal(true)}
+              onClick={() => onOpenPendingModal?.(challenge.objectiveType)}
               className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md text-sm font-medium min-h-[36px]"
             >
               {t('confirmPendingDays')}
@@ -261,17 +283,6 @@ export function ChallengeCard({ challenge, logs, todayLog: initialTodayLog, user
           {t('stopChallenge')}
         </button>
       </div>
-
-      {/* Pending Days Modal */}
-      {showPendingModal && (
-        <PendingDaysModal
-          pendingDays={pendingDays}
-          onClose={handleRemindLater}
-          onRemindLater={handleRemindLater}
-          userTimezone={userTimezone}
-          challengeId={challenge.id}
-        />
-      )}
 
       {/* Stop Challenge Modal */}
       {showStopModal && (

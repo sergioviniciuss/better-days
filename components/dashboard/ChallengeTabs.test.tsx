@@ -43,6 +43,9 @@ describe('ChallengeTabs', () => {
     ['solo-1', { date: '2024-01-15', consumedSugar: false, confirmedAt: new Date() }],
   ]);
 
+  const mockGroupedPendingDays: any[] = [];
+  const mockOnOpenPendingModal = jest.fn();
+
   it('should render solo and group tabs', () => {
     render(
       <ChallengeTabs
@@ -50,6 +53,8 @@ describe('ChallengeTabs', () => {
         groupChallenges={[mockGroupChallenge]}
         todayLogs={mockTodayLogs}
         userTimezone="UTC"
+        groupedPendingDays={mockGroupedPendingDays}
+        onOpenPendingModal={mockOnOpenPendingModal}
       />
     );
 
@@ -64,6 +69,8 @@ describe('ChallengeTabs', () => {
         groupChallenges={[mockGroupChallenge]}
         todayLogs={mockTodayLogs}
         userTimezone="UTC"
+        groupedPendingDays={mockGroupedPendingDays}
+        onOpenPendingModal={mockOnOpenPendingModal}
       />
     );
 
@@ -78,6 +85,8 @@ describe('ChallengeTabs', () => {
         groupChallenges={[mockGroupChallenge]}
         todayLogs={mockTodayLogs}
         userTimezone="UTC"
+        groupedPendingDays={mockGroupedPendingDays}
+        onOpenPendingModal={mockOnOpenPendingModal}
       />
     );
 
@@ -92,6 +101,8 @@ describe('ChallengeTabs', () => {
         groupChallenges={[mockGroupChallenge]}
         todayLogs={mockTodayLogs}
         userTimezone="UTC"
+        groupedPendingDays={mockGroupedPendingDays}
+        onOpenPendingModal={mockOnOpenPendingModal}
       />
     );
 
@@ -111,6 +122,8 @@ describe('ChallengeTabs', () => {
         groupChallenges={[mockGroupChallenge]}
         todayLogs={mockTodayLogs}
         userTimezone="UTC"
+        groupedPendingDays={mockGroupedPendingDays}
+        onOpenPendingModal={mockOnOpenPendingModal}
       />
     );
 
@@ -124,6 +137,8 @@ describe('ChallengeTabs', () => {
         groupChallenges={[]}
         todayLogs={mockTodayLogs}
         userTimezone="UTC"
+        groupedPendingDays={mockGroupedPendingDays}
+        onOpenPendingModal={mockOnOpenPendingModal}
       />
     );
 
@@ -147,6 +162,8 @@ describe('ChallengeTabs', () => {
         groupChallenges={[]}
         todayLogs={mockTodayLogs}
         userTimezone="UTC"
+        groupedPendingDays={mockGroupedPendingDays}
+        onOpenPendingModal={mockOnOpenPendingModal}
       />
     );
 

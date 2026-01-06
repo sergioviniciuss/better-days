@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChallengeCard } from './ChallengeCard';
+import type { GroupedPendingDays } from '@/lib/streak-utils';
 
 interface Challenge {
   id: string;
@@ -32,13 +33,17 @@ interface ChallengeTabsProps {
   groupChallenges: Challenge[];
   todayLogs: Map<string, any>;
   userTimezone: string;
+  groupedPendingDays: GroupedPendingDays[];
+  onOpenPendingModal: (objectiveType: string) => void;
 }
 
 export function ChallengeTabs({ 
   soloChallenges, 
   groupChallenges, 
   todayLogs, 
-  userTimezone 
+  userTimezone,
+  groupedPendingDays,
+  onOpenPendingModal
 }: ChallengeTabsProps) {
   const t = useTranslations('dashboard');
   const params = useParams();
@@ -82,15 +87,24 @@ export function ChallengeTabs({
       {/* Challenge Cards */}
       {activeChallenges.length > 0 ? (
         <div className="space-y-6">
-          {activeChallenges.map((challenge) => (
-            <ChallengeCard
-              key={challenge.id}
-              challenge={challenge}
-              logs={challenge.logs || []}
-              todayLog={todayLogs.get(challenge.id) || null}
-              userTimezone={userTimezone}
-            />
-          ))}
+          {activeChallenges.map((challenge) => {
+            const group = groupedPendingDays.find(
+              g => g.objectiveType === challenge.objectiveType
+            );
+            
+            return (
+              <ChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                logs={challenge.logs || []}
+                todayLog={todayLogs.get(challenge.id) || null}
+                userTimezone={userTimezone}
+                onOpenPendingModal={onOpenPendingModal}
+                hasGroupPendingDays={group ? group.allPendingDays.length > 0 : false}
+                groupPendingCount={group?.allPendingDays.length || 0}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-lg shadow">

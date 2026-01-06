@@ -2,7 +2,11 @@
 
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { ChallengeTabs } from './ChallengeTabs';
+import { detectPendingDays, groupPendingDaysByObjective, getTodayInTimezone } from '@/lib/streak-utils';
+import { GroupedPendingDaysModal } from './GroupedPendingDaysModal';
+import { checkReminder, setReminder } from '@/lib/reminder-utils';
 
 interface User {
   id: string;
@@ -45,6 +49,8 @@ interface DashboardContentProps {
 
 export function DashboardContent({ user, challengesWithLogs }: DashboardContentProps) {
   const t = useTranslations('dashboard');
+  const [showPendingModal, setShowPendingModal] = useState(false);
+  const [activeObjectiveGroup, setActiveObjectiveGroup] = useState<string | null>(null);
 
   // Separate solo and group challenges
   const soloChallenges = challengesWithLogs.filter(c => c.challengeType === 'PERSONAL');
@@ -53,6 +59,56 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
   // Create todayLogs Map for tabs component
   const todayLogs = new Map(
     challengesWithLogs.map(c => [c.id, c.todayLog])
+  );
+
+  // Calculate grouped pending days
+  const today = getTodayInTimezone(user.timezone);
+  const challengesWithPending = challengesWithLogs.map(c => ({
+    id: c.id,
+    name: c.name,
+    objectiveType: c.objectiveType,
+    startDate: c.startDate,
+    userJoinedAt: c.userJoinedAt,
+    pendingDays: detectPendingDays(
+      c.logs,
+      user.timezone,
+      c.userJoinedAt || c.startDate
+    ).filter(date => date !== today) // Exclude today
+  }));
+  
+  const groupedPendingDays = groupPendingDaysByObjective(
+    challengesWithPending,
+    user.timezone
+  );
+
+  // Auto-open modal for first group with pending days
+  useEffect(() => {
+    if (groupedPendingDays.length > 0 && !showPendingModal) {
+      const firstGroup = groupedPendingDays[0];
+      const reminderKey = `pending_${firstGroup.objectiveType}`;
+      
+      if (!checkReminder(reminderKey)) {
+        setActiveObjectiveGroup(firstGroup.objectiveType);
+        setShowPendingModal(true);
+      }
+    }
+  }, [groupedPendingDays, showPendingModal]);
+
+  const handleRemindLater = () => {
+    if (activeObjectiveGroup) {
+      setReminder(`pending_${activeObjectiveGroup}`, 2);
+    }
+    setShowPendingModal(false);
+    setActiveObjectiveGroup(null);
+  };
+
+  const handleOpenModal = (objectiveType: string) => {
+    setActiveObjectiveGroup(objectiveType);
+    setShowPendingModal(true);
+  };
+
+  const activeGroup = groupedPendingDays.find(
+    g => g.objectiveType === activeObjectiveGroup
   );
 
   return (
@@ -67,6 +123,8 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
         groupChallenges={groupChallenges}
         todayLogs={todayLogs}
         userTimezone={user.timezone}
+        groupedPendingDays={groupedPendingDays}
+        onOpenPendingModal={handleOpenModal}
       />
 
       {/* Quick Links */}
@@ -84,6 +142,16 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
           <span className="text-gray-900 dark:text-white font-medium">Challenges</span>
         </Link>
       </div>
+
+      {/* Grouped Pending Days Modal */}
+      {showPendingModal && activeGroup && (
+        <GroupedPendingDaysModal
+          group={activeGroup}
+          onClose={handleRemindLater}
+          onRemindLater={handleRemindLater}
+          userTimezone={user.timezone}
+        />
+      )}
     </div>
   );
 }

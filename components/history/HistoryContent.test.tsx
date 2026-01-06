@@ -51,7 +51,7 @@ describe('HistoryContent', () => {
   };
 
   it('should render empty state when no logs exist', () => {
-    render(<HistoryContent logs={[]} challenges={[]} />);
+    render(<HistoryContent logs={[]} challenges={[]} userTimezone="UTC" />);
 
     expect(screen.getByText(/noLogs/)).toBeInTheDocument();
   });
@@ -61,6 +61,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[mockConfirmedLog]}
         challenges={[mockActiveChallenge]}
+        userTimezone="UTC"
       />
     );
 
@@ -74,6 +75,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[mockPendingLog]}
         challenges={[mockActiveChallenge]}
+        userTimezone="UTC"
       />
     );
 
@@ -87,6 +89,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[mockConfirmedLog]}
         challenges={[mockActiveChallenge]}
+        userTimezone="UTC"
       />
     );
 
@@ -103,6 +106,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[stoppedLog]}
         challenges={[mockStoppedChallenge]}
+        userTimezone="UTC"
       />
     );
 
@@ -120,6 +124,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[stoppedLog]}
         challenges={[mockStoppedChallenge]}
+        userTimezone="UTC"
       />
     );
 
@@ -132,6 +137,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[mockConfirmedLog]}
         challenges={[mockActiveChallenge]}
+        userTimezone="UTC"
       />
     );
 
@@ -143,6 +149,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[mockConfirmedLog, mockPendingLog]}
         challenges={[mockActiveChallenge]}
+        userTimezone="UTC"
       />
     );
 
@@ -159,6 +166,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[successLog, failureLog]}
         challenges={[mockActiveChallenge]}
+        userTimezone="UTC"
       />
     );
 
@@ -176,6 +184,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[orphanLog]}
         challenges={[mockActiveChallenge]}
+        userTimezone="UTC"
       />
     );
 
@@ -191,6 +200,7 @@ describe('HistoryContent', () => {
       <HistoryContent
         logs={[log1, log2]}
         challenges={[mockActiveChallenge, mockStoppedChallenge]}
+        userTimezone="UTC"
       />
     );
 

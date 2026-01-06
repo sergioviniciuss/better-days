@@ -1,8 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import { formatDateString } from '@/lib/date-utils';
 import { ChallengeIcon } from '@/lib/challenge-icons';
+import { EditConfirmationsModal } from '@/components/dashboard/EditConfirmationsModal';
 
 interface DailyLog {
   id: string;
@@ -24,12 +26,14 @@ interface Challenge {
 interface HistoryContentProps {
   logs: DailyLog[];
   challenges: Challenge[];
+  userTimezone: string;
 }
 
-export function HistoryContent({ logs, challenges }: HistoryContentProps) {
+export function HistoryContent({ logs, challenges, userTimezone }: HistoryContentProps) {
   const t = useTranslations('history');
   const tChallenge = useTranslations('challengeConfirmation');
   const tDashboard = useTranslations('dashboard');
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Create a map of challenge IDs to challenge info
   const challengeMap = new Map(challenges.map(c => [c.id, c]));
@@ -53,9 +57,17 @@ export function HistoryContent({ logs, challenges }: HistoryContentProps) {
           {/* Confirmed Logs */}
           {confirmedLogs.length > 0 && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                {t('confirmed')}
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {t('confirmed')}
+                </h2>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium min-h-[44px]"
+                >
+                  {t('editConfirmations')}
+                </button>
+              </div>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
                   {confirmedLogs.map((log) => {
@@ -178,6 +190,15 @@ export function HistoryContent({ logs, challenges }: HistoryContentProps) {
             </div>
           )}
         </div>
+      )}
+      
+      {showEditModal && (
+        <EditConfirmationsModal
+          confirmedLogs={confirmedLogs}
+          challenges={challenges}
+          userTimezone={userTimezone}
+          onClose={() => setShowEditModal(false)}
+        />
       )}
     </div>
   );

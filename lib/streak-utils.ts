@@ -1,5 +1,7 @@
 import { isDateStringBefore, getTodayInTimezone, getDatesBetween, getDaysAgoInTimezone } from './date-utils';
 
+export { getTodayInTimezone };
+
 export interface DailyLog {
   date: string; // YYYY-MM-DD
   consumedSugar: boolean;
@@ -203,4 +205,48 @@ export function detectPendingDays(
   return allDates.filter((date) => !confirmedDates.has(date));
 }
 
+export interface ChallengeWithPendingDays {
+  id: string;
+  name: string;
+  objectiveType: string;
+  pendingDays: string[];
+  userJoinedAt?: string;
+  startDate: string;
+}
+
+export interface GroupedPendingDays {
+  objectiveType: string;
+  challenges: ChallengeWithPendingDays[];
+  allPendingDays: string[]; // Union of all pending days
+}
+
+export const groupPendingDaysByObjective = (
+  challenges: ChallengeWithPendingDays[],
+  userTimezone: string
+): GroupedPendingDays[] => {
+  // Group by objectiveType
+  const grouped = new Map<string, ChallengeWithPendingDays[]>();
+  
+  challenges.forEach(challenge => {
+    const existing = grouped.get(challenge.objectiveType) || [];
+    existing.push(challenge);
+    grouped.set(challenge.objectiveType, existing);
+  });
+  
+  // Calculate union of pending days for each group
+  return Array.from(grouped.entries()).map(([objectiveType, challenges]) => {
+    const allDatesSet = new Set<string>();
+    challenges.forEach(c => {
+      c.pendingDays.forEach(date => allDatesSet.add(date));
+    });
+    
+    const allPendingDays = Array.from(allDatesSet).sort();
+    
+    return {
+      objectiveType,
+      challenges,
+      allPendingDays
+    };
+  }).filter(group => group.allPendingDays.length > 0);
+};
 

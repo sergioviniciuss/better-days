@@ -48,6 +48,8 @@ export async function confirmDay(date: string, consumedSugar: boolean, challenge
     }
 
     revalidatePath('/dashboard');
+    revalidatePath('/history');
+    revalidatePath(`/challenges/${challengeId}`);
     return { success: true, log: data };
   } catch (error) {
     console.error('Error confirming day:', error);
@@ -62,6 +64,8 @@ export async function confirmMultipleDays(confirmations: Array<{ date: string; c
   }
 
   try {
+    const challengeIds = new Set(confirmations.map(c => c.challengeId));
+    
     await Promise.all(
       confirmations.map(({ date, consumedSugar, challengeId }) =>
         confirmDay(date, consumedSugar, challengeId)
@@ -69,6 +73,11 @@ export async function confirmMultipleDays(confirmations: Array<{ date: string; c
     );
 
     revalidatePath('/dashboard');
+    revalidatePath('/history');
+    // Revalidate all affected challenge detail pages
+    challengeIds.forEach(challengeId => {
+      revalidatePath(`/challenges/${challengeId}`);
+    });
     return { success: true };
   } catch (error) {
     console.error('Error confirming days:', error);

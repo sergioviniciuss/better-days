@@ -91,7 +91,8 @@
     "pending": "Pending",
     "stoppedChallenge": "Stopped",
     "stoppedOn": "Stopped on",
-    "activeChallenge": "Active"
+    "activeChallenge": "Active",
+    "editConfirmations": "Edit Confirmations"
   },
   "challenges": {
     "title": "Challenges",
@@ -137,7 +138,8 @@
     "confirmedToday": "Confirmed Today",
     "notConfirmedToday": "Not Confirmed Today",
     "inviteSection": "Invite Friends",
-    "inviteDescription": "Share this code with friends to join the challenge"
+    "inviteDescription": "Share this code with friends to join the challenge",
+    "editHistory": "Edit History"
   },
   "joinChallenge": {
     "title": "Join Challenge",
@@ -168,7 +170,15 @@
     "day": "Day",
     "status": "Status",
     "calendarView": "Calendar View",
-    "listView": "List View"
+    "listView": "List View",
+    "forChallenges": "For challenges: {challenges}",
+    "applyToAll": "This will apply to all listed challenges"
+  },
+  "editConfirmations": {
+    "title": "Edit Confirmations",
+    "description": "Edit your confirmations from the last 30 days",
+    "saveChanges": "Save Changes",
+    "noEditableConfirmations": "No confirmations to edit in the last 30 days"
   },
   "onboarding": {
     "welcome": "Welcome to Better Days!",
