@@ -57,7 +57,7 @@ export default async function ChallengeDetailPage({
     showJoinConfirmation = true;
   } else {
     // Normal access - require membership
-    const challengeResult = await getChallenge(id);
+    const challengeResult = await getChallenge(id, user);
     if (!challengeResult.challenge) {
       redirect(`/${locale}/challenges`);
     }
@@ -68,10 +68,9 @@ export default async function ChallengeDetailPage({
     redirect(`/${locale}/challenges`);
   }
 
-  // Get leaderboard - always fetch it, especially for non-members viewing via invite
-  // This allows them to see challenge details before deciding to join
-  const { leaderboard } = await getChallengeLeaderboard(id);
-  const { logs } = await getDailyLogs(id);
+  // Get leaderboard and logs - pass user to avoid redundant calls
+  const { leaderboard } = await getChallengeLeaderboard(id, user);
+  const { logs } = await getDailyLogs(id, user);
 
   const inviteCode = challenge.invites?.[0]?.code || '';
 

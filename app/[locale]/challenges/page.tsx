@@ -15,7 +15,8 @@ export default async function ChallengesPage({
     redirect(`/${locale}/login`);
   }
 
-  const { challenges } = await getChallenges();
+  // Pass user to avoid redundant getCurrentUser call
+  const { challenges } = await getChallenges(false, user);
 
   return <ChallengesContent user={user} challenges={challenges} />;
 }

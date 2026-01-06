@@ -1,9 +1,9 @@
 import { getCurrentUser } from '@/app/actions/auth';
-import { getDailyLogs, getTodayLog } from '@/app/actions/daily-log';
+import { getDailyLogs } from '@/app/actions/daily-log';
 import { getChallenges } from '@/app/actions/challenge';
 import { redirect } from 'next/navigation';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
-import { createClient } from '@/lib/supabase/server';
+import { getTodayInTimezone } from '@/lib/date-utils';
 
 export default async function DashboardPage({
   params,
@@ -17,38 +17,37 @@ export default async function DashboardPage({
     redirect(`/${locale}/login`);
   }
 
-  // Check if user has completed onboarding
-  const supabase = await createClient();
-  const { data: userData } = await supabase
-    .from('User')
-    .select('hasCompletedOnboarding')
-    .eq('id', user.id)
-    .single();
-
-  // Only redirect to onboarding if user hasn't completed it
-  if (!userData?.hasCompletedOnboarding) {
+  // Check onboarding from user object (no separate query needed)
+  if (!user.hasCompletedOnboarding) {
     redirect(`/${locale}/onboarding`);
   }
 
-  // Check if user has any challenges
-  const { challenges } = await getChallenges();
+  // Get challenges passing user to avoid redundant getCurrentUser call
+  const { challenges } = await getChallenges(false, user);
 
-  // Allow empty challenges array - component will handle empty state
-  const challengesWithLogs = challenges && challenges.length > 0
-    ? await Promise.all(
-        challenges.map(async (challenge: any) => {
-          const { logs } = await getDailyLogs(challenge.id);
-          const { log: todayLog } = await getTodayLog(challenge.id);
-          return { 
-            ...challenge,
-            logs, 
-            todayLog,
-            // Ensure challengeType defaults to PERSONAL if not set
-            challengeType: challenge.challengeType || 'PERSONAL'
-          };
-        })
-      )
-    : [];
+  // Handle empty challenges case
+  if (!challenges || challenges.length === 0) {
+    return <DashboardContent user={user} challengesWithLogs={[]} />;
+  }
+
+  // OPTIMIZED: Fetch ALL logs in ONE query instead of per-challenge
+  const { logs: allLogs } = await getDailyLogs(undefined, user);
+  
+  // Get today's date for filtering
+  const today = getTodayInTimezone(user.timezone);
+
+  // Map logs to challenges in memory (no DB calls)
+  const challengesWithLogs = challenges.map((challenge: any) => {
+    const logs = allLogs.filter((log: any) => log.challengeId === challenge.id);
+    const todayLog = logs.find((log: any) => log.date === today) || null;
+    
+    return {
+      ...challenge,
+      logs,
+      todayLog,
+      challengeType: challenge.challengeType || 'PERSONAL'
+    };
+  });
 
   return <DashboardContent user={user} challengesWithLogs={challengesWithLogs} />;
 }

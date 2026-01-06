@@ -159,8 +159,8 @@ export async function createChallenge(formData: FormData) {
   }
 }
 
-export async function getChallenges(includeLeft: boolean = false) {
-  const user = await getCurrentUser();
+export async function getChallenges(includeLeft: boolean = false, providedUser?: any) {
+  const user = providedUser || await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated', challenges: [] };
   }
@@ -168,14 +168,8 @@ export async function getChallenges(includeLeft: boolean = false) {
   try {
     const supabase = await createClient();
 
-    // Get user timezone for date comparison
-    const { data: userData } = await supabase
-      .from('User')
-      .select('timezone')
-      .eq('id', user.id)
-      .single();
-
-    const timezone = userData?.timezone || 'UTC';
+    // Use timezone from user object (no separate query needed)
+    const timezone = user.timezone || 'UTC';
     const today = new Date().toLocaleDateString('en-CA', { timeZone: timezone });
 
     // Get challenge IDs where user is a member (active or left)
@@ -270,8 +264,8 @@ export async function getChallenges(includeLeft: boolean = false) {
   }
 }
 
-export async function getChallenge(challengeId: string) {
-  const user = await getCurrentUser();
+export async function getChallenge(challengeId: string, providedUser?: any) {
+  const user = providedUser || await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated', challenge: null };
   }
@@ -325,8 +319,8 @@ export async function getChallenge(challengeId: string) {
   }
 }
 
-export async function getChallengeByInviteCode(inviteCode: string) {
-  const user = await getCurrentUser();
+export async function getChallengeByInviteCode(inviteCode: string, providedUser?: any) {
+  const user = providedUser || await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated', challenge: null, isMember: false };
   }
