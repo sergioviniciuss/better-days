@@ -16,8 +16,8 @@ export default async function JoinChallengePage({
     redirect(`/${locale}/login`);
   }
 
-  // Get challenge details without joining
-  const result = await getChallengeByInviteCode(inviteCode);
+  // Get challenge details without joining - pass user to avoid redundant call
+  const result = await getChallengeByInviteCode(inviteCode, user);
 
   if (result.error) {
     return <JoinChallengeContent error={result.error} inviteCode={inviteCode} />;

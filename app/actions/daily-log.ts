@@ -76,8 +76,8 @@ export async function confirmMultipleDays(confirmations: Array<{ date: string; c
   }
 }
 
-export async function getDailyLogs(challengeId?: string) {
-  const user = await getCurrentUser();
+export async function getDailyLogs(challengeId?: string, providedUser?: any) {
+  const user = providedUser || await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated', logs: [] };
   }

@@ -4,8 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
 import { calculateStreaks, detectPendingDays, type DailyLog as StreakDailyLog } from '@/lib/streak-utils';
 
-export async function getChallengeLeaderboard(challengeId: string) {
-  const user = await getCurrentUser();
+export async function getChallengeLeaderboard(challengeId: string, providedUser?: any) {
+  const user = providedUser || await getCurrentUser();
   if (!user) {
     return { error: 'Not authenticated', leaderboard: [] };
   }

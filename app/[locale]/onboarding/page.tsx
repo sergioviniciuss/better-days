@@ -15,22 +15,16 @@ export default async function OnboardingPage({
     redirect(`/${params.locale}/login`);
   }
 
-  // Check if user has already completed onboarding
-  const supabase = await createClient();
-  const { data: userData } = await supabase
-    .from('User')
-    .select('hasCompletedOnboarding')
-    .eq('id', user.id)
-    .single();
-
-  if (userData?.hasCompletedOnboarding) {
+  // Check onboarding from user object (no separate query needed)
+  if (user.hasCompletedOnboarding) {
     redirect(`/${params.locale}/dashboard`);
   }
 
-  // Check if user already has challenges (shouldn't happen, but just in case)
-  const { challenges } = await getChallenges();
+  // Check if user already has challenges - pass user to avoid redundant call
+  const { challenges } = await getChallenges(false, user);
   if (challenges && challenges.length > 0) {
     // Mark as completed and redirect
+    const supabase = await createClient();
     await supabase
       .from('User')
       .update({ hasCompletedOnboarding: true })

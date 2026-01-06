@@ -16,11 +16,9 @@ export default async function HistoryPage({
     redirect(`/${locale}/login`);
   }
 
-  // Fetch all challenges including stopped ones to get their info
-  const { challenges } = await getChallenges(true);
-  
-  // Fetch all logs (across all challenges)
-  const { logs } = await getDailyLogs();
+  // Pass user to avoid redundant getCurrentUser calls
+  const { challenges } = await getChallenges(true, user);
+  const { logs } = await getDailyLogs(undefined, user);
 
   return <HistoryContent logs={logs} challenges={challenges} />;
 }

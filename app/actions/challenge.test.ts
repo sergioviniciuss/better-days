@@ -13,6 +13,7 @@ jest.mock('./auth', () => ({
   getCurrentUser: jest.fn().mockResolvedValue({
     id: 'user-1',
     email: 'test@example.com',
+    timezone: 'UTC',
   }),
 }));
 
@@ -211,19 +212,11 @@ describe('getChallenges', () => {
     getCurrentUser.mockResolvedValue({
       id: 'user-1',
       email: 'test@example.com',
+      timezone: 'UTC',
     });
   });
 
   it('should return only active challenges by default', async () => {
-    const mockUserQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: { id: 'user-1', timezone: 'UTC' },
-        error: null,
-      }),
-    };
-
     const mockMembershipQuery = {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
@@ -255,7 +248,6 @@ describe('getChallenges', () => {
     };
 
     mockSupabaseClient.from
-      .mockReturnValueOnce(mockUserQuery)
       .mockReturnValueOnce(mockMembershipQuery)
       .mockReturnValueOnce(mockChallengeQuery);
 
@@ -266,15 +258,6 @@ describe('getChallenges', () => {
   });
 
   it('should include stopped challenges when includeLeft is true', async () => {
-    const mockUserQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: { id: 'user-1', timezone: 'UTC' },
-        error: null,
-      }),
-    };
-
     const mockMembershipQuery = {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
@@ -300,7 +283,6 @@ describe('getChallenges', () => {
     };
 
     mockSupabaseClient.from
-      .mockReturnValueOnce(mockUserQuery)
       .mockReturnValueOnce(mockMembershipQuery)
       .mockReturnValueOnce(mockChallengeQuery);
 
@@ -311,15 +293,6 @@ describe('getChallenges', () => {
   });
 
   it('should auto-archive expired challenges when includeLeft is false', async () => {
-    const mockUserQuery = {
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: { id: 'user-1', timezone: 'UTC' },
-        error: null,
-      }),
-    };
-
     const mockMembershipQuery = {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
@@ -361,7 +334,6 @@ describe('getChallenges', () => {
     };
 
     mockSupabaseClient.from
-      .mockReturnValueOnce(mockUserQuery)
       .mockReturnValueOnce(mockMembershipQuery)
       .mockReturnValueOnce(mockChallengeQuery)
       .mockReturnValueOnce(mockUpdateQuery);
