@@ -163,6 +163,7 @@
     "markAllNoSugar": "Mark All as No Sugar",
     "markAllConsumed": "Mark All as Consumed Sugar",
     "confirmSelected": "Confirm Selected",
+    "remindLater": "Remind Me Later",
     "noPendingDays": "No pending days",
     "day": "Day",
     "status": "Status",
@@ -217,6 +218,7 @@
     "skip": "Skip",
     "creatingChallenge": "Creating your personal challenge...",
     "viewChallenge": "View Challenge",
+    "loadingChallenge": "Loading challenge...",
     "inviteWelcomeSubtitle": "Track your habits, build streaks, and compete with friends!",
     "inviteWelcomeMessage": "You've been invited to join a challenge. Let's see what your friends are up to!"
   },

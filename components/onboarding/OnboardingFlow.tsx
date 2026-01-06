@@ -96,17 +96,26 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
   };
 
   const handleFinishInviteOnboarding = async () => {
-    // Mark onboarding as completed
-    await fetch('/api/complete-onboarding', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    });
-    
-    // Clear and redirect to join page
-    if (storedInviteCode) {
-      sessionStorage.removeItem('pendingInviteCode');
-      router.push(`/${locale}/join/${storedInviteCode}`);
+    setLoading(true);
+    try {
+      // Mark onboarding as completed
+      await fetch('/api/complete-onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      
+      // Small delay to allow session sync
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Clear and redirect to join page
+      if (storedInviteCode) {
+        sessionStorage.removeItem('pendingInviteCode');
+        window.location.href = `/${locale}/join/${storedInviteCode}`;
+      }
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      setLoading(false);
     }
   };
 
@@ -183,9 +192,10 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
             <div className="pt-8">
               <button
                 onClick={handleFinishInviteOnboarding}
-                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-lg transition-colors min-h-[56px] min-w-[56px]"
+                disabled={loading}
+                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg font-semibold text-lg transition-colors min-h-[56px] min-w-[56px]"
               >
-                {t('viewChallenge')}
+                {loading ? t('loadingChallenge') : t('viewChallenge')}
               </button>
             </div>
           </div>

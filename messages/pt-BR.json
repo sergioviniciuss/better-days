@@ -163,6 +163,7 @@
     "markAllNoSugar": "Marcar Todos como Sem Açúcar",
     "markAllConsumed": "Marcar Todos como Consumiu Açúcar",
     "confirmSelected": "Confirmar Selecionados",
+    "remindLater": "Lembrar Mais Tarde",
     "noPendingDays": "Nenhum dia pendente",
     "day": "Dia",
     "status": "Status",
@@ -217,6 +218,7 @@
     "skip": "Pular",
     "creatingChallenge": "Criando seu desafio pessoal...",
     "viewChallenge": "Ver Desafio",
+    "loadingChallenge": "Carregando desafio...",
     "inviteWelcomeSubtitle": "Acompanhe seus hábitos, construa sequências e compita com amigos!",
     "inviteWelcomeMessage": "Você foi convidado para entrar em um desafio. Vamos ver o que seus amigos estão fazendo!"
   },
