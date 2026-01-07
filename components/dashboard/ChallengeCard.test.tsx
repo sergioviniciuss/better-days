@@ -134,8 +134,21 @@ describe('ChallengeCard', () => {
     confirmedAt: new Date('2024-01-15'),
   };
 
+  // Mock Date.now() to return a fixed date (2024-01-15 12:00:00 UTC)
+  const mockDateNow = jest.spyOn(Date, 'now');
+
+  beforeAll(() => {
+    mockDateNow.mockReturnValue(new Date('2024-01-15T12:00:00Z').getTime());
+  });
+
+  afterAll(() => {
+    mockDateNow.mockRestore();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset Date.now mock
+    mockDateNow.mockReturnValue(new Date('2024-01-15T12:00:00Z').getTime());
   });
 
   it('should render challenge card with basic information', () => {
@@ -144,6 +157,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -158,6 +172,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -175,6 +190,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -193,6 +209,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -208,6 +225,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -411,7 +429,10 @@ describe('ChallengeCard', () => {
     const dateElements = screen.getAllByText(/\d{1,2}\/\d{1,2}\/\d{4}/);
     expect(dateElements.length).toBeGreaterThan(0);
     expect(screen.getByText(/Active for/)).toBeInTheDocument();
-    expect(screen.getByText(/736/)).toBeInTheDocument();
+    // Start date is 2024-01-01, mocked today is 2024-01-15, so active duration should be 14 days
+    // Check that both the number 14 and the word "days" are present
+    expect(screen.getByText(/14/)).toBeInTheDocument();
+    expect(screen.getByText(/days/)).toBeInTheDocument();
   });
 
   it('should display Individual badge when challenge has 1 active member', () => {
