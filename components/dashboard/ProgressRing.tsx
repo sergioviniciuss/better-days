@@ -120,17 +120,17 @@ export function ProgressRing({ activeDays, totalDays }: ProgressRingProps) {
             />
           </svg>
           {/* Center text - positioned absolutely inside the ring */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-1">
             {/* Large percentage */}
-            <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-cyan-400 leading-none">
+            <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-cyan-400 leading-none">
               {displayPercentage}%
             </div>
             {/* Active/Total */}
-            <div className="text-xs sm:text-sm md:text-base text-white mt-0.5 md:mt-1">
+            <div className="text-[11px] sm:text-xs md:text-sm lg:text-base text-white mt-0.5 md:mt-1">
               {activeDays}/{totalDays}
             </div>
             {/* Days label */}
-            <div className="text-[10px] sm:text-xs text-cyan-300/70 mt-0.5 uppercase tracking-wide">
+            <div className="text-[9px] sm:text-[10px] md:text-xs text-cyan-300/70 mt-0.5 uppercase tracking-wide">
               {t('days')}
             </div>
           </div>

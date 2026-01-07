@@ -181,49 +181,53 @@ export function ChallengeCard({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 mb-6">
       {/* Challenge Name and Icon */}
       <div className="mb-4">
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <div className="flex items-center gap-3">
-            <ChallengeIcon type={challenge.objectiveType as any} size="md" />
-            <div className="flex items-center gap-2">
+        {/* Single row: Icon + Title (left) | Code + Badge (right) */}
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <div className="flex-shrink-0">
+              <ChallengeIcon type={challenge.objectiveType as any} size="md" />
+            </div>
+            <div className="min-w-0 flex-1">
               <Link href={`/${locale}/challenges/${challenge.id}`}>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer break-words">
                   {challenge.name}
                 </h2>
               </Link>
-              {/* Badge */}
-              <span className={`px-2 py-1 text-xs font-semibold rounded ${
-                isGroupChallenge
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}>
-                {isGroupChallenge ? t('groupBadge', { defaultValue: 'Group' }) : t('individualBadge', { defaultValue: 'Individual' })}
-              </span>
             </div>
           </div>
-          {challenge.shortId && (
-            <span className="px-2 py-1 text-xs font-mono font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
-              #{challenge.shortId}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {challenge.shortId && (
+              <span className="hidden md:inline-flex px-2 py-1 text-xs font-mono font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded whitespace-nowrap">
+                #{challenge.shortId}
+              </span>
+            )}
+            <span className={`px-2 py-1 text-xs font-semibold rounded whitespace-nowrap ${
+              isGroupChallenge
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+            }`}>
+              {isGroupChallenge ? t('groupBadge', { defaultValue: 'Group' }) : t('individualBadge', { defaultValue: 'Individual' })}
             </span>
-          )}
+          </div>
         </div>
         
         {/* Challenge metadata */}
-        <div className="ml-11 space-y-1">
+        <div className="ml-0 sm:ml-11 space-y-1 text-sm">
           {challenge.owner && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-400 break-words">
               {t('createdBy')} {challenge.owner.email}
             </p>
           )}
           {challenge.members && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-400">
               {activeMemberCount} {activeMemberCount === 1 ? t('member') : t('members')}
             </p>
           )}
           {challenge.userJoinedAt && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-400">
               {t('youJoined')}: {new Date(challenge.userJoinedAt).toLocaleDateString()}
             </p>
           )}
@@ -254,37 +258,41 @@ export function ChallengeCard({
       </div>
 
       {/* Challenge Details */}
-      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
-        <div className="flex justify-between items-center text-sm flex-wrap gap-2">
-          <div>
-            <span className="text-gray-600 dark:text-gray-400">{t('challengeStarted')}: </span>
-            <span className="text-gray-900 dark:text-white font-medium">
-              {new Date(challenge.startDate).toLocaleDateString()}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-600 dark:text-gray-400">{t('activeFor')}: </span>
-            <span className="text-gray-900 dark:text-white font-medium">
-              {Math.floor((Date.now() - new Date(challenge.startDate).getTime()) / (1000 * 60 * 60 * 24))} {t('days')}
-            </span>
+      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4 mb-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-2">
+          <div className="flex flex-col sm:flex-row sm:gap-4 gap-1">
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">{t('challengeStarted')}: </span>
+              <span className="text-gray-900 dark:text-white font-medium">
+                {new Date(challenge.startDate).toLocaleDateString()}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">{t('activeFor')}: </span>
+              <span className="text-gray-900 dark:text-white font-medium">
+                {Math.floor((Date.now() - new Date(challenge.startDate).getTime()) / (1000 * 60 * 60 * 24))} {t('days')}
+              </span>
+            </div>
           </div>
           {challenge.dueDate && (
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600 dark:text-gray-400">{t('ends')}: </span>
-              <span className="text-gray-900 dark:text-white font-medium">
-                {new Date(challenge.dueDate).toLocaleDateString()}
-              </span>
+            <div className="flex items-center flex-wrap gap-2">
+              <div>
+                <span className="text-gray-600 dark:text-gray-400">{t('ends')}: </span>
+                <span className="text-gray-900 dark:text-white font-medium">
+                  {new Date(challenge.dueDate).toLocaleDateString()}
+                </span>
+              </div>
               {(() => {
                 const daysUntilDue = Math.floor((new Date(challenge.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
                 if (daysUntilDue < 3) {
                   return (
-                    <span className="px-2 py-1 text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">
+                    <span className="px-2 py-1 text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded whitespace-nowrap">
                       {t('endingSoon')}
                     </span>
                   );
                 } else if (daysUntilDue < 7) {
                   return (
-                    <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded">
+                    <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded whitespace-nowrap">
                       {t('endsSoon')}
                     </span>
                   );

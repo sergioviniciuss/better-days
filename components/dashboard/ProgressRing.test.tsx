@@ -227,8 +227,8 @@ describe('ProgressRing', () => {
       const { container } = renderWithIntl(<ProgressRing activeDays={50} totalDays={100} />);
       
       // Percentage should have responsive text sizes
-      const percentage = container.querySelector('.text-xl');
-      expect(percentage).toHaveClass('sm:text-2xl', 'md:text-3xl', 'lg:text-4xl');
+      const percentage = container.querySelector('.text-lg');
+      expect(percentage).toHaveClass('sm:text-xl', 'md:text-2xl', 'lg:text-3xl', 'xl:text-4xl');
     });
   });
 });

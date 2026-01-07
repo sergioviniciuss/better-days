@@ -32,10 +32,10 @@ export function StreakAchievement({ currentStreak, bestStreak, isMilestone }: St
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center">
+      <div className="relative z-10 flex flex-col items-center text-center px-2">
         {/* Large number - responsive sizing */}
         <div 
-          className={`text-4xl md:text-6xl lg:text-7xl font-bold text-cyan-400 transition-transform ${
+          className={`text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-cyan-400 transition-transform ${
             isMilestone ? 'scale-110' : ''
           }`}
         >
@@ -43,12 +43,12 @@ export function StreakAchievement({ currentStreak, bestStreak, isMilestone }: St
         </div>
         
         {/* "DAY STREAK!" text */}
-        <div className="text-lg md:text-2xl font-bold text-white mt-1 md:mt-2 uppercase tracking-wider">
+        <div className="text-base sm:text-lg md:text-2xl font-bold text-white mt-1 md:mt-2 uppercase tracking-wide sm:tracking-wider">
           {currentStreak === 1 ? t('daySingular') : t('dayPlural')} {t('streak')}!
         </div>
         
         {/* Best streak - smaller, below */}
-        <div className="text-xs md:text-sm text-cyan-300/70 mt-2 md:mt-3 uppercase tracking-wide">
+        <div className="text-[10px] sm:text-xs md:text-sm text-cyan-300/70 mt-2 md:mt-3 uppercase tracking-wide">
           {t('best')}: {bestStreak} {bestStreak === 1 ? t('daySingular').toLowerCase() : t('dayPlural').toLowerCase()} {t('streak').toLowerCase()}
         </div>
       </div>
