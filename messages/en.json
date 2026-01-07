@@ -147,6 +147,7 @@
     "pendingDays": "Pending Days",
     "rank": "Rank",
     "user": "User",
+    "today": "Today",
     "confirmedToday": "Confirmed Today",
     "notConfirmedToday": "Not Confirmed Today",
     "inviteSection": "Invite Friends",
@@ -155,7 +156,8 @@
     "editRules": "Edit Rules",
     "archiveChallenge": "Archive Challenge",
     "quitChallenge": "Quit Challenge",
-    "adminBadge": "Admin"
+    "adminBadge": "Admin",
+    "you": "You"
   },
   "joinChallenge": {
     "title": "Join Challenge",

@@ -33,7 +33,7 @@ export function DailyConfirmation({ onConfirm, loading, labels }: DailyConfirmat
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
         {t('confirmToday')}
       </p>
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <button
           onClick={() => handleConfirm(false)}
           disabled={submitting || loading}

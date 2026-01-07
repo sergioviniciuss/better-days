@@ -11,6 +11,8 @@ import { QuitChallengeModal } from './QuitChallengeModal';
 import { RuleChangeNotificationBanner } from './RuleChangeNotificationBanner';
 import { StopChallengeModal } from '@/components/dashboard/StopChallengeModal';
 import { hasUnacknowledgedRuleChanges } from '@/app/actions/challenge';
+import { ProgressRing } from '@/components/dashboard/ProgressRing';
+import { calculateActiveDays } from '@/lib/challenge-progress';
 
 interface User {
   id: string;
@@ -23,7 +25,9 @@ interface Challenge {
   id: string;
   name: string;
   challengeType?: string;
+  objectiveType?: string;
   startDate: string;
+  dueDate?: string | null;
   rules: string[];
   rulesUpdatedAt?: string | null;
   owner: {
@@ -115,6 +119,17 @@ export function ChallengeDetailContent({
     user.timezone,
     challenge.userJoinedAt || challenge.startDate
   );
+  
+  // Calculate progress for fitness challenges with deadline
+  const shouldShowProgress = challenge.objectiveType === 'DAILY_EXERCISE' && challenge.dueDate;
+  const progress = shouldShowProgress
+    ? calculateActiveDays(
+        streakLogs,
+        challenge.userJoinedAt || challenge.startDate,
+        challenge.dueDate!,
+        user.timezone
+      )
+    : null;
 
   const inviteCode = propInviteCode || challenge.invites[0]?.code || '';
   const inviteUrl = typeof window !== 'undefined' 
@@ -231,26 +246,57 @@ export function ChallengeDetailContent({
             {t('editHistory')}
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {currentStreak}
-            </p>
+        {shouldShowProgress && progress ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {currentStreak}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('bestStreak')}</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {bestStreak}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('pendingDays')}</p>
+                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                  {pendingDays.length}
+                </p>
+              </div>
+            </div>
+            <div>
+              <ProgressRing
+                activeDays={progress.activeDays}
+                totalDays={progress.totalDays}
+              />
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{t('bestStreak')}</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {bestStreak}
-            </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {currentStreak}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('bestStreak')}</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {bestStreak}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('pendingDays')}</p>
+              <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                {pendingDays.length}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{t('pendingDays')}</p>
-            <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {pendingDays.length}
-            </p>
-          </div>
-        </div>
+        )}
         </div>
       )}
 
@@ -279,7 +325,7 @@ export function ChallengeDetailContent({
                   {t('pendingDays')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Today
+                  {t('today')}
                 </th>
               </tr>
             </thead>
@@ -295,10 +341,10 @@ export function ChallengeDetailContent({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {entry.email}
                     {entry.isAdmin && (
-                      <span className="ml-2 text-xs text-purple-600 dark:text-purple-400 font-semibold">(Admin)</span>
+                      <span className="ml-2 text-xs text-purple-600 dark:text-purple-400 font-semibold"> ({t('adminBadge')})</span>
                     )}
                     {entry.userId === user.id && (
-                      <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">(You)</span>
+                      <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">({t('you')})</span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -398,6 +444,7 @@ export function ChallengeDetailContent({
         <EditRulesModal
           challengeId={challenge.id}
           currentRules={challenge.rules}
+          objectiveType={challenge.objectiveType || 'NO_SUGAR_STREAK'}
           onClose={() => setShowEditRulesModal(false)}
         />
       )}

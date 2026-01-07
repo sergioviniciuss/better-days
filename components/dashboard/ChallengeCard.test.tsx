@@ -51,6 +51,23 @@ jest.mock('@/app/actions/daily-log', () => ({
 // Mock date utils
 jest.mock('@/lib/date-utils', () => ({
   getTodayInTimezone: () => '2024-01-15',
+  getDatesBetween: (startDate: string, endDate: string) => {
+    // Simple implementation for testing
+    const dates: string[] = [];
+    const start = new Date(startDate + 'T00:00:00');
+    const end = new Date(endDate + 'T00:00:00');
+    const current = new Date(start);
+    
+    while (current <= end) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return dates;
+  },
+  isDateStringBefore: (date1: string, date2: string) => {
+    return date1 < date2;
+  },
 }));
 
 // Mock streak utils
@@ -134,8 +151,21 @@ describe('ChallengeCard', () => {
     confirmedAt: new Date('2024-01-15'),
   };
 
+  // Mock Date.now() to return a fixed date (2024-01-15 12:00:00 UTC)
+  const mockDateNow = jest.spyOn(Date, 'now');
+
+  beforeAll(() => {
+    mockDateNow.mockReturnValue(new Date('2024-01-15T12:00:00Z').getTime());
+  });
+
+  afterAll(() => {
+    mockDateNow.mockRestore();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset Date.now mock
+    mockDateNow.mockReturnValue(new Date('2024-01-15T12:00:00Z').getTime());
   });
 
   it('should render challenge card with basic information', () => {
@@ -144,6 +174,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -158,6 +189,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -175,6 +207,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -193,6 +226,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -208,6 +242,7 @@ describe('ChallengeCard', () => {
         challenge={mockChallenge}
         logs={mockLogs}
         todayLog={mockTodayLog}
+        userId={mockUserId}
         userTimezone="UTC"
       />
     );
@@ -411,7 +446,10 @@ describe('ChallengeCard', () => {
     const dateElements = screen.getAllByText(/\d{1,2}\/\d{1,2}\/\d{4}/);
     expect(dateElements.length).toBeGreaterThan(0);
     expect(screen.getByText(/Active for/)).toBeInTheDocument();
-    expect(screen.getByText(/736/)).toBeInTheDocument();
+    // Start date is 2024-01-01, mocked today is 2024-01-15, so active duration should be 14 days
+    // Check that both the number 14 and the word "days" are present
+    expect(screen.getByText(/14/)).toBeInTheDocument();
+    expect(screen.getByText(/days/)).toBeInTheDocument();
   });
 
   it('should display Individual badge when challenge has 1 active member', () => {
@@ -466,6 +504,182 @@ describe('ChallengeCard', () => {
     expect(screen.getByText(/owner@example\.com/)).toBeInTheDocument();
     // Check for member count text
     expect(screen.getByText('2 members')).toBeInTheDocument();
+  });
+
+  describe('Progress Ring Feature', () => {
+    it('should display ProgressRing for DAILY_EXERCISE challenges with dueDate', () => {
+      const fitnessChallenge = {
+        ...mockChallenge,
+        objectiveType: 'DAILY_EXERCISE',
+        startDate: '2024-01-01',
+        userJoinedAt: '2024-01-01', // Override to match startDate
+        dueDate: '2024-01-03', // Set to 2024-01-03 so range is 01-03 (3 days)
+      };
+
+      const exerciseLogs = [
+        { date: '2024-01-01', consumedSugar: false, confirmedAt: new Date() }, // exercised
+        { date: '2024-01-02', consumedSugar: false, confirmedAt: new Date() }, // exercised
+        { date: '2024-01-03', consumedSugar: true, confirmedAt: new Date() },  // skipped
+      ];
+
+      render(
+        <ChallengeCard
+          challenge={fitnessChallenge}
+          logs={exerciseLogs}
+          todayLog={mockTodayLog}
+          userId={mockUserId}
+          userTimezone="UTC"
+        />
+      );
+
+      // Check for grid layout (2 columns)
+      const container = screen.getByText((content, element) => {
+        return element?.textContent === '2/3';
+      }).closest('.grid');
+      expect(container).toBeInTheDocument();
+      expect(container).toHaveClass('grid-cols-1', 'md:grid-cols-2');
+
+      // Check for progress ring text elements
+      expect(screen.getByText((content, element) => {
+        return element?.textContent === '2/3';
+      })).toBeInTheDocument();
+      expect(screen.getByText('days')).toBeInTheDocument();
+    });
+
+    it('should not display ProgressRing for DAILY_EXERCISE challenges without dueDate', () => {
+      const fitnessChallenge = {
+        ...mockChallenge,
+        objectiveType: 'DAILY_EXERCISE',
+        dueDate: null,
+      };
+
+      const exerciseLogs = [
+        { date: '2024-01-01', consumedSugar: false, confirmedAt: new Date() },
+      ];
+
+      const { container } = render(
+        <ChallengeCard
+          challenge={fitnessChallenge}
+          logs={exerciseLogs}
+          todayLog={mockTodayLog}
+          userId={mockUserId}
+          userTimezone="UTC"
+        />
+      );
+
+      // Should not have grid layout (no progress ring)
+      const gridElement = container.querySelector('.grid.grid-cols-1.md\\:grid-cols-2');
+      expect(gridElement).not.toBeInTheDocument();
+    });
+
+    it('should not display ProgressRing for non-DAILY_EXERCISE challenges', () => {
+      const sugarChallenge = {
+        ...mockChallenge,
+        objectiveType: 'NO_SUGAR',
+        dueDate: '2024-12-31',
+      };
+
+      const { container } = render(
+        <ChallengeCard
+          challenge={sugarChallenge}
+          logs={mockLogs}
+          todayLog={mockTodayLog}
+          userId={mockUserId}
+          userTimezone="UTC"
+        />
+      );
+
+      // Should not have grid layout (no progress ring)
+      const gridElement = container.querySelector('.grid.grid-cols-1.md\\:grid-cols-2');
+      expect(gridElement).not.toBeInTheDocument();
+    });
+
+    it('should calculate active days correctly for fitness challenges', () => {
+      const fitnessChallenge = {
+        ...mockChallenge,
+        objectiveType: 'DAILY_EXERCISE',
+        startDate: '2024-01-01',
+        userJoinedAt: '2024-01-01', // Override to match startDate
+        dueDate: '2024-01-10',
+      };
+
+      const exerciseLogs = [
+        { date: '2024-01-01', consumedSugar: false, confirmedAt: new Date() }, // active
+        { date: '2024-01-02', consumedSugar: false, confirmedAt: new Date() }, // active
+        { date: '2024-01-03', consumedSugar: true, confirmedAt: new Date() },  // not active
+        { date: '2024-01-04', consumedSugar: false, confirmedAt: new Date() }, // active
+      ];
+
+      render(
+        <ChallengeCard
+          challenge={fitnessChallenge}
+          logs={exerciseLogs}
+          todayLog={mockTodayLog}
+          userId={mockUserId}
+          userTimezone="UTC"
+        />
+      );
+
+      // 3 active days out of 10 total days
+      expect(screen.getByText((content, element) => {
+        return element?.textContent === '3/10';
+      })).toBeInTheDocument();
+    });
+
+    it('should show 0% when no active days in fitness challenge', () => {
+      const fitnessChallenge = {
+        ...mockChallenge,
+        objectiveType: 'DAILY_EXERCISE',
+        startDate: '2024-01-01',
+        userJoinedAt: '2024-01-01', // Override to match startDate
+        dueDate: '2024-01-05',
+      };
+
+      render(
+        <ChallengeCard
+          challenge={fitnessChallenge}
+          logs={[]}
+          todayLog={mockTodayLog}
+          userId={mockUserId}
+          userTimezone="UTC"
+        />
+      );
+
+      // 0 active days out of 5 total days
+      expect(screen.getByText((content, element) => {
+        return element?.textContent === '0/5';
+      })).toBeInTheDocument();
+    });
+
+    it('should use userJoinedAt instead of startDate if available', () => {
+      const fitnessChallenge = {
+        ...mockChallenge,
+        objectiveType: 'DAILY_EXERCISE',
+        startDate: '2024-01-01',
+        userJoinedAt: '2024-01-05', // joined later
+        dueDate: '2024-01-10',
+      };
+
+      const exerciseLogs = [
+        { date: '2024-01-05', consumedSugar: false, confirmedAt: new Date() },
+        { date: '2024-01-06', consumedSugar: false, confirmedAt: new Date() },
+      ];
+
+      render(
+        <ChallengeCard
+          challenge={fitnessChallenge}
+          logs={exerciseLogs}
+          todayLog={mockTodayLog}
+          userId={mockUserId}
+          userTimezone="UTC"
+        />
+      );
+
+      // Should calculate from userJoinedAt (2024-01-05) to dueDate (2024-01-10) = 6 days
+      expect(screen.getByText((content, element) => {
+        return element?.textContent === '2/6';
+      })).toBeInTheDocument();
+    });
   });
 });
 
