@@ -147,6 +147,7 @@
     "pendingDays": "Dias Pendentes",
     "rank": "Posição",
     "user": "Usuário",
+    "today": "Hoje",
     "confirmedToday": "Confirmado Hoje",
     "notConfirmedToday": "Não Confirmado Hoje",
     "inviteSection": "Convidar Amigos",
@@ -155,7 +156,8 @@
     "editRules": "Editar Regras",
     "archiveChallenge": "Arquivar Desafio",
     "quitChallenge": "Sair do Desafio",
-    "adminBadge": "Admin"
+    "adminBadge": "Admin",
+    "you": "Você"
   },
   "joinChallenge": {
     "title": "Entrar em Desafio",

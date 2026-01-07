@@ -279,7 +279,7 @@ export function ChallengeDetailContent({
                   {t('pendingDays')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Today
+                  {t('today')}
                 </th>
               </tr>
             </thead>
@@ -295,10 +295,10 @@ export function ChallengeDetailContent({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {entry.email}
                     {entry.isAdmin && (
-                      <span className="ml-2 text-xs text-purple-600 dark:text-purple-400 font-semibold">(Admin)</span>
+                      <span className="ml-2 text-xs text-purple-600 dark:text-purple-400 font-semibold"> ({t('adminBadge')})</span>
                     )}
                     {entry.userId === user.id && (
-                      <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">(You)</span>
+                      <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">({t('you')})</span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
