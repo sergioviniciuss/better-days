@@ -444,6 +444,7 @@ export function ChallengeDetailContent({
         <EditRulesModal
           challengeId={challenge.id}
           currentRules={challenge.rules}
+          objectiveType={challenge.objectiveType || 'NO_SUGAR_STREAK'}
           onClose={() => setShowEditRulesModal(false)}
         />
       )}

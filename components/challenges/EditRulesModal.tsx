@@ -4,28 +4,29 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { updateChallengeRules } from '@/app/actions/challenge';
 import { useRouter } from 'next/navigation';
+import { CHALLENGE_TYPES, type ChallengeType } from '@/lib/challenge-types';
 
 interface EditRulesModalProps {
   challengeId: string;
   currentRules: string[];
+  objectiveType: string;
   onClose: () => void;
 }
 
-const AVAILABLE_RULES = [
-  'addedSugarCounts',
-  'fruitDoesNotCount',
-  'missingDaysPending',
-  'processedSugarOnly',
-  'alcoholPermitted',
-];
-
-export const EditRulesModal = ({ challengeId, currentRules, onClose }: EditRulesModalProps) => {
+export const EditRulesModal = ({ challengeId, currentRules, objectiveType, onClose }: EditRulesModalProps) => {
   const t = useTranslations('editRules');
   const tChallenges = useTranslations('challenges');
   const router = useRouter();
   const [selectedRules, setSelectedRules] = useState<string[]>(currentRules);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Map legacy objectiveType values to current challenge types
+  const normalizedType = objectiveType === 'NO_SUGAR_STREAK' ? 'NO_SUGAR' : objectiveType;
+  
+  // Get available rules for this challenge type
+  const challengeConfig = CHALLENGE_TYPES[normalizedType as ChallengeType];
+  const availableRules = challengeConfig?.availableRules || [];
 
   const toggleRule = (rule: string) => {
     setSelectedRules(prev =>
@@ -78,7 +79,7 @@ export const EditRulesModal = ({ challengeId, currentRules, onClose }: EditRules
           </div>
 
           <div className="space-y-3 mb-6">
-            {AVAILABLE_RULES.map((rule) => (
+            {availableRules.map((rule) => (
               <label
                 key={rule}
                 className="flex items-start gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
