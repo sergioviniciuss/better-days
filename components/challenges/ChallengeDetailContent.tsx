@@ -11,6 +11,8 @@ import { QuitChallengeModal } from './QuitChallengeModal';
 import { RuleChangeNotificationBanner } from './RuleChangeNotificationBanner';
 import { StopChallengeModal } from '@/components/dashboard/StopChallengeModal';
 import { hasUnacknowledgedRuleChanges } from '@/app/actions/challenge';
+import { ProgressRing } from '@/components/dashboard/ProgressRing';
+import { calculateActiveDays } from '@/lib/challenge-progress';
 
 interface User {
   id: string;
@@ -23,7 +25,9 @@ interface Challenge {
   id: string;
   name: string;
   challengeType?: string;
+  objectiveType?: string;
   startDate: string;
+  dueDate?: string | null;
   rules: string[];
   rulesUpdatedAt?: string | null;
   owner: {
@@ -115,6 +119,17 @@ export function ChallengeDetailContent({
     user.timezone,
     challenge.userJoinedAt || challenge.startDate
   );
+  
+  // Calculate progress for fitness challenges with deadline
+  const shouldShowProgress = challenge.objectiveType === 'DAILY_EXERCISE' && challenge.dueDate;
+  const progress = shouldShowProgress
+    ? calculateActiveDays(
+        streakLogs,
+        challenge.userJoinedAt || challenge.startDate,
+        challenge.dueDate!,
+        user.timezone
+      )
+    : null;
 
   const inviteCode = propInviteCode || challenge.invites[0]?.code || '';
   const inviteUrl = typeof window !== 'undefined' 
@@ -231,26 +246,57 @@ export function ChallengeDetailContent({
             {t('editHistory')}
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {currentStreak}
-            </p>
+        {shouldShowProgress && progress ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {currentStreak}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('bestStreak')}</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {bestStreak}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('pendingDays')}</p>
+                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                  {pendingDays.length}
+                </p>
+              </div>
+            </div>
+            <div>
+              <ProgressRing
+                activeDays={progress.activeDays}
+                totalDays={progress.totalDays}
+              />
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{t('bestStreak')}</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {bestStreak}
-            </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('currentStreak')}</p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {currentStreak}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('bestStreak')}</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {bestStreak}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('pendingDays')}</p>
+              <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                {pendingDays.length}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{t('pendingDays')}</p>
-            <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {pendingDays.length}
-            </p>
-          </div>
-        </div>
+        )}
         </div>
       )}
 

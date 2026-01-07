@@ -14,6 +14,8 @@ import { StreakAchievement } from './StreakAchievement';
 import { clearReminder } from '@/lib/reminder-utils';
 import { QuitChallengeModal } from '@/components/challenges/QuitChallengeModal';
 import { hasUnacknowledgedRuleChanges } from '@/app/actions/challenge';
+import { ProgressRing } from './ProgressRing';
+import { calculateActiveDays } from '@/lib/challenge-progress';
 
 interface ChallengeCardProps {
   challenge: {
@@ -95,6 +97,21 @@ export function ChallengeCard({
   );
   const today = getTodayInTimezone(userTimezone);
   const todayConfirmed = todayLog !== null && todayLog !== undefined && todayLog.confirmedAt !== null;
+  
+  // Calculate progress for fitness challenges with deadline
+  const shouldShowProgress = challenge.objectiveType === 'DAILY_EXERCISE' && challenge.dueDate;
+  const progress = shouldShowProgress
+    ? calculateActiveDays(
+        logs.map(log => ({
+          date: log.date,
+          consumedSugar: log.consumedSugar,
+          confirmedAt: log.confirmedAt,
+        })),
+        challenge.userJoinedAt || challenge.startDate,
+        challenge.dueDate!,
+        userTimezone
+      )
+    : null;
   
   // Filter out today from pending days for display purposes (today has its own section)
   const pastPendingDays = pendingDays.filter(date => date !== today);
@@ -215,11 +232,25 @@ export function ChallengeCard({
 
       {/* Streaks - Enhanced Achievement Display */}
       <div className="mb-4">
-        <StreakAchievement
-          currentStreak={currentStreak}
-          bestStreak={bestStreak}
-          isMilestone={isMilestone}
-        />
+        {shouldShowProgress && progress ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <StreakAchievement
+              currentStreak={currentStreak}
+              bestStreak={bestStreak}
+              isMilestone={isMilestone}
+            />
+            <ProgressRing
+              activeDays={progress.activeDays}
+              totalDays={progress.totalDays}
+            />
+          </div>
+        ) : (
+          <StreakAchievement
+            currentStreak={currentStreak}
+            bestStreak={bestStreak}
+            isMilestone={isMilestone}
+          />
+        )}
       </div>
 
       {/* Challenge Details */}
