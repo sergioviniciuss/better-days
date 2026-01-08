@@ -222,20 +222,38 @@ export function EditConfirmationsModal({
             {t('description')}
           </p>
 
-          <div className="mb-4 flex gap-2">
-            <button
-              onClick={() => handleMarkAll(false)}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium min-h-[44px]"
-            >
-              {tDashboard('noSugar')}
-            </button>
-            <button
-              onClick={() => handleMarkAll(true)}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium min-h-[44px]"
-            >
-              {tDashboard('consumedSugar')}
-            </button>
-          </div>
+          {(() => {
+            // Determine labels for "Mark All" buttons
+            // If editing a single challenge, use that challenge's labels
+            // Otherwise, use the first challenge's labels or default to No Sugar labels
+            let markAllLabels = { success: tDashboard('noSugar'), failure: tDashboard('consumedSugar') };
+            
+            if (challengeId) {
+              // Single challenge - use its labels
+              markAllLabels = getLabels(challengeId);
+            } else if (editableLogs.length > 0) {
+              // Multiple challenges - use first log's challenge labels
+              const firstLog = editableLogs[0];
+              markAllLabels = getLabels(firstLog.challengeId);
+            }
+            
+            return (
+              <div className="mb-4 flex gap-2">
+                <button
+                  onClick={() => handleMarkAll(false)}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium min-h-[44px]"
+                >
+                  {markAllLabels.success}
+                </button>
+                <button
+                  onClick={() => handleMarkAll(true)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium min-h-[44px]"
+                >
+                  {markAllLabels.failure}
+                </button>
+              </div>
+            );
+          })()}
 
           {viewMode === 'list' ? (
             <div className="space-y-2 mb-6">

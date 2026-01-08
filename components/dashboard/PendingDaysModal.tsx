@@ -1,10 +1,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { confirmMultipleDays } from '@/app/actions/daily-log';
 import { formatDateString } from '@/lib/date-utils';
 import { ConfirmationCalendar } from './ConfirmationCalendar';
+import { getChallenge } from '@/app/actions/challenge';
 
 interface PendingDaysModalProps {
   pendingDays: string[];
@@ -16,9 +17,40 @@ interface PendingDaysModalProps {
 
 export function PendingDaysModal({ pendingDays, onClose, onRemindLater, userTimezone, challengeId }: PendingDaysModalProps) {
   const t = useTranslations('pendingDays');
+  const tDashboard = useTranslations('dashboard');
+  const tChallenge = useTranslations('challengeConfirmation');
   const [confirmations, setConfirmations] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [objectiveType, setObjectiveType] = useState<string>('NO_SUGAR_STREAK');
+
+  // Fetch challenge data to determine labels
+  useEffect(() => {
+    const fetchChallenge = async () => {
+      const result = await getChallenge(challengeId);
+      if (result.challenge && result.challenge.objectiveType) {
+        setObjectiveType(result.challenge.objectiveType);
+      }
+    };
+    fetchChallenge();
+  }, [challengeId]);
+
+  // Get labels based on objectiveType
+  const getLabels = (objType: string) => {
+    switch (objType) {
+      case 'NO_SUGAR':
+      case 'NO_SUGAR_STREAK':
+        return { success: tDashboard('noSugar'), failure: tDashboard('consumedSugar') };
+      case 'ZERO_ALCOHOL':
+        return { success: tChallenge('noAlcohol'), failure: tChallenge('consumedAlcohol') };
+      case 'DAILY_EXERCISE':
+        return { success: tChallenge('exercised'), failure: tChallenge('skippedExercise') };
+      default:
+        return { success: tChallenge('success'), failure: tChallenge('failed') };
+    }
+  };
+
+  const labels = getLabels(objectiveType);
   
   // Calendar state - must be at top level
   const firstDate = pendingDays.length > 0 
@@ -108,13 +140,13 @@ export function PendingDaysModal({ pendingDays, onClose, onRemindLater, userTime
               onClick={() => handleMarkAll(false)}
               className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium min-h-[44px]"
             >
-              {t('markAllNoSugar')}
+              {labels.success}
             </button>
             <button
               onClick={() => handleMarkAll(true)}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium min-h-[44px]"
             >
-              {t('markAllConsumed')}
+              {labels.failure}
             </button>
           </div>
 
@@ -137,7 +169,7 @@ export function PendingDaysModal({ pendingDays, onClose, onRemindLater, userTime
                           : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
                       }`}
                     >
-                      No Sugar
+                      {labels.success}
                     </button>
                     <button
                       onClick={() => handleToggle(date, true)}
@@ -147,7 +179,7 @@ export function PendingDaysModal({ pendingDays, onClose, onRemindLater, userTime
                           : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
                       }`}
                     >
-                      Consumed Sugar
+                      {labels.failure}
                     </button>
                   </div>
                 </div>

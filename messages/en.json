@@ -157,7 +157,8 @@
     "archiveChallenge": "Archive Challenge",
     "quitChallenge": "Quit Challenge",
     "adminBadge": "Admin",
-    "you": "You"
+    "you": "You",
+    "activeDays": "Active Days"
   },
   "joinChallenge": {
     "title": "Join Challenge",

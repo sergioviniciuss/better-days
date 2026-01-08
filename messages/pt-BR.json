@@ -157,7 +157,8 @@
     "archiveChallenge": "Arquivar Desafio",
     "quitChallenge": "Sair do Desafio",
     "adminBadge": "Admin",
-    "you": "Você"
+    "you": "Você",
+    "activeDays": "Dias Ativos"
   },
   "joinChallenge": {
     "title": "Entrar em Desafio",

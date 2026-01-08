@@ -19,10 +19,29 @@ interface GroupedPendingDaysModalProps {
 
 export function GroupedPendingDaysModal({ group, onClose, onRemindLater, userTimezone }: GroupedPendingDaysModalProps) {
   const t = useTranslations('pendingDays');
+  const tDashboard = useTranslations('dashboard');
+  const tChallenge = useTranslations('challengeConfirmation');
   const router = useRouter();
   const [confirmations, setConfirmations] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+
+  // Get labels based on objectiveType (all challenges in a group have the same objectiveType)
+  const getLabels = (objectiveType: string) => {
+    switch (objectiveType) {
+      case 'NO_SUGAR':
+      case 'NO_SUGAR_STREAK':
+        return { success: tDashboard('noSugar'), failure: tDashboard('consumedSugar') };
+      case 'ZERO_ALCOHOL':
+        return { success: tChallenge('noAlcohol'), failure: tChallenge('consumedAlcohol') };
+      case 'DAILY_EXERCISE':
+        return { success: tChallenge('exercised'), failure: tChallenge('skippedExercise') };
+      default:
+        return { success: tChallenge('success'), failure: tChallenge('failed') };
+    }
+  };
+
+  const labels = getLabels(group.objectiveType);
   
   // Calendar state - must be at top level
   const firstDate = group.allPendingDays.length > 0 
@@ -146,13 +165,13 @@ export function GroupedPendingDaysModal({ group, onClose, onRemindLater, userTim
               onClick={() => handleMarkAll(false)}
               className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium min-h-[44px]"
             >
-              {t('markAllNoSugar')}
+              {labels.success}
             </button>
             <button
               onClick={() => handleMarkAll(true)}
               className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium min-h-[44px]"
             >
-              {t('markAllConsumed')}
+              {labels.failure}
             </button>
           </div>
 
@@ -175,7 +194,7 @@ export function GroupedPendingDaysModal({ group, onClose, onRemindLater, userTim
                           : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
                       }`}
                     >
-                      No Sugar
+                      {labels.success}
                     </button>
                     <button
                       onClick={() => handleToggle(date, true)}
@@ -185,7 +204,7 @@ export function GroupedPendingDaysModal({ group, onClose, onRemindLater, userTim
                           : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
                       }`}
                     >
-                      Consumed Sugar
+                      {labels.failure}
                     </button>
                   </div>
                 </div>

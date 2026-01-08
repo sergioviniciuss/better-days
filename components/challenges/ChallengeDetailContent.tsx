@@ -59,6 +59,7 @@ interface LeaderboardEntry {
   confirmedToday: boolean;
   role?: string;
   isAdmin?: boolean;
+  activeDays?: number;
 }
 
 interface DailyLog {
@@ -131,6 +132,9 @@ export function ChallengeDetailContent({
       )
     : null;
 
+  // Check if this is a fitness challenge (for active days column in leaderboard)
+  const isFitnessChallenge = challenge.objectiveType === 'DAILY_EXERCISE';
+
   const inviteCode = propInviteCode || challenge.invites[0]?.code || '';
   const inviteUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}/${user.preferredLanguage}/join/${inviteCode}`
@@ -145,8 +149,11 @@ export function ChallengeDetailContent({
   };
 
   // Calculate active member count for badge and invite section
-  const activeMemberCount = challenge.members?.filter(m => m.status === 'ACTIVE').length || 0;
+  const activeMemberCount = challenge.members?.filter(m => m.status === 'ACTIVE' || !m.status).length || 0;
+  // Badge reflects current member count
   const isGroupChallenge = activeMemberCount > 1;
+  // Invite section shows for challenges created as GROUP type
+  const canInviteMembers = challenge.challengeType === 'GROUP';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -315,6 +322,11 @@ export function ChallengeDetailContent({
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   {t('user')}
                 </th>
+                {isFitnessChallenge && (
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    {t('activeDays')}
+                  </th>
+                )}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   {t('currentStreak')}
                 </th>
@@ -347,6 +359,11 @@ export function ChallengeDetailContent({
                       <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">({t('you')})</span>
                     )}
                   </td>
+                  {isFitnessChallenge && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {entry.activeDays || 0}
+                    </td>
+                  )}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {entry.currentStreak}
                   </td>
@@ -374,8 +391,8 @@ export function ChallengeDetailContent({
         </div>
       </div>
 
-      {/* Invite Section - Only show for group challenges (more than 1 member) and if user is a member */}
-      {isMember && !hasUnacknowledgedRules && isGroupChallenge && inviteCode && (
+      {/* Invite Section - Only show for group challenges and if user is a member */}
+      {isMember && !hasUnacknowledgedRules && canInviteMembers && inviteCode && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             {t('inviteSection')}
