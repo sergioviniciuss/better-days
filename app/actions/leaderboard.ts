@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
 import { calculateStreaks, detectPendingDays, type DailyLog as StreakDailyLog } from '@/lib/streak-utils';
+import { calculateActiveDays } from '@/lib/challenge-progress';
 
 export async function getChallengeLeaderboard(challengeId: string, providedUser?: any) {
   const user = providedUser || await getCurrentUser();
@@ -60,6 +61,8 @@ export async function getChallengeLeaderboard(challengeId: string, providedUser?
 
     // Calculate streaks for each member
     // Handle case where member.user might be null (RLS blocking nested user query)
+    const isFitnessChallenge = challenge.objectiveType === 'DAILY_EXERCISE';
+    
     const leaderboard = (challenge.members || [])
       .filter((member: any) => member && member.user) // Filter out members without user data
       .map((member: any) => {
@@ -85,6 +88,20 @@ export async function getChallengeLeaderboard(challengeId: string, providedUser?
         const today = new Date().toISOString().split('T')[0];
         const todayLog = userLogs.find((log) => log.date === today && log.confirmedAt !== null);
 
+        // Calculate active days for fitness challenges
+        let activeDays = 0;
+        if (isFitnessChallenge) {
+          // Use dueDate if available, otherwise use today as the effective end date
+          const effectiveEndDate = challenge.dueDate || today;
+          const progress = calculateActiveDays(
+            userLogs,
+            joinedAtDate || challenge.startDate,
+            effectiveEndDate,
+            timezone
+          );
+          activeDays = progress.activeDays;
+        }
+
         return {
           userId: member.userId,
           email: member.user?.email || 'Unknown',
@@ -94,14 +111,21 @@ export async function getChallengeLeaderboard(challengeId: string, providedUser?
           confirmedToday: todayLog !== undefined,
           role: member.role || 'MEMBER',
           isAdmin: member.role === 'OWNER',
+          activeDays,
         };
       });
 
-    // Sort by current streak (desc), then best streak (desc)
+    // Sort by active days first for fitness challenges, then streaks
     leaderboard.sort((a: any, b: any) => {
+      // For fitness challenges, prioritize active days
+      if (isFitnessChallenge && a.activeDays !== b.activeDays) {
+        return b.activeDays - a.activeDays;
+      }
+      // Then by current streak
       if (a.currentStreak !== b.currentStreak) {
         return b.currentStreak - a.currentStreak;
       }
+      // Finally by best streak
       return b.bestStreak - a.bestStreak;
     });
 
