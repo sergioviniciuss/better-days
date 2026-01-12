@@ -21,56 +21,75 @@ export default async function ChallengeDetailPage({
     redirect(`/${locale}/login`);
   }
 
-  // Check membership status first
   const supabase = await createClient();
-  const { data: membership } = await supabase
-    .from('ChallengeMember')
-    .select('*')
-    .eq('challengeId', id)
-    .eq('userId', user.id)
-    .single();
-  
-  const isMember = !!membership;
 
-  // If accessed via invite link and not a member, fetch challenge without membership requirement
-  let challenge;
-  let showJoinConfirmation = false;
+  // OPTIMIZATION: Run all queries in parallel instead of sequential
 
-  if (invite === 'true' && !isMember) {
-    // Get challenge even if not a member (for invite flow)
-    const { data: challengeData, error } = await supabase
-      .from('Challenge')
-      .select(`
-        *,
-        owner:User!Challenge_ownerUserId_fkey(id, email),
-        members:ChallengeMember(*, user:User(id, email)),
-        invites:Invite(*)
-      `)
-      .eq('id', id)
-      .single();
-    
-    if (error || !challengeData) {
+  // If accessed via invite link, handle invite flow
+  if (invite === 'true') {
+    // For invite flow: Check membership, fetch challenge, and get leaderboard in parallel
+    const [membershipResult, challengeResult, leaderboardResult] = await Promise.all([
+      supabase
+        .from('ChallengeMember')
+        .select('*')
+        .eq('challengeId', id)
+        .eq('userId', user.id)
+        .single(),
+      supabase
+        .from('Challenge')
+        .select(`
+          *,
+          owner:User!Challenge_ownerUserId_fkey(id, email),
+          members:ChallengeMember(*, user:User(id, email)),
+          invites:Invite(*)
+        `)
+        .eq('id', id)
+        .single(),
+      getChallengeLeaderboard(id, user)
+    ]);
+
+    const isMember = !!membershipResult.data;
+    const challenge = challengeResult.data;
+    const { leaderboard } = leaderboardResult;
+
+    if (!challenge || challengeResult.error) {
       redirect(`/${locale}/challenges`);
     }
-    
-    challenge = challengeData;
-    showJoinConfirmation = true;
-  } else {
-    // Normal access - require membership
-    const challengeResult = await getChallenge(id, user);
-    if (!challengeResult.challenge) {
-      redirect(`/${locale}/challenges`);
+
+    if (!isMember) {
+      // Not a member - show join confirmation with leaderboard data
+      const inviteCode = challenge.invites?.[0]?.code || '';
+      
+      return (
+        <ChallengeDetailContent
+          challenge={challenge}
+          leaderboard={leaderboard}
+          user={user}
+          userLogs={[]}
+          showJoinConfirmation={true}
+          inviteCode={inviteCode}
+          isMember={false}
+        />
+      );
     }
-    challenge = challengeResult.challenge;
+
+    // Member accessing via invite - fall through to normal member flow below
   }
 
-  if (!challenge) {
+  // Normal member flow: Fetch everything in parallel
+  const [challengeResult, leaderboardResult, logsResult] = await Promise.all([
+    getChallenge(id, user),
+    getChallengeLeaderboard(id, user),
+    getDailyLogs(id, user)
+  ]);
+
+  if (!challengeResult.challenge) {
     redirect(`/${locale}/challenges`);
   }
 
-  // Get leaderboard and logs - pass user to avoid redundant calls
-  const { leaderboard } = await getChallengeLeaderboard(id, user);
-  const { logs } = await getDailyLogs(id, user);
+  const challenge = challengeResult.challenge;
+  const { leaderboard } = leaderboardResult;
+  const { logs } = logsResult;
 
   const inviteCode = challenge.invites?.[0]?.code || '';
 
@@ -80,9 +99,9 @@ export default async function ChallengeDetailPage({
       leaderboard={leaderboard}
       user={user}
       userLogs={logs}
-      showJoinConfirmation={showJoinConfirmation}
-      inviteCode={showJoinConfirmation ? inviteCode : undefined}
-      isMember={isMember}
+      showJoinConfirmation={false}
+      inviteCode={undefined}
+      isMember={true}
     />
   );
 }

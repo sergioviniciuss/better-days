@@ -1,10 +1,14 @@
 'use server';
 
+import { cache as reactCache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+
+// Handle cache function - fallback to identity function if not available (e.g., in tests)
+const cache = typeof reactCache === 'function' ? reactCache : <T extends (...args: any[]) => any>(fn: T) => fn;
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
@@ -152,7 +156,8 @@ export async function signOut() {
   redirect('/login');
 }
 
-export async function getCurrentUser() {
+// Use React cache to deduplicate getCurrentUser calls within the same request
+export const getCurrentUser = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -175,5 +180,5 @@ export async function getCurrentUser() {
   }
 
   return dbUser;
-}
+});
 

@@ -1,12 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import dynamic from "next/dynamic";
 import "./globals.css";
-
-const NavigationProgressBar = dynamic(
-  () => import("@/components/NavigationProgressBar").then((mod) => mod.NavigationProgressBar),
-  { ssr: false }
-);
 
 export const metadata: Metadata = {
   title: "Better Habits - Habit Challenge Tracker",
@@ -31,9 +24,6 @@ export default function RootLayout({
   return (
     <html>
       <body>
-        <Suspense fallback={null}>
-          <NavigationProgressBar />
-        </Suspense>
         {children}
       </body>
     </html>

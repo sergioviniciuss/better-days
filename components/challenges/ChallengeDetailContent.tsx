@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { calculateStreaks, detectPendingDays, type DailyLog as StreakDailyLog } from '@/lib/streak-utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatDateString } from '@/lib/date-utils';
 import { JoinChallengeBanner } from './JoinChallengeBanner';
 import { EditConfirmationsModal } from '@/components/dashboard/EditConfirmationsModal';
@@ -97,6 +97,7 @@ export function ChallengeDetailContent({
   const [showEditRulesModal, setShowEditRulesModal] = useState(false);
   const [showQuitModal, setShowQuitModal] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [inviteUrl, setInviteUrl] = useState('');
 
   // Check if current user is admin
   const userMembership = challenge.members?.find(m => m.userId === user.id);
@@ -136,9 +137,13 @@ export function ChallengeDetailContent({
   const isFitnessChallenge = challenge.objectiveType === 'DAILY_EXERCISE';
 
   const inviteCode = propInviteCode || challenge.invites[0]?.code || '';
-  const inviteUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/${user.preferredLanguage}/join/${inviteCode}`
-    : '';
+
+  // Set invite URL only on client side to avoid hydration mismatch
+  useEffect(() => {
+    if (inviteCode) {
+      setInviteUrl(`${window.location.origin}/${user.preferredLanguage}/join/${inviteCode}`);
+    }
+  }, [inviteCode, user.preferredLanguage]);
 
   const copyInviteLink = () => {
     if (inviteUrl) {

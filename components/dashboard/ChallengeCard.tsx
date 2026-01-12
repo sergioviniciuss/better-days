@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { calculateStreaks, detectPendingDays } from '@/lib/streak-utils';
-import { getTodayInTimezone } from '@/lib/date-utils';
+import { getTodayInTimezone, formatDateString } from '@/lib/date-utils';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -191,7 +191,10 @@ export function ChallengeCard({
               <ChallengeIcon type={challenge.objectiveType as any} size="md" />
             </div>
             <div className="min-w-0 flex-1">
-              <Link href={`/${locale}/challenges/${challenge.id}`}>
+              <Link 
+                href={`/${locale}/challenges/${challenge.id}`}
+                prefetch={true}
+              >
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer break-words">
                   {challenge.name}
                 </h2>
@@ -228,7 +231,7 @@ export function ChallengeCard({
           )}
           {challenge.userJoinedAt && (
             <p className="text-gray-600 dark:text-gray-400">
-              {t('youJoined')}: {new Date(challenge.userJoinedAt).toLocaleDateString()}
+              {t('youJoined')}: {formatDateString(challenge.userJoinedAt)}
             </p>
           )}
         </div>
@@ -264,7 +267,7 @@ export function ChallengeCard({
             <div>
               <span className="text-gray-600 dark:text-gray-400">{t('challengeStarted')}: </span>
               <span className="text-gray-900 dark:text-white font-medium">
-                {new Date(challenge.startDate).toLocaleDateString()}
+                {formatDateString(challenge.startDate)}
               </span>
             </div>
             <div>
@@ -279,7 +282,7 @@ export function ChallengeCard({
               <div>
                 <span className="text-gray-600 dark:text-gray-400">{t('ends')}: </span>
                 <span className="text-gray-900 dark:text-white font-medium">
-                  {new Date(challenge.dueDate).toLocaleDateString()}
+                  {formatDateString(challenge.dueDate)}
                 </span>
               </div>
               {(() => {

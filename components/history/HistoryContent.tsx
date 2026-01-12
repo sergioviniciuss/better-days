@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { format } from 'date-fns';
 import { formatDateString } from '@/lib/date-utils';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 import { EditConfirmationsModal } from '@/components/dashboard/EditConfirmationsModal';
@@ -128,7 +129,7 @@ export function HistoryContent({ logs, challenges, userTimezone }: HistoryConten
                           </span>
                           {log.confirmedAt && (
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(log.confirmedAt).toLocaleString()}
+                              {format(new Date(log.confirmedAt), 'MMM dd, yyyy, hh:mm a')}
                             </span>
                           )}
                         </div>

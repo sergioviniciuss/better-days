@@ -273,29 +273,33 @@ export async function getChallenge(challengeId: string, providedUser?: any) {
   try {
     const supabase = await createClient();
 
-    // Check if user is a member
-    const { data: membership } = await supabase
-      .from('ChallengeMember')
-      .select('*')
-      .eq('challengeId', challengeId)
-      .eq('userId', user.id)
-      .single();
+    // OPTIMIZATION: Fetch membership and challenge in parallel
+    const [membershipResult, challengeResult] = await Promise.all([
+      supabase
+        .from('ChallengeMember')
+        .select('*')
+        .eq('challengeId', challengeId)
+        .eq('userId', user.id)
+        .single(),
+      supabase
+        .from('Challenge')
+        .select(`
+          *,
+          owner:User!Challenge_ownerUserId_fkey(id, email),
+          members:ChallengeMember(*, user:User(id, email)),
+          invites:Invite(*)
+        `)
+        .eq('id', challengeId)
+        .single()
+    ]);
+
+    const membership = membershipResult.data;
+    const challenge = challengeResult.data;
+    const challengeError = challengeResult.error;
 
     if (!membership) {
       return { error: 'Not a member of this challenge', challenge: null };
     }
-
-    // Get challenge with owner, members, and invites
-    const { data: challenge, error: challengeError } = await supabase
-      .from('Challenge')
-      .select(`
-        *,
-        owner:User!Challenge_ownerUserId_fkey(id, email),
-        members:ChallengeMember(*, user:User(id, email)),
-        invites:Invite(*)
-      `)
-      .eq('id', challengeId)
-      .single();
 
     if (challengeError || !challenge) {
       console.error('Error fetching challenge:', challengeError);

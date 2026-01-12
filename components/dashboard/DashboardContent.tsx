@@ -161,12 +161,14 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <Link
           href={`/${user.preferredLanguage}/history`}
+          prefetch={true}
           className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 hover:shadow-md transition-shadow min-h-[44px] flex items-center justify-center"
         >
           <span className="text-gray-900 dark:text-white font-medium">View History</span>
         </Link>
         <Link
           href={`/${user.preferredLanguage}/challenges`}
+          prefetch={true}
           className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 hover:shadow-md transition-shadow min-h-[44px] flex items-center justify-center"
         >
           <span className="text-gray-900 dark:text-white font-medium">Challenges</span>

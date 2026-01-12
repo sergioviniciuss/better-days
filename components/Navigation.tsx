@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -12,11 +13,22 @@ interface NavigationProps {
 }
 
 export function Navigation({ userEmail }: NavigationProps) {
+  const [clientPathname, setClientPathname] = useState<string | null>(null);
   const tDashboard = useTranslations('dashboard');
   const tHistory = useTranslations('history');
   const tChallenges = useTranslations('challenges');
+  
+  // Get pathname - but ONLY use it on the client
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'en';
+  
+  // Sync pathname to state after mount
+  useEffect(() => {
+    setClientPathname(pathname);
+  }, [pathname]);
+  
+  // Use clientPathname only if available (client-side), otherwise fallback to /en
+  const activePath = clientPathname || '/en';
+  const locale = activePath.split('/')[1] || 'en';
 
   // Only create navItems if user is authenticated
   const navItems = userEmail ? [
@@ -40,7 +52,7 @@ export function Navigation({ userEmail }: NavigationProps) {
                     key={item.href}
                     href={item.href}
                     className={`px-3 py-2 rounded-md text-sm font-medium min-h-[44px] flex items-center ${
-                      pathname === item.href
+                      clientPathname && activePath === item.href
                         ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
@@ -61,8 +73,8 @@ export function Navigation({ userEmail }: NavigationProps) {
             </div>
             
             {/* Mobile: Hamburger Menu - Only show for authenticated users */}
-            {userEmail && (
-              <MobileMenu navItems={navItems} userEmail={userEmail} pathname={pathname} />
+            {userEmail && clientPathname && (
+              <MobileMenu navItems={navItems} userEmail={userEmail} pathname={activePath} />
             )}
           </div>
         </div>
