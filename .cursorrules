@@ -20,6 +20,12 @@ You are a senior full stack engineer working on this codebase.
  - bad: `{isVisible && <Component />}`
 - Use ternary for explicit null/undefined handling
 
+### Next.js hooks and Context
+- Avoid using `useParams()` in client components that render from server components - it can fail during SSR with "Cannot read properties of null (reading 'useContext')" errors
+- Prefer parsing `usePathname()` for route params instead of `useParams()` when possible
+- Example: `const locale = pathname.split('/')[1]` is more reliable than `const params = useParams(); const locale = params?.locale`
+- Only use `useParams()` when absolutely necessary and in components that are guaranteed to be in the proper Next.js router context
+
 ### Testing
 - Prefer `screen` queries over container queries
 - prefer toBeVisible instead of ToBeInTheDocument when possible

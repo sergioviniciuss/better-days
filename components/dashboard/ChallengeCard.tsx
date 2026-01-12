@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { calculateStreaks, detectPendingDays } from '@/lib/streak-utils';
 import { getTodayInTimezone, formatDateString } from '@/lib/date-utils';
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { confirmDay } from '@/app/actions/daily-log';
 import { ChallengeIcon } from '@/lib/challenge-icons';
@@ -64,8 +64,9 @@ export function ChallengeCard({
   const t = useTranslations('dashboard');
   const tChallenge = useTranslations('challengeConfirmation');
   const router = useRouter();
-  const params = useParams();
-  const locale = params.locale as string;
+  const pathname = usePathname();
+  // Parse locale from pathname - more reliable than useParams() which can fail during SSR
+  const locale = pathname.split('/')[1] || 'en';
   const [todayLog, setTodayLog] = useState(initialTodayLog);
   const [loading, setLoading] = useState(false);
   const [showStopModal, setShowStopModal] = useState(false);

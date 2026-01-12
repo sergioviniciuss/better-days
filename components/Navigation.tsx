@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { UserProfileMenu } from './UserProfileMenu';
@@ -16,8 +16,8 @@ export function Navigation({ userEmail }: NavigationProps) {
   const tHistory = useTranslations('history');
   const tChallenges = useTranslations('challenges');
   const pathname = usePathname();
-  const params = useParams();
-  const locale = (params?.locale as string) || 'en';
+  // Parse locale from pathname - more reliable than useParams() which can fail during SSR
+  const locale = pathname.split('/')[1] || 'en';
 
   // Only create navItems if user is authenticated
   const navItems = userEmail ? [

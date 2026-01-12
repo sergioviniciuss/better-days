@@ -39,7 +39,7 @@ jest.mock('next/navigation', () => ({
     refresh: mockRouterRefresh,
     push: mockRouterPush,
   }),
-  useParams: () => ({ locale: 'en' }),
+  usePathname: () => '/en/dashboard',
 }));
 
 // Mock actions

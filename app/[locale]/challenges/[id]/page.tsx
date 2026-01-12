@@ -77,9 +77,20 @@ export default async function ChallengeDetailPage({
     const { logs } = await getDailyLogs(id, user);
     const inviteCode = challenge.invites?.[0]?.code || '';
 
+    // Augment challenge with user's membership data
+    const membership = membershipResult.data;
+    const challengeWithMembership = {
+      ...challenge,
+      userJoinedAt: membership.joinedAt 
+        ? new Date(membership.joinedAt).toISOString().split('T')[0]
+        : undefined,
+      userLeftAt: membership.leftAt,
+      userStatus: membership.status
+    };
+
     return (
       <ChallengeDetailContent
-        challenge={challenge}
+        challenge={challengeWithMembership}
         leaderboard={leaderboard}
         user={user}
         userLogs={logs}
