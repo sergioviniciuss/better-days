@@ -90,7 +90,8 @@
     "groupBadge": "Grupo",
     "individualBadge": "Individual",
     "noChallenges": "Nenhum desafio ainda",
-    "noChallengesDescription": "Crie um desafio para começar a acompanhar seus hábitos e construir sequências."
+    "noChallengesDescription": "Crie um desafio para começar a acompanhar seus hábitos e construir sequências.",
+    "viewDetails": "Ver Detalhes"
   },
   "history": {
     "title": "Histórico",

@@ -90,7 +90,8 @@
     "groupBadge": "Group",
     "individualBadge": "Individual",
     "noChallenges": "No challenges yet",
-    "noChallengesDescription": "Create a challenge to start tracking your habits and building streaks."
+    "noChallengesDescription": "Create a challenge to start tracking your habits and building streaks.",
+    "viewDetails": "View Details"
   },
   "history": {
     "title": "History",

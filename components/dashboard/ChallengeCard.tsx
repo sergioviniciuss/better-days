@@ -237,6 +237,17 @@ export function ChallengeCard({
         </div>
       </div>
 
+      {/* View Details Button */}
+      <div className="mb-4">
+        <Link
+          href={`/${locale}/challenges/${challenge.id}`}
+          prefetch={true}
+          className="inline-flex items-center justify-center w-full md:w-auto px-4 py-3 md:px-0 md:py-0 bg-blue-600 hover:bg-blue-700 md:bg-transparent text-white md:text-blue-600 md:dark:text-blue-400 rounded-md md:rounded-none font-medium transition-colors min-h-[44px] md:min-h-0 md:hover:underline"
+        >
+          {t('viewDetails')}
+        </Link>
+      </div>
+
       {/* Streaks - Enhanced Achievement Display */}
       <div className="mb-4">
         {shouldShowProgress && progress ? (
