@@ -7,17 +7,18 @@ import { createClient } from '@/lib/supabase/server';
 export default async function OnboardingPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect(`/${params.locale}/login`);
+    redirect(`/${locale}/login`);
   }
 
   // Check onboarding from user object (no separate query needed)
   if (user.hasCompletedOnboarding) {
-    redirect(`/${params.locale}/dashboard`);
+    redirect(`/${locale}/dashboard`);
   }
 
   // Check if user already has challenges - pass user to avoid redundant call
@@ -30,9 +31,9 @@ export default async function OnboardingPage({
       .update({ hasCompletedOnboarding: true })
       .eq('id', user.id);
     
-    redirect(`/${params.locale}/dashboard`);
+    redirect(`/${locale}/dashboard`);
   }
 
-  return <OnboardingFlow userId={user.id} locale={params.locale} />;
+  return <OnboardingFlow userId={user.id} locale={locale} />;
 }
 

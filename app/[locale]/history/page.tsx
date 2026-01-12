@@ -16,9 +16,14 @@ export default async function HistoryPage({
     redirect(`/${locale}/login`);
   }
 
-  // Pass user to avoid redundant getCurrentUser calls
-  const { challenges } = await getChallenges(true, user);
-  const { logs } = await getDailyLogs(undefined, user);
+  // OPTIMIZATION: Fetch challenges and logs in parallel instead of sequential
+  const [challengesResult, logsResult] = await Promise.all([
+    getChallenges(true, user),
+    getDailyLogs(undefined, user)
+  ]);
+  
+  const { challenges } = challengesResult;
+  const { logs } = logsResult;
 
   return <HistoryContent logs={logs} challenges={challenges} userTimezone={user.timezone} />;
 }

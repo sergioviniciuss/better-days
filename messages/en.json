@@ -90,7 +90,8 @@
     "groupBadge": "Group",
     "individualBadge": "Individual",
     "noChallenges": "No challenges yet",
-    "noChallengesDescription": "Create a challenge to start tracking your habits and building streaks."
+    "noChallengesDescription": "Create a challenge to start tracking your habits and building streaks.",
+    "viewDetails": "View Details"
   },
   "history": {
     "title": "History",
@@ -158,7 +159,9 @@
     "quitChallenge": "Quit Challenge",
     "adminBadge": "Admin",
     "you": "You",
-    "activeDays": "Active Days"
+    "activeDays": "Active Days",
+    "copyLink": "Copy Link",
+    "copied": "Copied!"
   },
   "joinChallenge": {
     "title": "Join Challenge",

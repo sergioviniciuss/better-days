@@ -2,9 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { calculateStreaks, detectPendingDays } from '@/lib/streak-utils';
-import { getTodayInTimezone } from '@/lib/date-utils';
+import { getTodayInTimezone, formatDateString } from '@/lib/date-utils';
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { confirmDay } from '@/app/actions/daily-log';
 import { ChallengeIcon } from '@/lib/challenge-icons';
@@ -64,8 +64,9 @@ export function ChallengeCard({
   const t = useTranslations('dashboard');
   const tChallenge = useTranslations('challengeConfirmation');
   const router = useRouter();
-  const params = useParams();
-  const locale = params.locale as string;
+  const pathname = usePathname();
+  // Parse locale from pathname - more reliable than useParams() which can fail during SSR
+  const locale = pathname.split('/')[1] || 'en';
   const [todayLog, setTodayLog] = useState(initialTodayLog);
   const [loading, setLoading] = useState(false);
   const [showStopModal, setShowStopModal] = useState(false);
@@ -191,7 +192,10 @@ export function ChallengeCard({
               <ChallengeIcon type={challenge.objectiveType as any} size="md" />
             </div>
             <div className="min-w-0 flex-1">
-              <Link href={`/${locale}/challenges/${challenge.id}`}>
+              <Link 
+                href={`/${locale}/challenges/${challenge.id}`}
+                prefetch={true}
+              >
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer break-words">
                   {challenge.name}
                 </h2>
@@ -228,10 +232,21 @@ export function ChallengeCard({
           )}
           {challenge.userJoinedAt && (
             <p className="text-gray-600 dark:text-gray-400">
-              {t('youJoined')}: {new Date(challenge.userJoinedAt).toLocaleDateString()}
+              {t('youJoined')}: {formatDateString(challenge.userJoinedAt)}
             </p>
           )}
         </div>
+      </div>
+
+      {/* View Details Button */}
+      <div className="mb-4">
+        <Link
+          href={`/${locale}/challenges/${challenge.id}`}
+          prefetch={true}
+          className="inline-flex items-center justify-center w-full md:w-auto px-4 py-3 md:px-0 md:py-0 bg-blue-600 hover:bg-blue-700 md:bg-transparent text-white md:text-blue-600 md:dark:text-blue-400 rounded-md md:rounded-none font-medium transition-colors min-h-[44px] md:min-h-0 md:hover:underline"
+        >
+          {t('viewDetails')}
+        </Link>
       </div>
 
       {/* Streaks - Enhanced Achievement Display */}
@@ -264,7 +279,7 @@ export function ChallengeCard({
             <div>
               <span className="text-gray-600 dark:text-gray-400">{t('challengeStarted')}: </span>
               <span className="text-gray-900 dark:text-white font-medium">
-                {new Date(challenge.startDate).toLocaleDateString()}
+                {formatDateString(challenge.startDate)}
               </span>
             </div>
             <div>
@@ -279,7 +294,7 @@ export function ChallengeCard({
               <div>
                 <span className="text-gray-600 dark:text-gray-400">{t('ends')}: </span>
                 <span className="text-gray-900 dark:text-white font-medium">
-                  {new Date(challenge.dueDate).toLocaleDateString()}
+                  {formatDateString(challenge.dueDate)}
                 </span>
               </div>
               {(() => {

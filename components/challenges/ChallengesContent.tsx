@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { CreateChallengeWizard } from './CreateChallengeWizard';
 import { ChallengeIcon } from '@/lib/challenge-icons';
+import { formatDateString } from '@/lib/date-utils';
 
 interface User {
   id: string;
@@ -74,6 +75,7 @@ export function ChallengesContent({ user, challenges }: ChallengesContentProps) 
               <Link
                 key={challenge.id}
                 href={`/${user.preferredLanguage}/challenges/${challenge.id}`}
+                prefetch={true}
                 className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow min-h-[44px]"
               >
                 <div className="flex items-start gap-4 mb-4">
@@ -98,7 +100,7 @@ export function ChallengesContent({ user, challenges }: ChallengesContentProps) 
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Started: {new Date(challenge.startDate).toLocaleDateString()}
+                  Started: {formatDateString(challenge.startDate)}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Members: {activeMemberCount}

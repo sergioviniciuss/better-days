@@ -16,6 +16,7 @@ export function Navigation({ userEmail }: NavigationProps) {
   const tHistory = useTranslations('history');
   const tChallenges = useTranslations('challenges');
   const pathname = usePathname();
+  // Parse locale from pathname - more reliable than useParams() which can fail during SSR
   const locale = pathname.split('/')[1] || 'en';
 
   // Only create navItems if user is authenticated

@@ -554,3 +554,185 @@ describe('ChallengeDetailContent - Rules Display', () => {
   });
 });
 
+describe('ChallengeDetailContent - Invite Flow with Leaderboard', () => {
+  const mockUser = {
+    id: 'new-user-789',
+    email: 'newuser@example.com',
+    timezone: 'UTC',
+    preferredLanguage: 'en',
+  };
+
+  const mockExistingMembers = [
+    {
+      userId: 'existing-user-1',
+      email: 'existing1@example.com',
+      currentStreak: 10,
+      bestStreak: 15,
+      pendingDays: 0,
+      confirmedToday: true,
+    },
+    {
+      userId: 'existing-user-2',
+      email: 'existing2@example.com',
+      currentStreak: 8,
+      bestStreak: 12,
+      pendingDays: 2,
+      confirmedToday: false,
+    },
+  ];
+
+  const mockChallenge = {
+    id: 'challenge-invite-123',
+    name: 'No Alcohol Challenge',
+    challengeType: 'GROUP',
+    objectiveType: 'ZERO_ALCOHOL',
+    startDate: '2024-01-01',
+    rules: ['missingDaysPending'],
+    owner: {
+      id: 'owner-123',
+      email: 'owner@example.com',
+    },
+    invites: [{ code: 'INVITE123' }],
+    members: [
+      {
+        userId: 'existing-user-1',
+        status: 'ACTIVE',
+        role: 'OWNER',
+        user: {
+          id: 'existing-user-1',
+          email: 'existing1@example.com',
+        },
+      },
+      {
+        userId: 'existing-user-2',
+        status: 'ACTIVE',
+        role: 'MEMBER',
+        user: {
+          id: 'existing-user-2',
+          email: 'existing2@example.com',
+        },
+      },
+    ],
+  };
+
+  it('should display leaderboard with existing members when non-member views via invite', () => {
+    render(
+      <ChallengeDetailContent
+        challenge={mockChallenge}
+        leaderboard={mockExistingMembers}
+        user={mockUser}
+        userLogs={[]}
+        showJoinConfirmation={true}
+        inviteCode="INVITE123"
+        isMember={false}
+      />
+    );
+
+    // Check that leaderboard section is visible
+    expect(screen.getByText('Leaderboard')).toBeVisible();
+
+    // Check that existing members are displayed
+    expect(screen.getByText('existing1@example.com')).toBeVisible();
+    expect(screen.getByText('existing2@example.com')).toBeVisible();
+
+    // Check that streaks are displayed
+    expect(screen.getByText('10')).toBeVisible(); // current streak of user 1
+    expect(screen.getByText('8')).toBeVisible(); // current streak of user 2
+  });
+
+  it('should display join challenge banner when non-member views via invite', () => {
+    render(
+      <ChallengeDetailContent
+        challenge={mockChallenge}
+        leaderboard={mockExistingMembers}
+        user={mockUser}
+        userLogs={[]}
+        showJoinConfirmation={true}
+        inviteCode="INVITE123"
+        isMember={false}
+      />
+    );
+
+    // Check that join challenge banner is displayed
+    const banner = screen.getByTestId('join-challenge-banner');
+    expect(banner).toBeVisible();
+    
+    // Check that banner contains the challenge name
+    expect(banner).toHaveTextContent('No Alcohol Challenge');
+  });
+
+  it('should show correct member count when non-member views via invite', () => {
+    render(
+      <ChallengeDetailContent
+        challenge={mockChallenge}
+        leaderboard={mockExistingMembers}
+        user={mockUser}
+        userLogs={[]}
+        showJoinConfirmation={true}
+        inviteCode="INVITE123"
+        isMember={false}
+      />
+    );
+
+    // Leaderboard should show 2 existing members
+    const leaderboardRows = screen.getAllByRole('row');
+    // 1 header row + 2 member rows = 3 total
+    expect(leaderboardRows.length).toBe(3);
+  });
+
+  it('should not display user status section when non-member views via invite', () => {
+    render(
+      <ChallengeDetailContent
+        challenge={mockChallenge}
+        leaderboard={mockExistingMembers}
+        user={mockUser}
+        userLogs={[]}
+        showJoinConfirmation={true}
+        inviteCode="INVITE123"
+        isMember={false}
+      />
+    );
+
+    // User status section should not be visible for non-members
+    expect(screen.queryByText('Your Status')).not.toBeInTheDocument();
+  });
+
+  it('should display challenge rules when non-member views via invite', () => {
+    render(
+      <ChallengeDetailContent
+        challenge={mockChallenge}
+        leaderboard={mockExistingMembers}
+        user={mockUser}
+        userLogs={[]}
+        showJoinConfirmation={true}
+        inviteCode="INVITE123"
+        isMember={false}
+      />
+    );
+
+    // Rules should NOT be visible for non-members (per the component logic)
+    expect(screen.queryByText('Rules')).not.toBeInTheDocument();
+  });
+
+  it('should handle empty leaderboard gracefully when non-member views via invite', () => {
+    render(
+      <ChallengeDetailContent
+        challenge={mockChallenge}
+        leaderboard={[]}
+        user={mockUser}
+        userLogs={[]}
+        showJoinConfirmation={true}
+        inviteCode="INVITE123"
+        isMember={false}
+      />
+    );
+
+    // Leaderboard section should still be visible
+    expect(screen.getByText('Leaderboard')).toBeVisible();
+
+    // Only header row should exist
+    const leaderboardRows = screen.getAllByRole('row');
+    expect(leaderboardRows.length).toBe(1); // Only header row
+  });
+});
+

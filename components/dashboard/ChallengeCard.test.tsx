@@ -39,7 +39,7 @@ jest.mock('next/navigation', () => ({
     refresh: mockRouterRefresh,
     push: mockRouterPush,
   }),
-  useParams: () => ({ locale: 'en' }),
+  usePathname: () => '/en/dashboard',
 }));
 
 // Mock actions
@@ -51,6 +51,11 @@ jest.mock('@/app/actions/daily-log', () => ({
 // Mock date utils
 jest.mock('@/lib/date-utils', () => ({
   getTodayInTimezone: () => '2024-01-15',
+  formatDateString: (dateString: string) => {
+    // Simple formatting for tests - return in M/D/YYYY format
+    const date = new Date(dateString + 'T00:00:00');
+    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+  },
   getDatesBetween: (startDate: string, endDate: string) => {
     // Simple implementation for testing
     const dates: string[] = [];

@@ -90,7 +90,8 @@
     "groupBadge": "Grupo",
     "individualBadge": "Individual",
     "noChallenges": "Nenhum desafio ainda",
-    "noChallengesDescription": "Crie um desafio para começar a acompanhar seus hábitos e construir sequências."
+    "noChallengesDescription": "Crie um desafio para começar a acompanhar seus hábitos e construir sequências.",
+    "viewDetails": "Ver Detalhes"
   },
   "history": {
     "title": "Histórico",
@@ -158,7 +159,9 @@
     "quitChallenge": "Sair do Desafio",
     "adminBadge": "Admin",
     "you": "Você",
-    "activeDays": "Dias Ativos"
+    "activeDays": "Dias Ativos",
+    "copyLink": "Copiar Link",
+    "copied": "Copiado!"
   },
   "joinChallenge": {
     "title": "Entrar em Desafio",
