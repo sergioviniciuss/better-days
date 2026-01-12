@@ -73,7 +73,21 @@ export default async function ChallengeDetailPage({
       );
     }
 
-    // Member accessing via invite - fall through to normal member flow below
+    // Member accessing via invite - fetch logs and return early to avoid duplicate queries
+    const { logs } = await getDailyLogs(id, user);
+    const inviteCode = challenge.invites?.[0]?.code || '';
+
+    return (
+      <ChallengeDetailContent
+        challenge={challenge}
+        leaderboard={leaderboard}
+        user={user}
+        userLogs={logs}
+        showJoinConfirmation={false}
+        inviteCode={undefined}
+        isMember={true}
+      />
+    );
   }
 
   // Normal member flow: Fetch everything in parallel
