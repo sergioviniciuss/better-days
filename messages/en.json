@@ -159,7 +159,9 @@
     "quitChallenge": "Quit Challenge",
     "adminBadge": "Admin",
     "you": "You",
-    "activeDays": "Active Days"
+    "activeDays": "Active Days",
+    "copyLink": "Copy Link",
+    "copied": "Copied!"
   },
   "joinChallenge": {
     "title": "Join Challenge",

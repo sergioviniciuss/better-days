@@ -415,7 +415,7 @@ export function ChallengeDetailContent({
               onClick={copyInviteLink}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium min-h-[44px]"
             >
-              {inviteLinkCopied ? 'Copied!' : 'Copy Link'}
+              {inviteLinkCopied ? t('copied') : t('copyLink')}
             </button>
           </div>
         </div>

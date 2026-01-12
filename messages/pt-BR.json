@@ -159,7 +159,9 @@
     "quitChallenge": "Sair do Desafio",
     "adminBadge": "Admin",
     "you": "Você",
-    "activeDays": "Dias Ativos"
+    "activeDays": "Dias Ativos",
+    "copyLink": "Copiar Link",
+    "copied": "Copiado!"
   },
   "joinChallenge": {
     "title": "Entrar em Desafio",
