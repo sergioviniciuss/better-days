@@ -73,8 +73,8 @@ export function Navigation({ userEmail }: NavigationProps) {
             </div>
             
             {/* Mobile: Hamburger Menu - Only show for authenticated users */}
-            {userEmail && clientPathname && (
-              <MobileMenu navItems={navItems} userEmail={userEmail} pathname={activePath} />
+            {userEmail && (
+              <MobileMenu navItems={navItems} userEmail={userEmail} pathname={pathname} />
             )}
           </div>
         </div>
