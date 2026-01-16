@@ -71,8 +71,12 @@ export async function updateSession(request: NextRequest) {
     
     // Redirect to login
     const url = request.nextUrl.clone();
-    url.pathname = `/${locale}/login`;
     const response = NextResponse.redirect(url);
+    
+    // IMPORTANT: Copy cookies from supabaseResponse to preserve auth cookie changes from signOut()
+    supabaseResponse.cookies.getAll().forEach(cookie => {
+      response.cookies.set(cookie.name, cookie.value);
+    });
     
     // Clear the session metadata cookie
     response.cookies.set('betterdays_session_metadata', '', {
