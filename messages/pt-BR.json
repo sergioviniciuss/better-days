@@ -91,7 +91,9 @@
     "individualBadge": "Individual",
     "noChallenges": "Nenhum desafio ainda",
     "noChallengesDescription": "Crie um desafio para começar a acompanhar seus hábitos e construir sequências.",
-    "viewDetails": "Ver Detalhes"
+    "viewDetails": "Ver Detalhes",
+    "viewHistory": "Ver Histórico",
+    "viewChallenges": "Desafios"
   },
   "history": {
     "title": "Histórico",
@@ -194,13 +196,20 @@
     "calendarView": "Visualização de Calendário",
     "listView": "Visualização de Lista",
     "forChallenges": "Para desafios: {challenges}",
-    "applyToAll": "Isso será aplicado a todos os desafios listados"
+    "applyToAll": "Isso será aplicado a todos os desafios listados",
+    "calendar": "Calendário",
+    "list": "Lista",
+    "cancel": "Cancelar",
+    "loading": "Carregando..."
   },
   "editConfirmations": {
     "title": "Editar Confirmações",
     "description": "Edite suas confirmações dos últimos 30 dias",
     "saveChanges": "Salvar Alterações",
     "noEditableConfirmations": "Nenhuma confirmação para editar nos últimos 30 dias"
+  },
+  "calendar": {
+    "clickInstruction": "Clique uma vez para ✓ ({success}), duas vezes para ✗ ({failure}), três vezes para limpar"
   },
   "onboarding": {
     "welcome": "Bem-vindo ao Melhores Habitos!",

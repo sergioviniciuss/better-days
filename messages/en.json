@@ -91,7 +91,9 @@
     "individualBadge": "Individual",
     "noChallenges": "No challenges yet",
     "noChallengesDescription": "Create a challenge to start tracking your habits and building streaks.",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "viewHistory": "View History",
+    "viewChallenges": "Challenges"
   },
   "history": {
     "title": "History",
@@ -194,13 +196,20 @@
     "calendarView": "Calendar View",
     "listView": "List View",
     "forChallenges": "For challenges: {challenges}",
-    "applyToAll": "This will apply to all listed challenges"
+    "applyToAll": "This will apply to all listed challenges",
+    "calendar": "Calendar",
+    "list": "List",
+    "cancel": "Cancel",
+    "loading": "Loading..."
   },
   "editConfirmations": {
     "title": "Edit Confirmations",
     "description": "Edit your confirmations from the last 30 days",
     "saveChanges": "Save Changes",
     "noEditableConfirmations": "No confirmations to edit in the last 30 days"
+  },
+  "calendar": {
+    "clickInstruction": "Click once for ✓ ({success}), twice for ✗ ({failure}), three times to clear"
   },
   "onboarding": {
     "welcome": "Welcome to Better Days!",

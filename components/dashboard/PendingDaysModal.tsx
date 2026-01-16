@@ -120,7 +120,7 @@ export function PendingDaysModal({ pendingDays, onClose, onRemindLater, userTime
                 onClick={() => setViewMode(viewMode === 'list' ? 'calendar' : 'list')}
                 className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 min-h-[36px]"
               >
-                {viewMode === 'list' ? '📅 Calendar' : '📋 List'}
+                {viewMode === 'list' ? `📅 ${t('calendar')}` : `📋 ${t('list')}`}
               </button>
               <button
                 onClick={onClose}
@@ -199,30 +199,31 @@ export function PendingDaysModal({ pendingDays, onClose, onRemindLater, userTime
                   setCurrentYear(year);
                 }}
                 userTimezone={userTimezone}
+                labels={labels}
               />
             </div>
           )}
 
-          <div className="flex justify-between gap-4">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-4">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md font-medium min-h-[44px]"
+              className="w-full sm:w-auto px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md font-medium min-h-[44px]"
             >
-              Cancel
+              {t('cancel')}
             </button>
-            <div className="flex gap-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-2">
               <button
                 onClick={onRemindLater}
-                className="px-4 py-2 border-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 rounded-md font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 min-h-[44px]"
+                className="w-full sm:w-auto px-4 py-2 border-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 rounded-md font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 min-h-[44px]"
               >
                 {t('remindLater')}
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={submitting || pendingDays.length === 0 || Object.keys(confirmations).length === 0}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
               >
-                {submitting ? 'Loading...' : t('confirmSelected')}
+                {submitting ? t('loading') : t('confirmSelected')}
               </button>
             </div>
           </div>

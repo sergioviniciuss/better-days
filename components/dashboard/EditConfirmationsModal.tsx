@@ -41,6 +41,7 @@ export function EditConfirmationsModal({
   const tHistory = useTranslations('history');
   const tChallenge = useTranslations('challengeConfirmation');
   const tDashboard = useTranslations('dashboard');
+  const tPendingDays = useTranslations('pendingDays');
   const router = useRouter();
   
   // Filter to last 30 days
@@ -207,7 +208,7 @@ export function EditConfirmationsModal({
                 onClick={() => setViewMode(viewMode === 'list' ? 'calendar' : 'list')}
                 className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 min-h-[36px]"
               >
-                {viewMode === 'list' ? '📅 Calendar' : '📋 List'}
+                {viewMode === 'list' ? `📅 ${tPendingDays('calendar')}` : `📋 ${tPendingDays('list')}`}
               </button>
               <button
                 onClick={onClose}
@@ -306,34 +307,49 @@ export function EditConfirmationsModal({
               })}
             </div>
           ) : (
-            <div className="mb-6">
-              <ConfirmationCalendar
-                dates={editableDates}
-                currentStates={currentStates}
-                editableDates={editableDates}
-                onDateClick={handleDateClick}
-                currentMonth={currentMonth}
-                currentYear={currentYear}
-                onMonthChange={(month, year) => {
-                  setCurrentMonth(month);
-                  setCurrentYear(year);
-                }}
-                userTimezone={userTimezone}
-              />
-            </div>
+            (() => {
+              // Determine labels for calendar instruction
+              let calendarLabels = { success: tDashboard('noSugar'), failure: tDashboard('consumedSugar') };
+              
+              if (challengeId) {
+                calendarLabels = getLabels(challengeId);
+              } else if (editableLogs.length > 0) {
+                const firstLog = editableLogs[0];
+                calendarLabels = getLabels(firstLog.challengeId);
+              }
+              
+              return (
+                <div className="mb-6">
+                  <ConfirmationCalendar
+                    dates={editableDates}
+                    currentStates={currentStates}
+                    editableDates={editableDates}
+                    onDateClick={handleDateClick}
+                    currentMonth={currentMonth}
+                    currentYear={currentYear}
+                    onMonthChange={(month, year) => {
+                      setCurrentMonth(month);
+                      setCurrentYear(year);
+                    }}
+                    userTimezone={userTimezone}
+                    labels={calendarLabels}
+                  />
+                </div>
+              );
+            })()
           )}
 
-          <div className="flex justify-between gap-4">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-4">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md font-medium min-h-[44px]"
+              className="w-full sm:w-auto px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md font-medium min-h-[44px]"
             >
               {tCommon('cancel')}
             </button>
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+              className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
             >
               {submitting ? tCommon('loading') : t('saveChanges')}
             </button>
