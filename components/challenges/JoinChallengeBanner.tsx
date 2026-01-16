@@ -111,20 +111,20 @@ export function JoinChallengeBanner({
         )}
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-          <button
-            onClick={handleJoin}
-            disabled={isPending || isMaybeLaterPending}
-            className="px-6 py-3 bg-white text-blue-600 rounded-md font-semibold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] whitespace-nowrap"
-          >
-            {isPending ? t('joining') : t('joinChallengeButton')}
-          </button>
+        <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
           <button
             onClick={handleMaybeLater}
             disabled={isPending || isMaybeLaterPending}
             className="px-6 py-3 bg-blue-500/20 border-2 border-white/50 text-white rounded-md font-semibold hover:bg-blue-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] whitespace-nowrap"
           >
             {isMaybeLaterPending ? '...' : t('maybeLaterButton')}
+          </button>
+          <button
+            onClick={handleJoin}
+            disabled={isPending || isMaybeLaterPending}
+            className="px-6 py-3 bg-white text-blue-600 rounded-md font-semibold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] whitespace-nowrap"
+          >
+            {isPending ? t('joining') : t('joinChallengeButton')}
           </button>
         </div>
       </div>

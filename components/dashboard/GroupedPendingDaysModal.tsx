@@ -229,14 +229,14 @@ export function GroupedPendingDaysModal({ group, onClose, onRemindLater, userTim
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
             <button
               onClick={onClose}
               className="w-full sm:w-auto px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md font-medium min-h-[44px]"
             >
               {t('cancel')}
             </button>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-2">
               <button
                 onClick={onRemindLater}
                 className="w-full sm:w-auto px-4 py-2 border-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 rounded-md font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 min-h-[44px]"
