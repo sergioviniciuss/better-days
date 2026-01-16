@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { signOut } from '@/app/actions/auth';
 import { useTranslations } from 'next-intl';
+import { clearSessionMetadata } from '@/lib/session-storage';
 
 interface UserProfileMenuProps {
   userEmail?: string | null;
@@ -49,6 +50,8 @@ export function UserProfileMenu({ userEmail }: UserProfileMenuProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
+      // Clear client-side session metadata
+      clearSessionMetadata();
       await signOut();
     } catch (error) {
       setIsLoggingOut(false);

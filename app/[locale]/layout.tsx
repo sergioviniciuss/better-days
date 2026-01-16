@@ -12,6 +12,11 @@ const NavigationProgressBar = dynamic(
   { ssr: false }
 );
 
+const SessionMonitor = dynamic(
+  () => import("@/components/SessionMonitor").then((mod) => mod.SessionMonitor),
+  { ssr: false }
+);
+
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
@@ -38,6 +43,7 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <NavigationProgressBar />
+      {user && <SessionMonitor />}
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Navigation userEmail={user?.email} />
         <main>{children}</main>

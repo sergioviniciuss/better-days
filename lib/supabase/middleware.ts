@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { parseSessionMetadataFromCookie, isSessionExpiredFromMetadata } from '@/lib/session-storage';
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -51,6 +52,36 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: Avoid writing any logic between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
+
+  // Check custom session expiry before Supabase session check
+  const sessionMetadataCookie = request.cookies.get('betterdays_session_metadata')?.value;
+  const sessionMetadata = parseSessionMetadataFromCookie(sessionMetadataCookie);
+  
+  // If we have session metadata and it's expired, force logout
+  if (sessionMetadata && isSessionExpiredFromMetadata(sessionMetadata)) {
+    // Clear the session
+    await supabase.auth.signOut();
+    
+    // Extract locale from path
+    const pathname = request.nextUrl.pathname;
+    const pathParts = pathname.split('/').filter(Boolean);
+    const firstPart = pathParts[0];
+    const isLocale = ['en', 'pt-BR'].includes(firstPart);
+    const locale = isLocale ? firstPart : 'en';
+    
+    // Redirect to login
+    const url = request.nextUrl.clone();
+    url.pathname = `/${locale}/login`;
+    const response = NextResponse.redirect(url);
+    
+    // Clear the session metadata cookie
+    response.cookies.set('betterdays_session_metadata', '', {
+      path: '/',
+      expires: new Date(0),
+    });
+    
+    return response;
+  }
 
   // Refresh session if expired
   const {
