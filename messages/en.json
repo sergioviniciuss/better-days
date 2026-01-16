@@ -208,6 +208,9 @@
     "saveChanges": "Save Changes",
     "noEditableConfirmations": "No confirmations to edit in the last 30 days"
   },
+  "calendar": {
+    "clickInstruction": "Click once for ✓ ({success}), twice for ✗ ({failure}), three times to clear"
+  },
   "onboarding": {
     "welcome": "Welcome to Better Days!",
     "welcomeDescription": "Track your habits, build streaks, and compete with friends",

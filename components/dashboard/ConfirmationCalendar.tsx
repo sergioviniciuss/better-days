@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface ConfirmationCalendarProps {
   dates: string[]; // Dates to highlight (pending or confirmed)
   currentStates: Record<string, boolean | undefined>; // Current state: date -> consumedSugar (undefined = unconfirmed)
@@ -9,6 +11,7 @@ interface ConfirmationCalendarProps {
   currentYear: number;
   onMonthChange: (month: number, year: number) => void;
   userTimezone: string;
+  labels: { success: string; failure: string }; // Labels for success/failure states
 }
 
 export function ConfirmationCalendar({
@@ -20,7 +23,9 @@ export function ConfirmationCalendar({
   currentYear,
   onMonthChange,
   userTimezone,
+  labels,
 }: ConfirmationCalendarProps) {
+  const t = useTranslations('calendar');
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
   
@@ -161,7 +166,7 @@ export function ConfirmationCalendar({
       </div>
       
       <p className="text-xs text-gray-600 dark:text-gray-400 text-center mt-4">
-        Click once for ✓ (No Sugar), twice for ✗ (Consumed), three times to clear
+        {t('clickInstruction', { success: labels.success, failure: labels.failure })}
       </p>
     </div>
   );

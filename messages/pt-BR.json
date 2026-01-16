@@ -208,6 +208,9 @@
     "saveChanges": "Salvar Alterações",
     "noEditableConfirmations": "Nenhuma confirmação para editar nos últimos 30 dias"
   },
+  "calendar": {
+    "clickInstruction": "Clique uma vez para ✓ ({success}), duas vezes para ✗ ({failure}), três vezes para limpar"
+  },
   "onboarding": {
     "welcome": "Bem-vindo ao Melhores Habitos!",
     "welcomeDescription": "Acompanhe seus hábitos, construa sequências e compita com amigos",

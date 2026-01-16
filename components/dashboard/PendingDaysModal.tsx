@@ -199,6 +199,7 @@ export function PendingDaysModal({ pendingDays, onClose, onRemindLater, userTime
                   setCurrentYear(year);
                 }}
                 userTimezone={userTimezone}
+                labels={labels}
               />
             </div>
           )}
