@@ -50,12 +50,14 @@ export function UserProfileMenu({ userEmail }: UserProfileMenuProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      // Clear client-side session metadata
-      clearSessionMetadata();
+      // Sign out first
       await signOut();
+      // Only clear metadata after successful sign out
+      clearSessionMetadata();
     } catch (error) {
       setIsLoggingOut(false);
-      // Error handling (signOut already redirects on success)
+      // If sign out fails, keep metadata intact so session expiry checks continue
+      console.error('Failed to sign out:', error);
     }
   };
 

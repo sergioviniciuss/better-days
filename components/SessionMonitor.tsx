@@ -20,18 +20,23 @@ export const SessionMonitor = () => {
         // Session has expired based on our custom duration
         const supabase = createClient();
         
-        // Clear client-side session metadata
-        clearSessionMetadata();
-        
-        // Sign out from Supabase
-        await supabase.auth.signOut();
-        
-        // Extract locale from pathname
-        const pathParts = pathname.split('/').filter(Boolean);
-        const locale = ['en', 'pt-BR'].includes(pathParts[0]) ? pathParts[0] : 'en';
-        
-        // Redirect to login
-        window.location.href = `/${locale}/login`;
+        try {
+          // Sign out from Supabase first
+          await supabase.auth.signOut();
+          
+          // Only clear metadata after successful sign out
+          clearSessionMetadata();
+          
+          // Extract locale from pathname
+          const pathParts = pathname.split('/').filter(Boolean);
+          const locale = ['en', 'pt-BR'].includes(pathParts[0]) ? pathParts[0] : 'en';
+          
+          // Redirect to login
+          window.location.href = `/${locale}/login`;
+        } catch (error) {
+          // If sign out fails, keep metadata intact so session expiry checks continue
+          console.error('Failed to sign out expired session:', error);
+        }
       }
     };
 

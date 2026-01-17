@@ -66,9 +66,56 @@ describe('SessionMonitor', () => {
     // Wait for the effect to run
     await Promise.resolve();
     
-    expect(clearSessionMetadata).toHaveBeenCalled();
     expect(mockSupabase.auth.signOut).toHaveBeenCalled();
+    expect(clearSessionMetadata).toHaveBeenCalled();
     expect(window.location.href).toBe('/en/login');
+  });
+
+  it('should clear metadata only after successful sign out', async () => {
+    (isSessionExpired as jest.Mock).mockReturnValue(true);
+    
+    const clearMetadataMock = clearSessionMetadata as jest.Mock;
+    const signOutMock = mockSupabase.auth.signOut;
+    
+    // Track call order
+    const callOrder: string[] = [];
+    signOutMock.mockImplementation(async () => {
+      callOrder.push('signOut');
+      return {};
+    });
+    clearMetadataMock.mockImplementation(() => {
+      callOrder.push('clearMetadata');
+    });
+    
+    render(<SessionMonitor />);
+    
+    await Promise.resolve();
+    
+    // Verify signOut is called before clearMetadata
+    expect(callOrder).toEqual(['signOut', 'clearMetadata']);
+  });
+
+  it('should not clear metadata if sign out fails', async () => {
+    (isSessionExpired as jest.Mock).mockReturnValue(true);
+    mockSupabase.auth.signOut.mockRejectedValue(new Error('Network error'));
+    
+    // Mock console.error to avoid noise in test output
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    
+    render(<SessionMonitor />);
+    
+    // Wait for the effect to run
+    await Promise.resolve();
+    
+    expect(mockSupabase.auth.signOut).toHaveBeenCalled();
+    expect(clearSessionMetadata).not.toHaveBeenCalled();
+    expect(window.location.href).toBe('');
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Failed to sign out expired session:',
+      expect.any(Error)
+    );
+    
+    consoleErrorSpy.mockRestore();
   });
 
   it('should check session expiry every 60 seconds', () => {
@@ -134,7 +181,7 @@ describe('SessionMonitor', () => {
     await Promise.resolve();
     
     expect(isSessionExpired).toHaveBeenCalledTimes(2);
-    expect(clearSessionMetadata).toHaveBeenCalled();
     expect(mockSupabase.auth.signOut).toHaveBeenCalled();
+    expect(clearSessionMetadata).toHaveBeenCalled();
   });
 });
