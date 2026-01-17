@@ -53,41 +53,6 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  // Check custom session expiry before Supabase session check
-  const sessionMetadataCookie = request.cookies.get('betterdays_session_metadata')?.value;
-  const sessionMetadata = parseSessionMetadataFromCookie(sessionMetadataCookie);
-  
-  // If we have session metadata and it's expired, force logout
-  if (sessionMetadata && isSessionExpiredFromMetadata(sessionMetadata)) {
-    // Clear the session
-    await supabase.auth.signOut();
-    
-    // Extract locale from path
-    const pathname = request.nextUrl.pathname;
-    const pathParts = pathname.split('/').filter(Boolean);
-    const firstPart = pathParts[0];
-    const isLocale = ['en', 'pt-BR'].includes(firstPart);
-    const locale = isLocale ? firstPart : 'en';
-    
-    // Redirect to login
-    const url = request.nextUrl.clone();
-    url.pathname = `/${locale}/login`;
-    const response = NextResponse.redirect(url);
-    
-    // IMPORTANT: Copy cookies from supabaseResponse to preserve auth cookie changes from signOut()
-    supabaseResponse.cookies.getAll().forEach(cookie => {
-      response.cookies.set(cookie);
-    });
-    
-    // Clear the session metadata cookie
-    response.cookies.set('betterdays_session_metadata', '', {
-      path: '/',
-      expires: new Date(0),
-    });
-    
-    return response;
-  }
-
   // Refresh session if expired
   const {
     data: { session },
@@ -98,6 +63,44 @@ export async function updateSession(request: NextRequest) {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
+
+  // Check custom session expiry AFTER getUser() to follow Supabase SSR best practices
+  // Only check if there's an active user session
+  if (user) {
+    const sessionMetadataCookie = request.cookies.get('betterdays_session_metadata')?.value;
+    const sessionMetadata = parseSessionMetadataFromCookie(sessionMetadataCookie);
+    
+    // If we have session metadata and it's expired, force logout
+    if (sessionMetadata && isSessionExpiredFromMetadata(sessionMetadata)) {
+      // Clear the session
+      await supabase.auth.signOut();
+      
+      // Extract locale from path
+      const pathname = request.nextUrl.pathname;
+      const pathParts = pathname.split('/').filter(Boolean);
+      const firstPart = pathParts[0];
+      const isLocale = ['en', 'pt-BR'].includes(firstPart);
+      const locale = isLocale ? firstPart : 'en';
+      
+      // Redirect to login
+      const url = request.nextUrl.clone();
+      url.pathname = `/${locale}/login`;
+      const response = NextResponse.redirect(url);
+      
+      // IMPORTANT: Copy cookies from supabaseResponse to preserve auth cookie changes from signOut()
+      supabaseResponse.cookies.getAll().forEach(cookie => {
+        response.cookies.set(cookie);
+      });
+      
+      // Clear the session metadata cookie
+      response.cookies.set('betterdays_session_metadata', '', {
+        path: '/',
+        expires: new Date(0),
+      });
+      
+      return response;
+    }
+  }
 
   // Extract locale from path
   const pathname = request.nextUrl.pathname;
@@ -125,7 +128,14 @@ export async function updateSession(request: NextRequest) {
       url.searchParams.set('invite', inviteCode);
     }
     
-    return NextResponse.redirect(url);
+    const response = NextResponse.redirect(url);
+    
+    // IMPORTANT: Copy cookies from supabaseResponse to preserve session state
+    supabaseResponse.cookies.getAll().forEach(cookie => {
+      response.cookies.set(cookie);
+    });
+    
+    return response;
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
