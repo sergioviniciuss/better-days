@@ -38,7 +38,8 @@
     "emailInvalid": "Por favor insira um endereço de e-mail válido",
     "creatingAccount": "Criando conta...",
     "signingIn": "Entrando...",
-    "loggingOut": "Saindo..."
+    "loggingOut": "Saindo...",
+    "keepMeLoggedIn": "Manter conectado por 30 dias"
   },
   "dashboard": {
     "title": "Painel",

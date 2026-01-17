@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { signUp } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { setSessionMetadata, clearSessionMetadata, type SessionDurationType } from '@/lib/session-storage';
 
 interface LoginFormProps {
   returnUrl?: string;
@@ -22,6 +23,7 @@ export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMismatch, setPasswordMismatch] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true); // Default: checked
   
   // Get returnUrl or invite code from sessionStorage
   const getReturnInfo = () => {
@@ -112,6 +114,9 @@ export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode
           return;
         }
         
+        // For signup, set default session metadata (remember_me since user just signed up)
+        setSessionMetadata('remember_me');
+        
         // After signup, redirect to onboarding
         await new Promise(resolve => setTimeout(resolve, 100));
         window.location.href = `/${locale}/onboarding`;
@@ -120,6 +125,9 @@ export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode
         const supabase = createClient();
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
+        
+        // Determine session duration based on Remember Me checkbox
+        const durationType: SessionDurationType = rememberMe ? 'remember_me' : 'default';
         
         const { data, error: signInError } = await supabase.auth.signInWithPassword({
           email,
@@ -130,6 +138,11 @@ export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode
           setError(signInError.message);
           setLoading(false);
           return;
+        }
+        
+        // Store session metadata for custom expiry tracking
+        if (data.session) {
+          setSessionMetadata(durationType);
         }
         
         // Check if user has completed onboarding
@@ -267,6 +280,22 @@ export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode
           </div>
         )}
       </div>
+
+      {!isSignUp && (
+        <div className="flex items-center">
+          <input
+            id="remember-me"
+            name="remember-me"
+            type="checkbox"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+            {t('keepMeLoggedIn')}
+          </label>
+        </div>
+      )}
 
       <div>
         <button
