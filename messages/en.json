@@ -14,7 +14,134 @@
     "previous": "Previous",
     "submit": "Submit",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "of": "of"
+  },
+  "achievements": {
+    "title": "Achievements",
+    "subtitle": "Earn badges by reaching milestones and completing challenges",
+    "earned": "Earned",
+    "locked": "Locked",
+    "progress": "Progress",
+    "newAchievement": "New Achievement Unlocked!",
+    "congratulations": "Congratulations!",
+    "earnedOn": "Earned",
+    "viewAll": "View All",
+    "viewAllBadges": "View All Badges",
+    "viewAllAchievements": "View All Achievements",
+    "multipleAchievementsUnlocked": "{count} New Achievements Unlocked!",
+    "andMoreAchievements": "and {count} more achievement(s)!",
+    "noAchievementsYet": "Start completing challenges to earn achievements!",
+    "total": "Total",
+    "completion": "Completion",
+    "badgesLabel": "Badges",
+    "mostRecent": "Most Recent",
+    "category": "Category",
+    "tier": "Tier",
+    "allCategories": "All Categories",
+    "allTiers": "All Tiers",
+    "showOnlyEarned": "Earned only",
+    "noResults": "No achievements match your filters",
+    "categories": {
+      "streak": "Streak Milestones",
+      "consistency": "Consistency",
+      "social": "Social",
+      "challenge": "Challenge"
+    },
+    "badges": {
+      "streak_3": {
+        "name": "Star",
+        "description": "Reach a 3-day streak"
+      },
+      "streak_5": {
+        "name": "Superstar",
+        "description": "Reach a 5-day streak"
+      },
+      "streak_7": {
+        "name": "Champion",
+        "description": "Reach a 7-day streak"
+      },
+      "streak_14": {
+        "name": "Two Weeks Strong",
+        "description": "Reach a 14-day streak"
+      },
+      "streak_21": {
+        "name": "Three Week Warrior",
+        "description": "Reach a 21-day streak"
+      },
+      "streak_30": {
+        "name": "Icon",
+        "description": "Reach a 30-day streak"
+      },
+      "streak_60": {
+        "name": "Two Month Master",
+        "description": "Reach a 60-day streak"
+      },
+      "streak_90": {
+        "name": "Quarter Year Hero",
+        "description": "Reach a 90-day streak"
+      },
+      "streak_180": {
+        "name": "Half Year Legend",
+        "description": "Reach a 180-day streak"
+      },
+      "streak_365": {
+        "name": "Year Champion",
+        "description": "Reach a 365-day streak"
+      },
+      "best_streak_7": {
+        "name": "Best: Week",
+        "description": "Achieve a best streak of 7 days"
+      },
+      "best_streak_30": {
+        "name": "Best: Month",
+        "description": "Achieve a best streak of 30 days"
+      },
+      "best_streak_90": {
+        "name": "Best: Quarter",
+        "description": "Achieve a best streak of 90 days"
+      },
+      "best_streak_365": {
+        "name": "Best: Year",
+        "description": "Achieve a best streak of 365 days"
+      },
+      "perfect_week": {
+        "name": "Perfect Week",
+        "description": "Complete 7 consecutive days"
+      },
+      "perfect_month": {
+        "name": "Perfect Month",
+        "description": "Complete 30 consecutive days"
+      },
+      "century_club": {
+        "name": "Century Club",
+        "description": "Reach 100 total confirmed days"
+      },
+      "500_club": {
+        "name": "500 Club",
+        "description": "Reach 500 total confirmed days"
+      },
+      "first_steps": {
+        "name": "First Steps",
+        "description": "Complete your first day"
+      },
+      "challenge_complete": {
+        "name": "Challenge Complete",
+        "description": "Finish a challenge with a due date"
+      },
+      "group_leader": {
+        "name": "Group Leader",
+        "description": "Create your first group challenge"
+      },
+      "team_player": {
+        "name": "Team Player",
+        "description": "Join 3 group challenges"
+      },
+      "active_community": {
+        "name": "Active Community",
+        "description": "Join a challenge with 5+ members"
+      }
+    }
   },
   "auth": {
     "login": "Login",

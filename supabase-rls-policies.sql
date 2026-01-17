@@ -1,4 +1,5 @@
 -- Enable Row Level Security on all tables
+-- Note: Achievement-related RLS policies are in fix-rls-final.sql
 ALTER TABLE "User" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "DailyLog" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Challenge" ENABLE ROW LEVEL SECURITY;
@@ -191,4 +192,5 @@ ON "Invite"
 FOR SELECT
 USING (true);
 
-
+-- Achievement and UserAchievement RLS policies
+-- See: add-achievement-rls-policies.sql

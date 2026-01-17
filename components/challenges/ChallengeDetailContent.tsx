@@ -60,6 +60,7 @@ interface LeaderboardEntry {
   role?: string;
   isAdmin?: boolean;
   activeDays?: number;
+  totalAchievements?: number;
 }
 
 interface DailyLog {
@@ -327,6 +328,9 @@ export function ChallengeDetailContent({
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   {t('user')}
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {t('achievements', { defaultValue: 'Badges' })}
+                </th>
                 {isFitnessChallenge && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     {t('activeDays')}
@@ -363,6 +367,11 @@ export function ChallengeDetailContent({
                     {entry.userId === user.id && (
                       <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">({t('you')})</span>
                     )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
+                      🏆 {entry.totalAchievements || 0}
+                    </span>
                   </td>
                   {isFitnessChallenge && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">

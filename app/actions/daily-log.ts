@@ -5,6 +5,7 @@ import { getCurrentUser } from './auth';
 import { getTodayInTimezone } from '@/lib/date-utils';
 import { revalidatePath } from 'next/cache';
 import { hasUnacknowledgedRuleChanges } from './challenge';
+import { checkAndAwardAchievements } from '@/lib/achievement-detector';
 
 export async function confirmDay(date: string, consumedSugar: boolean, challengeId: string) {
   const user = await getCurrentUser();
@@ -68,10 +69,32 @@ export async function confirmDay(date: string, consumedSugar: boolean, challenge
       return { error: `Failed to confirm day: ${error.message}` };
     }
 
+    // Check and award achievements after successful confirmation
+    let newAchievements: any[] = [];
+    try {
+      newAchievements = await checkAndAwardAchievements({
+        userId: user.id,
+        context: 'daily_confirmation',
+        challengeId,
+        timezone: user.timezone,
+      });
+    } catch (achievementError) {
+      // Don't fail the confirmation if achievement check fails
+      console.error('Error checking achievements:', achievementError);
+    }
+
     revalidatePath('/dashboard');
     revalidatePath('/history');
     revalidatePath(`/challenges/${challengeId}`);
-    return { success: true, log: data };
+    return { 
+      success: true, 
+      log: data,
+      newAchievements: newAchievements.map(a => ({
+        ...a.achievement,
+        userAchievementId: a.userAchievementId,
+        earnedAt: new Date().toISOString(),
+      })),
+    };
   } catch (error) {
     console.error('Error confirming day:', error);
     return { error: 'Failed to confirm day' };
