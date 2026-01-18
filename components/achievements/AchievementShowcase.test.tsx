@@ -49,7 +49,7 @@ const mockAchievements = [
 ];
 
 describe('AchievementShowcase', () => {
-  const renderShowcase = (props: any) => {
+  const renderShowcase = (props?: any) => {
     return render(
       <NextIntlClientProvider locale="en" messages={messages}>
         <AchievementShowcase
