@@ -84,6 +84,7 @@ export const AchievementsContent = ({
     if (filteredAchievements.length > 0) {
       loadProgress();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredAchievements.length, userId, userTimezone]);
 
   return (

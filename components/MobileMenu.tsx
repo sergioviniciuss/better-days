@@ -6,13 +6,14 @@ import { signOut } from '@/app/actions/auth';
 import { useTranslations } from 'next-intl';
 
 interface MobileMenuProps {
-  navItems: Array<{ href: string; label: string }>;
+  navItems: Array<{ href: string; label: string; isNew?: boolean }>;
   userEmail?: string | null;
   pathname: string;
 }
 
 export function MobileMenu({ navItems, userEmail, pathname }: MobileMenuProps) {
   const t = useTranslations('auth');
+  const tCommon = useTranslations('common');
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -134,18 +135,24 @@ export function MobileMenu({ navItems, userEmail, pathname }: MobileMenuProps) {
           {/* Navigation Links */}
           <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsOpen(false)}
-                className={`block px-3 py-3 rounded-md text-base font-medium min-h-[44px] flex items-center ${
-                  pathname === item.href
-                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                {item.label}
-              </Link>
+              <div key={item.href} className="relative">
+                <Link
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-3 py-3 rounded-md text-base font-medium min-h-[44px] ${
+                    pathname === item.href
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+                {item.isNew && (
+                  <span className="absolute top-3 right-3 px-1 py-0 text-[10px] font-semibold rounded bg-green-600 text-white leading-tight">
+                    {tCommon('new')}
+                  </span>
+                )}
+              </div>
             ))}
           </nav>
 

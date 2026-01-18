@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { UserProfileMenu } from './UserProfileMenu';
 import { MobileMenu } from './MobileMenu';
@@ -15,15 +16,34 @@ export function Navigation({ userEmail }: NavigationProps) {
   const tDashboard = useTranslations('dashboard');
   const tHistory = useTranslations('history');
   const tChallenges = useTranslations('challenges');
+  const tAchievements = useTranslations('achievements');
+  const tCommon = useTranslations('common');
   const pathname = usePathname();
+  const [showAchievementsBadge, setShowAchievementsBadge] = useState(false);
+  
   // Parse locale from pathname - more reliable than useParams() which can fail during SSR
   const locale = pathname.split('/')[1] || 'en';
+
+  // Check if user has visited achievements page
+  useEffect(() => {
+    const hasVisitedAchievements = localStorage.getItem('achievements_visited');
+    setShowAchievementsBadge(!hasVisitedAchievements);
+  }, []);
+
+  // Mark achievements as visited when user navigates to it
+  useEffect(() => {
+    if (pathname.includes('/achievements')) {
+      localStorage.setItem('achievements_visited', 'true');
+      setShowAchievementsBadge(false);
+    }
+  }, [pathname]);
 
   // Only create navItems if user is authenticated
   const navItems = userEmail ? [
     { href: `/${locale}/dashboard`, label: tDashboard('title') },
     { href: `/${locale}/history`, label: tHistory('title') },
     { href: `/${locale}/challenges`, label: tChallenges('title') },
+    { href: `/${locale}/achievements`, label: tAchievements('title'), isNew: showAchievementsBadge },
   ] : [];
 
   return (
@@ -37,17 +57,23 @@ export function Navigation({ userEmail }: NavigationProps) {
             {userEmail && (
               <div className="hidden md:flex space-x-4">
                 {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`px-3 py-2 rounded-md text-sm font-medium min-h-[44px] flex items-center ${
-                      pathname === item.href
-                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
+                  <div key={item.href} className="relative">
+                    <Link
+                      href={item.href}
+                      className={`px-3 py-2 rounded-md text-sm font-medium min-h-[44px] flex items-center ${
+                        pathname === item.href
+                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                    {item.isNew && (
+                      <span className="absolute -top-1.5 -right-1.5 px-1 py-0 text-[10px] font-semibold rounded bg-green-600 text-white whitespace-nowrap leading-tight">
+                        {tCommon('new')}
+                      </span>
+                    )}
+                  </div>
                 ))}
               </div>
             )}
