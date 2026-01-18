@@ -1,6 +1,7 @@
 import { getCurrentUser } from '@/app/actions/auth';
 import { getDailyLogs } from '@/app/actions/daily-log';
 import { getChallenges } from '@/app/actions/challenge';
+import { getRecentAchievements, getAchievementStats } from '@/app/actions/achievement';
 import { redirect } from 'next/navigation';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
 import { getTodayInTimezone } from '@/lib/date-utils';
@@ -25,9 +26,27 @@ export default async function DashboardPage({
   // Get challenges passing user to avoid redundant getCurrentUser call
   const { challenges } = await getChallenges(false, user);
 
+  // Fetch achievement data
+  const { achievements: recentAchievements } = await getRecentAchievements(user.id, 5);
+  const { stats: achievementStats } = await getAchievementStats(user.id);
+
   // Handle empty challenges case
   if (!challenges || challenges.length === 0) {
-    return <DashboardContent user={user} challengesWithLogs={[]} />;
+    return (
+      <DashboardContent 
+        user={user} 
+        challengesWithLogs={[]} 
+        recentAchievements={recentAchievements || []}
+        achievementStats={achievementStats || {
+          totalEarned: 0,
+          totalAvailable: 0,
+          percentage: 0,
+          byTier: { BRONZE: 0, SILVER: 0, GOLD: 0, PLATINUM: 0, LEGENDARY: 0 },
+          mostRecent: null,
+        }}
+        locale={locale}
+      />
+    );
   }
 
   // OPTIMIZED: Fetch ALL logs in ONE query instead of per-challenge
@@ -49,6 +68,20 @@ export default async function DashboardPage({
     };
   });
 
-  return <DashboardContent user={user} challengesWithLogs={challengesWithLogs} />;
+  return (
+    <DashboardContent 
+      user={user} 
+      challengesWithLogs={challengesWithLogs} 
+      recentAchievements={recentAchievements || []}
+      achievementStats={achievementStats || {
+        totalEarned: 0,
+        totalAvailable: 0,
+        percentage: 0,
+        byTier: { BRONZE: 0, SILVER: 0, GOLD: 0, PLATINUM: 0, LEGENDARY: 0 },
+        mostRecent: null,
+      }}
+      locale={locale}
+    />
+  );
 }
 

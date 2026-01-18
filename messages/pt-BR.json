@@ -14,7 +14,134 @@
     "previous": "Anterior",
     "submit": "Enviar",
     "yes": "Sim",
-    "no": "Não"
+    "no": "Não",
+    "of": "de"
+  },
+  "achievements": {
+    "title": "Conquistas",
+    "subtitle": "Ganhe badges alcançando marcos e completando desafios",
+    "earned": "Conquistadas",
+    "locked": "Bloqueadas",
+    "progress": "Progresso",
+    "newAchievement": "Nova Conquista Desbloqueada!",
+    "congratulations": "Parabéns!",
+    "earnedOn": "Conquistada",
+    "viewAll": "Ver conquistas",
+    "viewAllBadges": "Ver todas as conquistas",
+    "viewAllAchievements": "Ver Todas as Conquistas",
+    "multipleAchievementsUnlocked": "{count} Novas Conquistas Desbloqueadas!",
+    "andMoreAchievements": "e mais {count} conquista(s)!",
+    "noAchievementsYet": "Comece a completar desafios para ganhar conquistas!",
+    "total": "Total",
+    "completion": "Conclusão",
+    "badgesLabel": "conquistas",
+    "mostRecent": "Mais Recente",
+    "category": "Categoria",
+    "tier": "Nível",
+    "allCategories": "Todas as Categorias",
+    "allTiers": "Todos os Níveis",
+    "showOnlyEarned": "Apenas conquistadas",
+    "noResults": "Nenhuma conquista corresponde aos seus filtros",
+    "categories": {
+      "streak": "Marcos de Sequência",
+      "consistency": "Consistência",
+      "social": "Social",
+      "challenge": "Desafio"
+    },
+    "badges": {
+      "streak_3": {
+        "name": "Estrela",
+        "description": "Alcance uma sequência de 3 dias"
+      },
+      "streak_5": {
+        "name": "Superestrela",
+        "description": "Alcance uma sequência de 5 dias"
+      },
+      "streak_7": {
+        "name": "Campeão",
+        "description": "Alcance uma sequência de 7 dias"
+      },
+      "streak_14": {
+        "name": "Duas Semanas Forte",
+        "description": "Alcance uma sequência de 14 dias"
+      },
+      "streak_21": {
+        "name": "Guerreiro de Três Semanas",
+        "description": "Alcance uma sequência de 21 dias"
+      },
+      "streak_30": {
+        "name": "Ícone",
+        "description": "Alcance uma sequência de 30 dias"
+      },
+      "streak_60": {
+        "name": "Mestre de Dois Meses",
+        "description": "Alcance uma sequência de 60 dias"
+      },
+      "streak_90": {
+        "name": "Herói de Três Meses",
+        "description": "Alcance uma sequência de 90 dias"
+      },
+      "streak_180": {
+        "name": "Lenda de Meio Ano",
+        "description": "Alcance uma sequência de 180 dias"
+      },
+      "streak_365": {
+        "name": "Campeão do Ano",
+        "description": "Alcance uma sequência de 365 dias"
+      },
+      "best_streak_7": {
+        "name": "Melhor: Semana",
+        "description": "Alcance uma melhor sequência de 7 dias"
+      },
+      "best_streak_30": {
+        "name": "Melhor: Mês",
+        "description": "Alcance uma melhor sequência de 30 dias"
+      },
+      "best_streak_90": {
+        "name": "Melhor: Trimestre",
+        "description": "Alcance uma melhor sequência de 90 dias"
+      },
+      "best_streak_365": {
+        "name": "Melhor: Ano",
+        "description": "Alcance uma melhor sequência de 365 dias"
+      },
+      "perfect_week": {
+        "name": "Semana Perfeita",
+        "description": "Complete 7 dias consecutivos"
+      },
+      "perfect_month": {
+        "name": "Mês Perfeito",
+        "description": "Complete 30 dias consecutivos"
+      },
+      "century_club": {
+        "name": "Clube dos 100",
+        "description": "Alcance 100 dias confirmados no total"
+      },
+      "500_club": {
+        "name": "Clube dos 500",
+        "description": "Alcance 500 dias confirmados no total"
+      },
+      "first_steps": {
+        "name": "Primeiros Passos",
+        "description": "Complete seu primeiro dia"
+      },
+      "challenge_complete": {
+        "name": "Desafio Completo",
+        "description": "Termine um desafio com data de término"
+      },
+      "group_leader": {
+        "name": "Líder de Grupo",
+        "description": "Crie seu primeiro desafio em grupo"
+      },
+      "team_player": {
+        "name": "Jogador de Equipe",
+        "description": "Participe de 3 desafios em grupo"
+      },
+      "active_community": {
+        "name": "Comunidade Ativa",
+        "description": "Participe de um desafio com 5+ membros"
+      }
+    }
   },
   "auth": {
     "login": "Entrar",
@@ -151,6 +278,7 @@
     "pendingDays": "Dias Pendentes",
     "rank": "Posição",
     "user": "Usuário",
+    "achievements": "Conquistas",
     "today": "Hoje",
     "confirmedToday": "Confirmado Hoje",
     "notConfirmedToday": "Não Confirmado Hoje",

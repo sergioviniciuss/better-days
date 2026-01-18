@@ -11,16 +11,19 @@ datasource db {
 }
 
 model User {
-  id                     String   @id
-  email                  String   @unique
-  timezone               String   @default("UTC")
-  preferredLanguage      String   @default("en")
-  hasCompletedOnboarding Boolean  @default(false)
-  createdAt              DateTime @default(now())
+  id                     String    @id
+  email                  String    @unique
+  timezone               String    @default("UTC")
+  preferredLanguage      String    @default("en")
+  hasCompletedOnboarding Boolean   @default(false)
+  totalAchievements      Int       @default(0)
+  lastAchievementAt      DateTime?
+  createdAt              DateTime  @default(now())
 
   dailyLogs        DailyLog[]
-  ownedChallenges  Challenge[] @relation("ChallengeOwner")
+  ownedChallenges  Challenge[]         @relation("ChallengeOwner")
   challengeMembers ChallengeMember[]
+  achievements     UserAchievement[]
 }
 
 model DailyLog {
@@ -54,10 +57,11 @@ model Challenge {
   rulesUpdatedAt DateTime? // Timestamp when rules were last updated by admin
   createdAt     DateTime  @default(now())
 
-  owner         User      @relation("ChallengeOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
-  members       ChallengeMember[]
-  invites       Invite[]
-  dailyLogs     DailyLog[]
+  owner            User              @relation("ChallengeOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  members          ChallengeMember[]
+  invites          Invite[]
+  dailyLogs        DailyLog[]
+  userAchievements UserAchievement[]
 }
 
 model ChallengeMember {
@@ -66,6 +70,7 @@ model ChallengeMember {
   userId                    String
   role                      String    @default("MEMBER") // "OWNER" | "MEMBER"
   status                    String    @default("ACTIVE") // "ACTIVE" | "LEFT"
+  totalAchievements         Int       @default(0)
   joinedAt                  DateTime  @default(now())
   leftAt                    DateTime?
   lastAcknowledgedRulesAt   DateTime? // Timestamp when member last acknowledged rule changes
@@ -89,4 +94,43 @@ model Invite {
 
   @@index([code])
   @@index([challengeId])
+}
+
+model Achievement {
+  id          String   @id
+  code        String   @unique
+  category    String   // "STREAK" | "CONSISTENCY" | "SOCIAL" | "CHALLENGE"
+  tier        String   // "BRONZE" | "SILVER" | "GOLD" | "PLATINUM" | "LEGENDARY"
+  name        String
+  description String
+  iconEmoji   String
+  requirement Json     // { type: string, value: number, challengeType?: string }
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  userAchievements UserAchievement[]
+
+  @@index([code])
+  @@index([category])
+}
+
+model UserAchievement {
+  id            String    @id @default(uuid())
+  userId        String
+  achievementId String
+  challengeId   String?
+  earnedAt      DateTime  @default(now())
+  viewedAt      DateTime?
+  progress      Int?
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  challenge   Challenge?  @relation(fields: [challengeId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+  @@index([challengeId])
+  @@index([earnedAt])
 }

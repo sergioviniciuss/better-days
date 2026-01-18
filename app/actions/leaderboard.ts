@@ -112,6 +112,7 @@ export async function getChallengeLeaderboard(challengeId: string, providedUser?
           role: member.role || 'MEMBER',
           isAdmin: member.role === 'OWNER',
           activeDays,
+          totalAchievements: member.totalAchievements || 0,
         };
       });
 

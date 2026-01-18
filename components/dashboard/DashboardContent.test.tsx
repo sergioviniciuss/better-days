@@ -95,8 +95,24 @@ describe('DashboardContent', () => {
     },
   ];
 
+  const mockAchievementStats = {
+    totalEarned: 0,
+    totalAvailable: 23,
+    percentage: 0,
+    byTier: { BRONZE: 0, SILVER: 0, GOLD: 0, PLATINUM: 0, LEGENDARY: 0 },
+    mostRecent: null,
+  };
+
   it('should render all challenges in a single list', async () => {
-    render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
+    render(
+      <DashboardContent 
+        user={mockUser} 
+        challengesWithLogs={mockChallengesWithLogs}
+        recentAchievements={[]}
+        achievementStats={mockAchievementStats}
+        locale="en"
+      />
+    );
     await waitFor(() => {
       expect(screen.getByTestId('challenge-card')).toBeInTheDocument();
       expect(screen.getByText('No Sugar Challenge')).toBeInTheDocument();
@@ -104,21 +120,45 @@ describe('DashboardContent', () => {
   });
 
   it('should display current streak in challenge card', async () => {
-    render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
+    render(
+      <DashboardContent 
+        user={mockUser} 
+        challengesWithLogs={mockChallengesWithLogs}
+        recentAchievements={[]}
+        achievementStats={mockAchievementStats}
+        locale="en"
+      />
+    );
     await waitFor(() => {
       expect(screen.getByText(/5/)).toBeInTheDocument();
     });
   });
 
   it('should display best streak in challenge card', async () => {
-    render(<DashboardContent user={mockUser} challengesWithLogs={mockChallengesWithLogs} />);
+    render(
+      <DashboardContent 
+        user={mockUser} 
+        challengesWithLogs={mockChallengesWithLogs}
+        recentAchievements={[]}
+        achievementStats={mockAchievementStats}
+        locale="en"
+      />
+    );
     await waitFor(() => {
       expect(screen.getByText(/10/)).toBeInTheDocument();
     });
   });
 
   it('should show empty state when no challenges exist', async () => {
-    render(<DashboardContent user={mockUser} challengesWithLogs={[]} />);
+    render(
+      <DashboardContent 
+        user={mockUser} 
+        challengesWithLogs={[]}
+        recentAchievements={[]}
+        achievementStats={mockAchievementStats}
+        locale="en"
+      />
+    );
     await waitFor(() => {
       expect(screen.getByText('noChallenges')).toBeInTheDocument();
     });

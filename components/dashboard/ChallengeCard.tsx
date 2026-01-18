@@ -16,6 +16,7 @@ import { QuitChallengeModal } from '@/components/challenges/QuitChallengeModal';
 import { hasUnacknowledgedRuleChanges } from '@/app/actions/challenge';
 import { ProgressRing } from './ProgressRing';
 import { calculateActiveDays } from '@/lib/challenge-progress';
+import { AchievementUnlockedNotification } from '@/components/achievements/AchievementUnlockedNotification';
 
 interface ChallengeCardProps {
   challenge: {
@@ -71,6 +72,7 @@ export function ChallengeCard({
   const [loading, setLoading] = useState(false);
   const [showStopModal, setShowStopModal] = useState(false);
   const [showQuitModal, setShowQuitModal] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<any[]>([]);
 
   // Check if current user is admin
   const userMembership = challenge.members?.find(m => m.userId === userId);
@@ -133,10 +135,23 @@ export function ChallengeCard({
     
     const result = await confirmDay(today, consumedSugar, challenge.id);
     
+    // Handle undefined result
+    if (!result) {
+      console.error('Failed to confirm: No response from server');
+      alert('Failed to confirm: Server error');
+      setLoading(false);
+      return;
+    }
+    
     if (result.success) {
       setTodayLog(result.log);
       // Clear reminder when user confirms today
       clearReminder(challenge.id);
+      
+      // Show new achievement notifications if any
+      if (result.newAchievements && result.newAchievements.length > 0) {
+        setNewAchievements(result.newAchievements);
+      }
       
       // Check if there are pending days after confirming today
       // Recalculate pending days with the new log
@@ -181,8 +196,21 @@ export function ChallengeCard({
     }
   };
 
+  const handleCloseAchievementNotification = () => {
+    // Clear all achievements at once
+    setNewAchievements([]);
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 mb-6">
+      {/* Achievement notifications */}
+      {newAchievements.length > 0 && (
+        <AchievementUnlockedNotification
+          achievements={newAchievements}
+          onClose={handleCloseAchievementNotification}
+          locale={locale}
+        />
+      )}
       {/* Challenge Name and Icon */}
       <div className="mb-4">
         {/* Single row: Icon + Title (left) | Code + Badge (right) */}

@@ -8,6 +8,10 @@ import { detectPendingDays, groupPendingDaysByObjective, getTodayInTimezone } fr
 import { GroupedPendingDaysModal } from './GroupedPendingDaysModal';
 import { checkReminder, setReminder } from '@/lib/reminder-utils';
 import type { GroupedPendingDays } from '@/lib/streak-utils';
+import { AchievementShowcase } from '@/components/achievements/AchievementShowcase';
+import { AchievementUnlockedNotification } from '@/components/achievements/AchievementUnlockedNotification';
+import { getUnviewedAchievements } from '@/app/actions/achievement';
+import type { AchievementDefinition, AchievementTier } from '@/lib/achievement-types';
 
 interface User {
   id: string;
@@ -46,12 +50,32 @@ interface ChallengeWithLogs {
 interface DashboardContentProps {
   user: User;
   challengesWithLogs: ChallengeWithLogs[];
+  recentAchievements: Array<AchievementDefinition & {
+    earned: boolean;
+    earnedAt?: Date | string | null;
+  }>;
+  achievementStats: {
+    totalEarned: number;
+    totalAvailable: number;
+    percentage: number;
+    byTier: Record<AchievementTier, number>;
+    mostRecent: any;
+  };
+  locale: string;
 }
 
-export function DashboardContent({ user, challengesWithLogs }: DashboardContentProps) {
+export function DashboardContent({ 
+  user, 
+  challengesWithLogs, 
+  recentAchievements,
+  achievementStats,
+  locale,
+}: DashboardContentProps) {
   const t = useTranslations('dashboard');
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [activeObjectiveGroup, setActiveObjectiveGroup] = useState<string | null>(null);
+  const [unviewedAchievements, setUnviewedAchievements] = useState<any[]>([]);
+  const [showAchievementShowcase, setShowAchievementShowcase] = useState(true);
 
   // Create todayLogs Map
   const todayLogs = new Map(
@@ -77,6 +101,27 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
     challengesWithPending,
     user.timezone
   );
+
+  // Load unviewed achievements on mount
+  useEffect(() => {
+    const loadUnviewedAchievements = async () => {
+      const { achievements } = await getUnviewedAchievements(user.id);
+      if (achievements && achievements.length > 0) {
+        setUnviewedAchievements(achievements);
+      }
+    };
+    loadUnviewedAchievements();
+  }, [user.id]);
+
+  // Check localStorage for achievement showcase dismissal
+  useEffect(() => {
+    const lastSeenCount = localStorage.getItem('achievementShowcaseLastCount');
+    if (lastSeenCount !== null) {
+      const lastCount = parseInt(lastSeenCount);
+      // Only show if user has earned new achievements
+      setShowAchievementShowcase(achievementStats.totalEarned > lastCount);
+    }
+  }, [achievementStats.totalEarned]);
 
   // Auto-open modal for first group with pending days
   useEffect(() => {
@@ -108,11 +153,30 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
     g => g.objectiveType === activeObjectiveGroup
   );
 
+  const handleCloseAchievementNotification = () => {
+    // Clear all achievements at once
+    setUnviewedAchievements([]);
+  };
+
+  const handleDismissShowcase = () => {
+    setShowAchievementShowcase(false);
+    localStorage.setItem('achievementShowcaseLastCount', achievementStats.totalEarned.toString());
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
         {t('title')}
       </h1>
+
+      {/* Achievement Unlocked Notification */}
+      {unviewedAchievements.length > 0 && (
+        <AchievementUnlockedNotification
+          achievements={unviewedAchievements}
+          onClose={handleCloseAchievementNotification}
+          locale={locale}
+        />
+      )}
 
       {/* Challenge Cards */}
       {challengesWithLogs.length > 0 ? (
@@ -154,6 +218,19 @@ export function DashboardContent({ user, challengesWithLogs }: DashboardContentP
               {t('createChallenge')}
             </Link>
           </div>
+        </div>
+      )}
+
+      {/* Achievement Showcase */}
+      {showAchievementShowcase && (recentAchievements.length > 0 || achievementStats.totalEarned > 0) && (
+        <div className="mb-6">
+          <AchievementShowcase
+            recentAchievements={recentAchievements}
+            totalEarned={achievementStats.totalEarned}
+            totalAvailable={achievementStats.totalAvailable}
+            locale={locale}
+            onDismiss={handleDismissShowcase}
+          />
         </div>
       )}
 
