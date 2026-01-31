@@ -55,6 +55,10 @@ model Challenge {
   shortId       String    @unique // 8-char unique ID like "A3F2B1C9"
   status        String    @default("ACTIVE") // "ACTIVE" | "ARCHIVED"
   rulesUpdatedAt DateTime? // Timestamp when rules were last updated by admin
+  visibility    String    @default("PRIVATE") // "PRIVATE" | "PUBLIC"
+  category      String?   // "MONTHLY" | "ANNUAL" | "LIFETIME"
+  isFeatured    Boolean   @default(false)
+  description   String?
   createdAt     DateTime  @default(now())
 
   owner            User              @relation("ChallengeOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)

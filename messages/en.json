@@ -463,6 +463,62 @@
     "adminWarning": "This will end the challenge for ALL participants",
     "archiveForAll": "Archive for Everyone"
   },
+  "navigation": {
+    "publicChallenges": "Public Challenges"
+  },
+  "publicChallenges": {
+    "title": "Public Challenges",
+    "subtitle": "Join open challenges and build better habits together.",
+    "tagline": "Become 1% better every day.",
+    "filter": {
+      "label": "Filter by challenge type",
+      "all": "All Challenges",
+      "noSugar": "Zero Sugar",
+      "zeroAlcohol": "Zero Alcohol",
+      "activeDays": "Active Days"
+    },
+    "categories": {
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "lifetime": "Lifetime"
+    },
+    "monthly": {
+      "title": "Monthly Challenges",
+      "subtitle": "Fresh starts. Same rules. Everyone begins this month.",
+      "endsIn": "Ends in {days} days"
+    },
+    "annual": {
+      "title": "Annual Challenges",
+      "subtitle": "Long-term consistency over the year."
+    },
+    "lifetime": {
+      "title": "Lifetime Challenges",
+      "subtitle": "Build habits that last."
+    },
+    "card": {
+      "participants": "{count} participants",
+      "startDate": "Started: {date}",
+      "endDate": "Ends: {date}",
+      "resetsOn": "Resets on: {date}",
+      "endsIn": "Ends in {days} days",
+      "joinChallenge": "Join Challenge",
+      "viewChallenge": "View Challenge",
+      "joining": "Joining...",
+      "publicBadge": "Public",
+      "groupBadge": "Group"
+    },
+    "leaderboard": {
+      "rank": "Rank",
+      "participant": "Participant",
+      "score": "Score",
+      "currentStreak": "Current Streak",
+      "bestStreak": "Best Streak"
+    },
+    "errors": {
+      "notAuthenticated": "Please log in to join challenges",
+      "joinFailed": "Failed to join challenge"
+    }
+  },
   "errors": {
     "generic": "Something went wrong",
     "notFound": "Not found",

@@ -6,6 +6,7 @@ import { signUp } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { setSessionMetadata, clearSessionMetadata, type SessionDurationType } from '@/lib/session-storage';
+import { joinPublicChallenge } from '@/app/actions/challenge';
 
 interface LoginFormProps {
   returnUrl?: string;
@@ -25,14 +26,15 @@ export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode
   const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [rememberMe, setRememberMe] = useState(true); // Default: checked
   
-  // Get returnUrl or invite code from sessionStorage
+  // Get returnUrl, invite code, or join challenge ID from sessionStorage
   const getReturnInfo = () => {
-    if (typeof window === 'undefined') return { returnUrl: null, inviteCode: null };
+    if (typeof window === 'undefined') return { returnUrl: null, inviteCode: null, joinChallengeId: null };
     
     const inviteCode = sessionStorage.getItem('pendingInviteCode');
     const returnUrl = sessionStorage.getItem('loginReturnUrl');
+    const joinChallengeId = sessionStorage.getItem('joinChallengeId');
     
-    return { returnUrl, inviteCode };
+    return { returnUrl, inviteCode, joinChallengeId };
   };
   
   // Store invite code and returnUrl in sessionStorage on mount
@@ -159,19 +161,37 @@ export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode
           // Wait a bit for session cookies to be fully established before redirecting
           await new Promise(resolve => setTimeout(resolve, 300));
           
-          // Get returnUrl or invite code from sessionStorage
-          const { returnUrl: storedReturnUrl, inviteCode: storedInviteCode } = getReturnInfo();
+          // Get returnUrl, invite code, or join challenge ID from sessionStorage
+          const { returnUrl: storedReturnUrl, inviteCode: storedInviteCode, joinChallengeId: storedJoinChallengeId } = getReturnInfo();
           
           // Wait for session to be established
           await new Promise(resolve => setTimeout(resolve, 300));
           
           if (!userData?.hasCompletedOnboarding) {
             // If onboarding not completed, go to onboarding first
-            // Keep pendingInviteCode in sessionStorage so OnboardingFlow can detect it
+            // Keep pendingInviteCode and joinChallengeId in sessionStorage so OnboardingFlow can detect it
             if (storedReturnUrl) {
               sessionStorage.removeItem('loginReturnUrl');
             }
             window.location.href = `/${locale}/onboarding`;
+          } else if (storedJoinChallengeId) {
+            // If join challenge ID is present, join the challenge then redirect to it
+            sessionStorage.removeItem('joinChallengeId');
+            if (storedReturnUrl) {
+              sessionStorage.removeItem('loginReturnUrl');
+            }
+            try {
+              const result = await joinPublicChallenge(storedJoinChallengeId);
+              if (result.success) {
+                window.location.href = `/${locale}/challenges/${storedJoinChallengeId}`;
+              } else {
+                // If join failed, redirect to public challenges page
+                window.location.href = `/${locale}/public-challenges`;
+              }
+            } catch (err) {
+              // On error, redirect to public challenges page
+              window.location.href = `/${locale}/public-challenges`;
+            }
           } else if (storedInviteCode) {
             // If invite code is present, redirect to join page
             sessionStorage.removeItem('pendingInviteCode');

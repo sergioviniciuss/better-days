@@ -17,6 +17,7 @@ export function Navigation({ userEmail }: NavigationProps) {
   const tHistory = useTranslations('history');
   const tChallenges = useTranslations('challenges');
   const tAchievements = useTranslations('achievements');
+  const tNavigation = useTranslations('navigation');
   const tCommon = useTranslations('common');
   const pathname = usePathname();
   const [showAchievementsBadge, setShowAchievementsBadge] = useState(false);
@@ -38,45 +39,49 @@ export function Navigation({ userEmail }: NavigationProps) {
     }
   }, [pathname]);
 
-  // Only create navItems if user is authenticated
+  // Create navItems - Public Challenges shown for all users
   const navItems = userEmail ? [
     { href: `/${locale}/dashboard`, label: tDashboard('title') },
     { href: `/${locale}/history`, label: tHistory('title') },
     { href: `/${locale}/challenges`, label: tChallenges('title') },
+    { href: `/${locale}/public-challenges`, label: tNavigation('publicChallenges') },
     { href: `/${locale}/achievements`, label: tAchievements('title'), isNew: showAchievementsBadge },
-  ] : [];
+  ] : [
+    { href: `/${locale}/public-challenges`, label: tNavigation('publicChallenges') },
+  ];
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
-            <Link href={`/${locale}/dashboard`} className="text-xl font-bold text-gray-900 dark:text-white">
+            <Link 
+              href={userEmail ? `/${locale}/dashboard` : `/${locale}/public-challenges`} 
+              className="text-xl font-bold text-gray-900 dark:text-white"
+            >
               Better Habits
             </Link>
-            {userEmail && (
-              <div className="hidden md:flex space-x-4">
-                {navItems.map((item) => (
-                  <div key={item.href} className="relative">
-                    <Link
-                      href={item.href}
-                      className={`px-3 py-2 rounded-md text-sm font-medium min-h-[44px] flex items-center ${
-                        pathname === item.href
-                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                    {item.isNew && (
-                      <span className="absolute -top-1.5 -right-1.5 px-1 py-0 text-[10px] font-semibold rounded bg-green-600 text-white whitespace-nowrap leading-tight">
-                        {tCommon('new')}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="hidden md:flex space-x-4">
+              {navItems.map((item) => (
+                <div key={item.href} className="relative">
+                  <Link
+                    href={item.href}
+                    className={`px-3 py-2 rounded-md text-sm font-medium min-h-[44px] flex items-center ${
+                      pathname === item.href
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                  {item.isNew && (
+                    <span className="absolute -top-1.5 -right-1.5 px-1 py-0 text-[10px] font-semibold rounded bg-green-600 text-white whitespace-nowrap leading-tight">
+                      {tCommon('new')}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
           <div className="flex items-center space-x-3">
             {/* Language Switcher - Visible on all screens */}
@@ -87,8 +92,8 @@ export function Navigation({ userEmail }: NavigationProps) {
               <UserProfileMenu userEmail={userEmail} />
             </div>
             
-            {/* Mobile: Hamburger Menu - Only show for authenticated users */}
-            {userEmail && (
+            {/* Mobile: Hamburger Menu - Show for all users if nav items exist */}
+            {navItems.length > 0 && (
               <MobileMenu navItems={navItems} userEmail={userEmail} pathname={pathname} />
             )}
           </div>

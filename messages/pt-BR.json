@@ -463,6 +463,62 @@
     "adminWarning": "Isso encerrará o desafio para TODOS os participantes",
     "archiveForAll": "Arquivar para Todos"
   },
+  "navigation": {
+    "publicChallenges": "Desafios Públicos"
+  },
+  "publicChallenges": {
+    "title": "Desafios Públicos",
+    "subtitle": "Participe de desafios abertos e construa melhores hábitos juntos.",
+    "tagline": "Torne-se 1% melhor a cada dia.",
+    "filter": {
+      "label": "Filtrar por tipo de desafio",
+      "all": "Todos os Desafios",
+      "noSugar": "Zero Açúcar",
+      "zeroAlcohol": "Zero Álcool",
+      "activeDays": "Dias Ativos"
+    },
+    "categories": {
+      "monthly": "Mensal",
+      "annual": "Anual",
+      "lifetime": "Vitalício"
+    },
+    "monthly": {
+      "title": "Desafios Mensais",
+      "subtitle": "Novos começos. Mesmas regras. Todos começam este mês.",
+      "endsIn": "Termina em {days} dias"
+    },
+    "annual": {
+      "title": "Desafios Anuais",
+      "subtitle": "Consistência de longo prazo ao longo do ano."
+    },
+    "lifetime": {
+      "title": "Desafios Vitalícios",
+      "subtitle": "Construa hábitos que duram."
+    },
+    "card": {
+      "participants": "{count} participantes",
+      "startDate": "Iniciado: {date}",
+      "endDate": "Termina: {date}",
+      "resetsOn": "Reinicia em: {date}",
+      "endsIn": "Termina em {days} dias",
+      "joinChallenge": "Entrar no Desafio",
+      "viewChallenge": "Ver Desafio",
+      "joining": "Entrando...",
+      "publicBadge": "Público",
+      "groupBadge": "Grupo"
+    },
+    "leaderboard": {
+      "rank": "Posição",
+      "participant": "Participante",
+      "score": "Pontuação",
+      "currentStreak": "Sequência Atual",
+      "bestStreak": "Melhor Sequência"
+    },
+    "errors": {
+      "notAuthenticated": "Por favor, faça login para participar dos desafios",
+      "joinFailed": "Falha ao entrar no desafio"
+    }
+  },
   "errors": {
     "generic": "Algo deu errado",
     "notFound": "Não encontrado",
