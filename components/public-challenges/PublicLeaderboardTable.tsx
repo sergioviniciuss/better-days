@@ -11,6 +11,11 @@ interface PublicLeaderboardTableProps {
 export const PublicLeaderboardTable = ({ entries, timeframe }: PublicLeaderboardTableProps) => {
   const t = useTranslations('publicChallenges');
 
+  // Dynamic column header based on timeframe
+  const scoreLabel = timeframe === 'LIFETIME' 
+    ? t('leaderboard.currentStreak')
+    : t('leaderboard.bestStreak');
+
   if (entries.length === 0) {
     return (
       <div className="text-center py-12">
@@ -23,6 +28,17 @@ export const PublicLeaderboardTable = ({ entries, timeframe }: PublicLeaderboard
 
   return (
     <div className="overflow-x-auto">
+      {/* Explanation */}
+      <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        {timeframe === 'LIFETIME' ? (
+          <p>{t('leaderboard.lifetimeExplanation')}</p>
+        ) : timeframe === 'YEAR' ? (
+          <p>{t('leaderboard.yearExplanation')}</p>
+        ) : (
+          <p>{t('leaderboard.monthExplanation')}</p>
+        )}
+      </div>
+      
       <table className="w-full">
         <thead className="bg-gray-50 dark:bg-gray-900">
           <tr>
@@ -33,7 +49,15 @@ export const PublicLeaderboardTable = ({ entries, timeframe }: PublicLeaderboard
               {t('leaderboard.participant')}
             </th>
             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              {t('leaderboard.days')}
+              {scoreLabel}
+            </th>
+            {timeframe !== 'LIFETIME' ? (
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                {t('leaderboard.currentStreak')}
+              </th>
+            ) : null}
+            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              {t('leaderboard.achievements')}
             </th>
           </tr>
         </thead>
@@ -58,6 +82,16 @@ export const PublicLeaderboardTable = ({ entries, timeframe }: PublicLeaderboard
               </td>
               <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900 dark:text-white">
                 {entry.score}
+              </td>
+              {timeframe !== 'LIFETIME' ? (
+                <td className="px-4 py-4 whitespace-nowrap text-right text-sm text-gray-600 dark:text-gray-400">
+                  {entry.currentStreak}
+                </td>
+              ) : null}
+              <td className="px-4 py-4 whitespace-nowrap text-right text-sm">
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+                  🏆 {entry.achievementCount}
+                </span>
               </td>
             </tr>
           ))}

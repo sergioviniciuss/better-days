@@ -7,17 +7,18 @@ import { PublicLeaderboardTable } from '@/components/public-challenges/PublicLea
 import type { Timeframe } from '@/lib/types/public-habit';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     locale: string;
     slug: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     timeframe?: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const habitDetail = await getPublicHabitDetail(params.slug, 'MONTH');
+  const resolvedParams = await params;
+  const habitDetail = await getPublicHabitDetail(resolvedParams.slug, 'MONTH');
   
   if (!habitDetail) {
     return {
@@ -32,15 +33,18 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function PublicHabitDetailPage({ params, searchParams }: PageProps) {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  
   // Parse timeframe from searchParams, default to MONTH
-  const timeframeParam = searchParams.timeframe?.toUpperCase();
+  const timeframeParam = resolvedSearchParams.timeframe?.toUpperCase();
   const timeframe: Timeframe = 
     timeframeParam === 'YEAR' || timeframeParam === 'LIFETIME' 
       ? timeframeParam 
       : 'MONTH';
 
   // Fetch habit detail with leaderboard for selected timeframe
-  const habitDetail = await getPublicHabitDetail(params.slug, timeframe);
+  const habitDetail = await getPublicHabitDetail(resolvedParams.slug, timeframe);
 
   if (!habitDetail) {
     notFound();
@@ -49,7 +53,7 @@ export default async function PublicHabitDetailPage({ params, searchParams }: Pa
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Section */}
-      <PublicHabitDetailHeader habit={habitDetail} />
+      <PublicHabitDetailHeader habit={habitDetail} hideButton={true} />
 
       {/* Leaderboard Section */}
       <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -57,7 +61,7 @@ export default async function PublicHabitDetailPage({ params, searchParams }: Pa
         <LeaderboardTabs 
           currentTimeframe={habitDetail.timeframe}
           slug={habitDetail.slug}
-          locale={params.locale}
+          locale={resolvedParams.locale}
         />
 
         {/* Leaderboard Table */}

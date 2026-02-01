@@ -13,6 +13,8 @@ export interface LeaderboardEntry {
   rank: number;
   displayName: string;
   score: number;
+  currentStreak: number;
+  achievementCount: number;
 }
 
 export interface PublicHabitListItem extends PublicHabit {

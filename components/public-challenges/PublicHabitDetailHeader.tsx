@@ -8,9 +8,10 @@ import type { PublicHabitDetail } from '@/lib/types/public-habit';
 
 interface PublicHabitDetailHeaderProps {
   habit: PublicHabitDetail;
+  hideButton?: boolean;
 }
 
-export const PublicHabitDetailHeader = ({ habit }: PublicHabitDetailHeaderProps) => {
+export const PublicHabitDetailHeader = ({ habit, hideButton = false }: PublicHabitDetailHeaderProps) => {
   const t = useTranslations('publicChallenges');
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -99,25 +100,27 @@ export const PublicHabitDetailHeader = ({ habit }: PublicHabitDetailHeaderProps)
             {t('participants', { count: habit.participantCount })}
           </p>
 
-          {/* CTA Button */}
-          <div>
-            <button
-              onClick={handleJoin}
-              disabled={buttonDisabled}
-              className={`px-6 py-2 rounded-md font-medium min-h-[44px] transition-colors ${
-                buttonDisabled
-                  ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }`}
-            >
-              {buttonText}
-            </button>
-            {error ? (
-              <p className="text-sm text-red-600 dark:text-red-400 mt-2">
-                {error}
-              </p>
-            ) : null}
-          </div>
+          {/* CTA Button - only show if not hidden and user is not a member */}
+          {!hideButton && !habit.isUserMember ? (
+            <div>
+              <button
+                onClick={handleJoin}
+                disabled={buttonDisabled}
+                className={`px-6 py-2 rounded-md font-medium min-h-[44px] transition-colors ${
+                  buttonDisabled
+                    ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                {buttonText}
+              </button>
+              {error ? (
+                <p className="text-sm text-red-600 dark:text-red-400 mt-2">
+                  {error}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

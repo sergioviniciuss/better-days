@@ -223,6 +223,17 @@ async function calculatePublicHabitLeaderboard(
       (log.challenge as any)?.objectiveType === habitObjectiveType
     );
 
+    // Fetch achievement counts for all members
+    const { data: achievementCounts } = await supabase
+      .from('UserAchievement')
+      .select('userId')
+      .in('userId', memberIds);
+
+    const achievementCountMap = new Map<string, number>();
+    (achievementCounts || []).forEach(ac => {
+      achievementCountMap.set(ac.userId, (achievementCountMap.get(ac.userId) || 0) + 1);
+    });
+
     // Calculate scores per user
     const scores = members
       .filter(m => m.user)
@@ -251,6 +262,9 @@ async function calculatePublicHabitLeaderboard(
         return {
           userId: member.userId,
           score,
+          currentStreak,
+          bestStreak,
+          achievementCount: achievementCountMap.get(member.userId) || 0,
           displayName: (member.user as any)?.email || 'Anonymous',
         };
       });
@@ -263,6 +277,8 @@ async function calculatePublicHabitLeaderboard(
       rank: index + 1,
       displayName: entry.displayName,
       score: entry.score,
+      currentStreak: entry.currentStreak,
+      achievementCount: entry.achievementCount,
     }));
   } catch (error) {
     console.error('Error calculating leaderboard:', error);

@@ -477,7 +477,7 @@
     "noParticipants": "No participants yet",
     "thisMonth": "This Month",
     "thisYear": "This Year",
-    "lifetime": "Lifetime",
+    "lifetimeTab": "Lifetime",
     "topThisMonth": "This month top:",
     "habits": {
       "zero-sugar": {
@@ -536,7 +536,11 @@
       "score": "Score",
       "days": "Days",
       "currentStreak": "Current Streak",
-      "bestStreak": "Best Streak"
+      "bestStreak": "Best Streak",
+      "achievements": "Achievements",
+      "monthExplanation": "Ranking based on best streak achieved within this month",
+      "yearExplanation": "Ranking based on best streak achieved within this year",
+      "lifetimeExplanation": "Ranking based on current active streak"
     },
     "errors": {
       "notAuthenticated": "Please log in to join challenges",

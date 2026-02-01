@@ -17,7 +17,7 @@ export const LeaderboardTabs = ({ currentTimeframe, slug, locale }: LeaderboardT
   const tabs: { key: Timeframe; label: string }[] = [
     { key: 'MONTH', label: t('thisMonth') },
     { key: 'YEAR', label: t('thisYear') },
-    { key: 'LIFETIME', label: t('lifetime') },
+    { key: 'LIFETIME', label: t('lifetimeTab') },
   ];
 
   const handleTabClick = (timeframe: Timeframe) => {

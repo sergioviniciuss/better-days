@@ -3,10 +3,12 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
 
 // Mock crypto.randomUUID for tests
-global.crypto = {
-  ...global.crypto,
-  randomUUID: () => 'test-uuid-123',
-} as any;
+Object.defineProperty(global, 'crypto', {
+  value: {
+    randomUUID: jest.fn(() => 'test-uuid-123'),
+  },
+  writable: true,
+});
 
 // Mock dependencies
 jest.mock('@/lib/supabase/server');

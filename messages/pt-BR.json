@@ -477,7 +477,7 @@
     "noParticipants": "Ainda não há participantes",
     "thisMonth": "Este Mês",
     "thisYear": "Este Ano",
-    "lifetime": "Vitalício",
+    "lifetimeTab": "Vitalício",
     "topThisMonth": "Top deste mês:",
     "habits": {
       "zero-sugar": {
@@ -536,7 +536,11 @@
       "score": "Pontuação",
       "days": "Dias",
       "currentStreak": "Sequência Atual",
-      "bestStreak": "Melhor Sequência"
+      "bestStreak": "Melhor Sequência",
+      "achievements": "Conquistas",
+      "monthExplanation": "Classificação baseada na melhor sequência alcançada neste mês",
+      "yearExplanation": "Classificação baseada na melhor sequência alcançada neste ano",
+      "lifetimeExplanation": "Classificação baseada na sequência ativa atual"
     },
     "errors": {
       "notAuthenticated": "Por favor, faça login para participar dos desafios",

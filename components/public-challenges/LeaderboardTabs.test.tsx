@@ -6,7 +6,7 @@ const mockTranslations: Record<string, any> = {
   'publicChallenges': {
     thisMonth: 'This Month',
     thisYear: 'This Year',
-    lifetime: 'Lifetime',
+    lifetimeTab: 'Lifetime',
   },
 };
 

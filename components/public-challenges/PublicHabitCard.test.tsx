@@ -69,9 +69,9 @@ describe('PublicHabitCard', () => {
     participantCount: 128,
     isUserMember: false,
     topParticipants: [
-      { rank: 1, displayName: 'user1@example.com', score: 15 },
-      { rank: 2, displayName: 'user2@example.com', score: 12 },
-      { rank: 3, displayName: 'user3@example.com', score: 10 },
+      { rank: 1, displayName: 'user1@example.com', score: 15, currentStreak: 15, achievementCount: 5 },
+      { rank: 2, displayName: 'user2@example.com', score: 12, currentStreak: 12, achievementCount: 3 },
+      { rank: 3, displayName: 'user3@example.com', score: 10, currentStreak: 10, achievementCount: 2 },
     ],
   };
 
