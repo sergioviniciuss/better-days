@@ -114,6 +114,7 @@ export async function updateSession(request: NextRequest) {
   if (
     !user &&
     !pathWithoutLocale.startsWith('/login') &&
+    !pathWithoutLocale.startsWith('/public-challenges') &&
     !pathname.startsWith('/api') &&
     !pathname.startsWith('/_next')
   ) {
