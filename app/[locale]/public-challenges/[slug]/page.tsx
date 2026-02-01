@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { getPublicHabitDetail } from '@/app/actions/public-habit';
 import { PublicHabitDetailHeader } from '@/components/public-challenges/PublicHabitDetailHeader';
-import { LeaderboardTabs } from '@/components/public-challenges/LeaderboardTabs';
-import { PublicLeaderboardTable } from '@/components/public-challenges/PublicLeaderboardTable';
+import { LeaderboardSection } from '@/components/public-challenges/LeaderboardSection';
 import type { Timeframe } from '@/lib/types/public-habit';
 
 interface PageProps {
@@ -56,22 +55,10 @@ export default async function PublicHabitDetailPage({ params, searchParams }: Pa
       <PublicHabitDetailHeader habit={habitDetail} hideButton={true} />
 
       {/* Leaderboard Section */}
-      <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        {/* Tabs */}
-        <LeaderboardTabs 
-          currentTimeframe={habitDetail.timeframe}
-          slug={habitDetail.slug}
-          locale={resolvedParams.locale}
-        />
-
-        {/* Leaderboard Table */}
-        <div className="mt-6">
-          <PublicLeaderboardTable 
-            entries={habitDetail.leaderboard}
-            timeframe={habitDetail.timeframe}
-          />
-        </div>
-      </div>
+      <LeaderboardSection 
+        habitDetail={habitDetail}
+        locale={resolvedParams.locale}
+      />
     </div>
   );
 }

@@ -16,17 +16,11 @@ jest.mock('next-intl', () => ({
   },
 }));
 
-// Mock next/navigation
-const mockPush = jest.fn();
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}));
-
 describe('LeaderboardTabs', () => {
+  const mockOnTabClick = jest.fn();
+
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockOnTabClick.mockClear();
   });
 
   it('should render all three tabs', () => {
@@ -35,12 +29,13 @@ describe('LeaderboardTabs', () => {
         currentTimeframe="MONTH" 
         slug="zero-sugar" 
         locale="en"
+        onTabClick={mockOnTabClick}
       />
     );
 
-    expect(screen.getByRole('button', { name: 'This Month' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'This Year' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Lifetime' })).toBeVisible();
+    expect(screen.getByText('This Month')).toBeVisible();
+    expect(screen.getByText('This Year')).toBeVisible();
+    expect(screen.getByText('Lifetime')).toBeVisible();
   });
 
   it('should highlight the active tab', () => {
@@ -49,25 +44,79 @@ describe('LeaderboardTabs', () => {
         currentTimeframe="YEAR" 
         slug="zero-sugar" 
         locale="en"
+        onTabClick={mockOnTabClick}
       />
     );
 
     const yearTab = screen.getByRole('button', { name: 'This Year' });
-    expect(yearTab).toHaveClass('border-blue-500');
+    expect(yearTab).toHaveClass('border-b-2', 'border-blue-500');
   });
 
-  it('should navigate to correct URL when tab is clicked', () => {
+  it('should call onTabClick callback when tab is clicked', () => {
     render(
       <LeaderboardTabs 
         currentTimeframe="MONTH" 
         slug="zero-sugar" 
         locale="en"
+        onTabClick={mockOnTabClick}
       />
     );
 
     const lifetimeTab = screen.getByRole('button', { name: 'Lifetime' });
     fireEvent.click(lifetimeTab);
 
-    expect(mockPush).toHaveBeenCalledWith('/en/public-challenges/zero-sugar?timeframe=lifetime');
+    expect(mockOnTabClick).toHaveBeenCalledWith('LIFETIME');
+  });
+
+  it('should not call onTabClick when clicking the active tab', () => {
+    render(
+      <LeaderboardTabs 
+        currentTimeframe="MONTH" 
+        slug="zero-sugar" 
+        locale="en"
+        onTabClick={mockOnTabClick}
+      />
+    );
+
+    const monthTab = screen.getByRole('button', { name: 'This Month' });
+    fireEvent.click(monthTab);
+
+    expect(mockOnTabClick).not.toHaveBeenCalled();
+  });
+
+  it('should show loading spinner on the loading tab', () => {
+    render(
+      <LeaderboardTabs 
+        currentTimeframe="MONTH" 
+        slug="zero-sugar" 
+        locale="en"
+        onTabClick={mockOnTabClick}
+        isLoading={true}
+        loadingTimeframe="YEAR"
+      />
+    );
+
+    const yearTab = screen.getByRole('button', { name: /This Year/i });
+    expect(yearTab).toHaveClass('cursor-wait');
+    
+    // Should have spinner svg
+    const spinner = yearTab.querySelector('svg.animate-spin');
+    expect(spinner).toBeInTheDocument();
+  });
+
+  it('should disable the loading tab', () => {
+    render(
+      <LeaderboardTabs 
+        currentTimeframe="MONTH" 
+        slug="zero-sugar" 
+        locale="en"
+        onTabClick={mockOnTabClick}
+        isLoading={true}
+        loadingTimeframe="YEAR"
+      />
+    );
+
+    const yearTab = screen.getByRole('button', { name: /This Year/i });
+    expect(yearTab).toBeDisabled();
   });
 });
