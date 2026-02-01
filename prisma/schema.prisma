@@ -20,10 +20,11 @@ model User {
   lastAchievementAt      DateTime?
   createdAt              DateTime  @default(now())
 
-  dailyLogs        DailyLog[]
-  ownedChallenges  Challenge[]         @relation("ChallengeOwner")
-  challengeMembers ChallengeMember[]
-  achievements     UserAchievement[]
+  dailyLogs              DailyLog[]
+  ownedChallenges        Challenge[]           @relation("ChallengeOwner")
+  challengeMembers       ChallengeMember[]
+  achievements           UserAchievement[]
+  publicHabitMemberships PublicHabitMember[]
 }
 
 model DailyLog {
@@ -55,6 +56,10 @@ model Challenge {
   shortId       String    @unique // 8-char unique ID like "A3F2B1C9"
   status        String    @default("ACTIVE") // "ACTIVE" | "ARCHIVED"
   rulesUpdatedAt DateTime? // Timestamp when rules were last updated by admin
+  visibility    String    @default("PRIVATE") // "PRIVATE" | "PUBLIC"
+  category      String?   // "MONTHLY" | "ANNUAL" | "LIFETIME"
+  isFeatured    Boolean   @default(false)
+  description   String?
   createdAt     DateTime  @default(now())
 
   owner            User              @relation("ChallengeOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
@@ -133,4 +138,37 @@ model UserAchievement {
   @@index([achievementId])
   @@index([challengeId])
   @@index([earnedAt])
+}
+
+model PublicHabit {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  description   String?
+  objectiveType String   // NO_SUGAR_STREAK, ZERO_ALCOHOL, DAILY_EXERCISE
+  rules         String[]
+  isPublic      Boolean  @default(true)
+  isFeatured    Boolean  @default(false)
+  icon          String?  // emoji
+  createdAt     DateTime @default(now())
+  
+  members       PublicHabitMember[]
+  
+  @@index([objectiveType])
+}
+
+model PublicHabitMember {
+  id        String   @id @default(cuid())
+  habitId   String
+  userId    String
+  joinedAt  DateTime @default(now())
+  status    String   @default("ACTIVE") // ACTIVE | LEFT
+  leftAt    DateTime?
+  
+  habit     PublicHabit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([habitId, userId])
+  @@index([userId, status])
+  @@index([habitId, status])
 }

@@ -454,7 +454,16 @@ export async function joinChallengeByCode(inviteCode: string) {
   }
 }
 
-export async function createPersonalChallenge(userId: string, rules: string[] = []) {
+/**
+ * Helper function to create a personal challenge with any objectiveType
+ * Used by both onboarding flow and public habit auto-creation
+ */
+export async function createPersonalChallengeForObjective(
+  userId: string, 
+  name: string,
+  objectiveType: string,
+  rules: string[] = []
+) {
   try {
     const supabase = await createClient();
 
@@ -491,18 +500,19 @@ export async function createPersonalChallenge(userId: string, rules: string[] = 
     }
 
     if (!shortIdUnique) {
+      console.error('[createPersonalChallengeForObjective] Failed to generate unique short ID after 10 attempts');
       return { error: 'Failed to generate unique short ID' };
     }
 
-    // Create personal "No Sugar Challenge"
+    // Create personal challenge
     const { data: challenge, error: challengeError } = await supabase
       .from('Challenge')
       .insert({
         ownerUserId: userId,
-        name: 'No Sugar Challenge',
-        objectiveType: 'NO_SUGAR_STREAK',
+        name,
+        objectiveType,
         challengeType: 'PERSONAL',
-        rules: rules,
+        rules,
         startDate: today,
         shortId,
         createdAt: new Date().toISOString(),
@@ -511,9 +521,20 @@ export async function createPersonalChallenge(userId: string, rules: string[] = 
       .single();
 
     if (challengeError || !challenge) {
-      console.error('Error creating personal challenge:', challengeError);
-      return { error: 'Failed to create personal challenge' };
+      console.error('[createPersonalChallengeForObjective] Error creating challenge:', {
+        error: challengeError,
+        userId,
+        name,
+        objectiveType,
+      });
+      return { error: 'Failed to create personal challenge', details: challengeError };
     }
+
+    console.log('[createPersonalChallengeForObjective] Challenge created successfully:', {
+      challengeId: challenge.id,
+      name: challenge.name,
+      objectiveType: challenge.objectiveType,
+    });
 
     // Add user as owner/member
     const { error: memberError } = await supabase
@@ -526,15 +547,25 @@ export async function createPersonalChallenge(userId: string, rules: string[] = 
       });
 
     if (memberError) {
-      console.error('Error adding user to personal challenge:', memberError);
-      return { error: 'Failed to add user to personal challenge' };
+      console.error('[createPersonalChallengeForObjective] Error adding user as member:', memberError);
+      return { error: 'Failed to add user to personal challenge', details: memberError };
     }
 
     return { success: true, challengeId: challenge.id };
   } catch (error) {
-    console.error('Error creating personal challenge:', error);
-    return { error: 'Failed to create personal challenge' };
+    console.error('[createPersonalChallengeForObjective] Unexpected error:', error);
+    return { error: 'Failed to create personal challenge', details: error };
   }
+}
+
+export async function createPersonalChallenge(userId: string, rules: string[] = []) {
+  // Use the helper function with default "No Sugar Challenge" settings
+  return createPersonalChallengeForObjective(
+    userId,
+    'No Sugar Challenge',
+    'NO_SUGAR_STREAK',
+    rules
+  );
 }
 
 export async function upgradeToGroupChallenge(challengeId: string) {
@@ -832,5 +863,319 @@ export const hasUnacknowledgedRuleChanges = (challenge: any, membership: any): b
     // If there's any error parsing dates, don't block the user
     console.error('Error comparing rule acknowledgment dates:', error);
     return false;
+  }
+}
+
+// Public challenges functionality
+
+import type { PublicChallengesData, PublicChallenge, LeaderboardEntry } from '@/lib/types/public-challenge';
+import { calculateStreaks } from '@/lib/streak-utils';
+
+/**
+ * Get all public challenges grouped by category
+ * No authentication required - public data
+ */
+export async function getPublicChallenges(): Promise<PublicChallengesData> {
+  try {
+    const supabase = await createClient();
+    
+    // Get current user (optional - to check membership)
+    const user = await getCurrentUser();
+    
+    // Fetch all public challenges
+    const { data: challenges, error: challengesError } = await supabase
+      .from('Challenge')
+      .select(`
+        id,
+        name,
+        description,
+        category,
+        objectiveType,
+        startDate,
+        dueDate,
+        isFeatured
+      `)
+      .eq('visibility', 'PUBLIC')
+      .eq('status', 'ACTIVE')
+      .order('isFeatured', { ascending: false })
+      .order('createdAt', { ascending: false });
+
+    if (challengesError) {
+      console.error('Error fetching public challenges:', challengesError);
+      return { monthly: [], annual: [], lifetime: [] };
+    }
+
+    if (!challenges || challenges.length === 0) {
+      return { monthly: [], annual: [], lifetime: [] };
+    }
+
+    // Fetch leaderboard data for each challenge
+    const publicChallenges = await Promise.all(
+      challenges.map(async (challenge) => {
+        const { participantCount, topParticipants, isUserMember } = await getPublicChallengeLeaderboard(
+          challenge.id,
+          10,
+          user?.id
+        );
+
+        return {
+          id: challenge.id,
+          name: challenge.name,
+          description: challenge.description || undefined,
+          category: challenge.category as 'MONTHLY' | 'ANNUAL' | 'LIFETIME',
+          objectiveType: challenge.objectiveType,
+          startDate: challenge.startDate,
+          dueDate: challenge.dueDate || undefined,
+          participantCount,
+          topParticipants,
+          isUserMember,
+        } as PublicChallenge;
+      })
+    );
+
+    // Group by category
+    const grouped: PublicChallengesData = {
+      monthly: publicChallenges.filter(c => c.category === 'MONTHLY'),
+      annual: publicChallenges.filter(c => c.category === 'ANNUAL'),
+      lifetime: publicChallenges.filter(c => c.category === 'LIFETIME'),
+    };
+
+    return grouped;
+  } catch (error) {
+    console.error('Error fetching public challenges:', error);
+    return { monthly: [], annual: [], lifetime: [] };
+  }
+}
+
+/**
+ * Get leaderboard data for a public challenge
+ * @param challengeId - Challenge ID
+ * @param limit - Max number of top participants (default 10)
+ * @param userId - Optional user ID to check membership
+ */
+async function getPublicChallengeLeaderboard(
+  challengeId: string,
+  limit: number = 10,
+  userId?: string
+): Promise<{ participantCount: number; topParticipants: LeaderboardEntry[]; isUserMember?: boolean }> {
+  try {
+    const supabase = await createClient();
+
+    // Get all ACTIVE members (include joinedAt for mid-month filtering)
+    const { data: members, error: membersError } = await supabase
+      .from('ChallengeMember')
+      .select('userId, joinedAt, user:User(email, timezone)')
+      .eq('challengeId', challengeId)
+      .eq('status', 'ACTIVE');
+
+    if (membersError || !members) {
+      console.error('Error fetching challenge members:', membersError);
+      return { participantCount: 0, topParticipants: [] };
+    }
+
+    const participantCount = members.length;
+    
+    // Check if current user is a member
+    const isUserMember = userId ? members.some(m => m.userId === userId) : undefined;
+
+    if (participantCount === 0) {
+      return { participantCount: 0, topParticipants: [], isUserMember };
+    }
+
+    // Get challenge details for date range
+    const { data: challenge, error: challengeError } = await supabase
+      .from('Challenge')
+      .select('startDate, dueDate, objectiveType, category')
+      .eq('id', challengeId)
+      .single();
+
+    if (challengeError || !challenge) {
+      return { participantCount, topParticipants: [], isUserMember };
+    }
+
+    // Get member IDs
+    const memberIds = members.map(m => m.userId);
+
+    // Calculate date range based on challenge category
+    const now = new Date();
+    let startDateFilter = challenge.startDate;
+    let endDateFilter: string | undefined = challenge.dueDate || undefined;
+
+    // For MONTHLY challenges, filter to current month only
+    if (challenge.category === 'MONTHLY') {
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      startDateFilter = startOfMonth.toISOString().split('T')[0];
+      endDateFilter = endOfMonth.toISOString().split('T')[0];
+    }
+
+    // Fetch daily logs for members with date filtering
+    let logsQuery = supabase
+      .from('DailyLog')
+      .select('userId, date, consumedSugar, confirmedAt')
+      .in('userId', memberIds)
+      .eq('challengeId', challengeId)
+      .gte('date', startDateFilter)
+      .order('date', { ascending: false });
+
+    // Add end date filter if applicable
+    if (endDateFilter) {
+      logsQuery = logsQuery.lte('date', endDateFilter);
+    }
+
+    const { data: allLogs, error: logsError } = await logsQuery;
+
+    if (logsError) {
+      console.error('Error fetching logs for leaderboard:', logsError);
+      // Continue with empty logs
+    }
+
+    // Calculate scores for each member
+    const memberScores = members
+      .filter(m => m.user)
+      .map(member => {
+        let userLogs = (allLogs || [])
+          .filter(log => log.userId === member.userId)
+          .map(log => ({
+            date: log.date,
+            consumedSugar: log.consumedSugar,
+            confirmedAt: log.confirmedAt,
+          }));
+
+        // For MONTHLY challenges with mid-month joins, filter to dates >= joinedAt
+        if (challenge.category === 'MONTHLY' && member.joinedAt) {
+          const joinedDate = new Date(member.joinedAt).toISOString().split('T')[0];
+          userLogs = userLogs.filter(log => log.date >= joinedDate);
+        }
+
+        const timezone = (member.user as any)?.timezone || 'UTC';
+        const { currentStreak, bestStreak } = calculateStreaks(userLogs, timezone);
+
+        // Score calculation based on category
+        // For Monthly/Annual: use bestStreak within date range
+        // For Lifetime: use currentStreak
+        const score = challenge.category === 'LIFETIME' ? currentStreak : bestStreak;
+
+        return {
+          userId: member.userId,
+          displayName: (member.user as any)?.email || 'Anonymous',
+          score,
+        };
+      });
+
+    // Sort by score (highest first)
+    memberScores.sort((a, b) => b.score - a.score);
+
+    // Take top N and add ranks
+    const topParticipants: LeaderboardEntry[] = memberScores
+      .slice(0, limit)
+      .map((entry, index) => ({
+        rank: index + 1,
+        displayName: entry.displayName,
+        score: entry.score,
+      }));
+
+    return { participantCount, topParticipants, isUserMember };
+  } catch (error) {
+    console.error('Error calculating leaderboard:', error);
+    return { participantCount: 0, topParticipants: [] };
+  }
+}
+
+/**
+ * Join a public challenge
+ * Requires authentication
+ */
+export async function joinPublicChallenge(challengeId: string) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  try {
+    const supabase = await createClient();
+
+    // Verify challenge is public and active
+    const { data: challenge, error: challengeError } = await supabase
+      .from('Challenge')
+      .select('id, visibility, status, name')
+      .eq('id', challengeId)
+      .single();
+
+    if (challengeError || !challenge) {
+      console.error('Error fetching challenge:', challengeError);
+      return { error: 'Challenge not found' };
+    }
+
+    if (challenge.visibility !== 'PUBLIC') {
+      return { error: 'Challenge is not public' };
+    }
+
+    if (challenge.status !== 'ACTIVE') {
+      return { error: 'Challenge is not active' };
+    }
+
+    // Check if user is already a member
+    const { data: existingMembership, error: membershipError } = await supabase
+      .from('ChallengeMember')
+      .select('id, status')
+      .eq('challengeId', challengeId)
+      .eq('userId', user.id)
+      .maybeSingle();
+
+    if (membershipError) {
+      console.error('Error checking membership:', membershipError);
+      return { error: 'Failed to check membership' };
+    }
+
+    if (existingMembership) {
+      if (existingMembership.status === 'ACTIVE') {
+        // Already a member - idempotent
+        return { success: true, challengeId };
+      } else if (existingMembership.status === 'LEFT') {
+        // Rejoin - update status
+        const { error: updateError } = await supabase
+          .from('ChallengeMember')
+          .update({
+            status: 'ACTIVE',
+            joinedAt: new Date().toISOString(),
+            leftAt: null,
+          })
+          .eq('id', existingMembership.id);
+
+        if (updateError) {
+          console.error('Error updating membership:', updateError);
+          return { error: 'Failed to rejoin challenge' };
+        }
+
+        revalidatePath('/challenges');
+        revalidatePath(`/challenges/${challengeId}`);
+        revalidatePath('/public-challenges');
+        return { success: true, challengeId };
+      }
+    }
+
+    // Create new membership
+    const { error: insertError } = await supabase
+      .from('ChallengeMember')
+      .insert({
+        challengeId,
+        userId: user.id,
+        role: 'MEMBER',
+        joinedAt: new Date().toISOString(),
+      });
+
+    if (insertError) {
+      console.error('Error creating membership:', insertError);
+      return { error: 'Failed to join challenge' };
+    }
+
+    revalidatePath('/challenges');
+    revalidatePath(`/challenges/${challengeId}`);
+    revalidatePath('/public-challenges');
+    return { success: true, challengeId };
+  } catch (error) {
+    console.error('Error joining public challenge:', error);
+    return { error: 'Failed to join challenge' };
   }
 }

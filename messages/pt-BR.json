@@ -141,6 +141,38 @@
       "active_community": {
         "name": "Comunidade Ativa",
         "description": "Participe de um desafio com 5+ membros"
+      },
+      "public_challenger": {
+        "name": "Desafiante Público",
+        "description": "Participe do seu primeiro hábito público"
+      },
+      "community_member": {
+        "name": "Membro da Comunidade",
+        "description": "Participe de todos os 3 hábitos públicos"
+      },
+      "monthly_champion": {
+        "name": "Campeão Mensal",
+        "description": "Alcance o 1º lugar em qualquer ranking mensal"
+      },
+      "annual_victor": {
+        "name": "Vitorioso Anual",
+        "description": "Alcance o 1º lugar em qualquer ranking anual"
+      },
+      "lifetime_legend": {
+        "name": "Lenda Vitalícia",
+        "description": "Alcance o 1º lugar em qualquer ranking vitalício"
+      },
+      "top_3_contender": {
+        "name": "Competidor Top 3",
+        "description": "Alcance o top 3 em qualquer período"
+      },
+      "podium_regular": {
+        "name": "Frequentador do Pódio",
+        "description": "Alcance o top 3 em todos os períodos"
+      },
+      "multi_habit_hero": {
+        "name": "Herói Multi-Hábito",
+        "description": "Mantenha sequências de 7+ dias em todos os 3 hábitos públicos"
       }
     }
   },
@@ -391,7 +423,8 @@
     "viewChallenge": "Ver Desafio",
     "loadingChallenge": "Carregando desafio...",
     "inviteWelcomeSubtitle": "Acompanhe seus hábitos, construa sequências e compita com amigos!",
-    "inviteWelcomeMessage": "Você foi convidado para entrar em um desafio. Vamos ver o que seus amigos estão fazendo!"
+    "inviteWelcomeMessage": "Você foi convidado para entrar em um desafio. Vamos ver o que seus amigos estão fazendo!",
+    "publicHabitWelcomeMessage": "Você está prestes a participar de um desafio comunitário! Compete com pessoas do mundo todo e acompanhe seu progresso juntos."
   },
   "challengeConfirmation": {
     "noAlcohol": "Sem Álcool",
@@ -462,6 +495,90 @@
   "archiveChallenge": {
     "adminWarning": "Isso encerrará o desafio para TODOS os participantes",
     "archiveForAll": "Arquivar para Todos"
+  },
+  "navigation": {
+    "publicChallenges": "Desafios Públicos"
+  },
+  "publicChallenges": {
+    "title": "Desafios Públicos",
+    "subtitle": "Participe de desafios abertos e construa melhores hábitos juntos.",
+    "tagline": "Torne-se 1% melhor a cada dia.",
+    "join": "Entrar",
+    "view": "Ver",
+    "joining": "Entrando...",
+    "participants": "{count} participantes",
+    "noParticipants": "Ainda não há participantes",
+    "thisMonth": "Este Mês",
+    "thisYear": "Este Ano",
+    "lifetimeTab": "Vitalício",
+    "topThisMonth": "Top deste mês:",
+    "habits": {
+      "zero-sugar": {
+        "title": "Zero Açúcar",
+        "description": "Construa um estilo de vida livre de açúcar. Acompanhe seu progresso e compita com outras pessoas nas classificações mensais, anuais e vitalícias."
+      },
+      "zero-alcohol": {
+        "title": "Zero Álcool",
+        "description": "Construa um estilo de vida livre de álcool. Acompanhe seu progresso e compita com outras pessoas nas classificações mensais, anuais e vitalícias."
+      },
+      "active-days": {
+        "title": "Dias Ativos",
+        "description": "Construa o hábito de se exercitar diariamente. Acompanhe seu progresso e compita com outras pessoas nas classificações mensais, anuais e vitalícias."
+      }
+    },
+    "filter": {
+      "label": "Filtrar por tipo de desafio",
+      "all": "Todos os Desafios",
+      "noSugar": "Zero Açúcar",
+      "zeroAlcohol": "Zero Álcool",
+      "activeDays": "Dias Ativos"
+    },
+    "categories": {
+      "monthly": "Mensal",
+      "annual": "Anual",
+      "lifetime": "Vitalício"
+    },
+    "monthly": {
+      "title": "Desafios Mensais",
+      "subtitle": "Novos começos. Mesmas regras. Todos começam este mês.",
+      "endsIn": "Termina em {days} dias"
+    },
+    "annual": {
+      "title": "Desafios Anuais",
+      "subtitle": "Consistência de longo prazo ao longo do ano."
+    },
+    "lifetime": {
+      "title": "Desafios Vitalícios",
+      "subtitle": "Construa hábitos que duram."
+    },
+    "card": {
+      "participants": "{count} participantes",
+      "startDate": "Iniciado: {date}",
+      "endDate": "Termina: {date}",
+      "resetsOn": "Reinicia em: {date}",
+      "endsIn": "Termina em {days} dias",
+      "joinChallenge": "Entrar no Desafio",
+      "viewChallenge": "Ver Desafio",
+      "joining": "Entrando...",
+      "publicBadge": "Público",
+      "groupBadge": "Grupo"
+    },
+    "leaderboard": {
+      "rank": "Posição",
+      "participant": "Participante",
+      "score": "Pontuação",
+      "days": "Dias",
+      "currentStreak": "Sequência Atual",
+      "bestStreak": "Melhor Sequência",
+      "achievements": "Conquistas",
+      "monthExplanation": "Classificação baseada na melhor sequência alcançada neste mês",
+      "yearExplanation": "Classificação baseada na melhor sequência alcançada neste ano",
+      "lifetimeExplanation": "Classificação baseada na sequência ativa atual"
+    },
+    "errors": {
+      "notAuthenticated": "Por favor, faça login para participar dos desafios",
+      "joinFailed": "Falha ao entrar no desafio"
+    }
   },
   "errors": {
     "generic": "Algo deu errado",

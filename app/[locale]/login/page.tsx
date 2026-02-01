@@ -8,7 +8,7 @@ import { getTranslations } from 'next-intl/server';
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ returnUrl?: string; invite?: string }>;
+  searchParams: Promise<{ returnUrl?: string; invite?: string; mode?: string }>;
 }) {
   const t = await getTranslations('auth');
   const user = await getCurrentUser();
@@ -17,6 +17,7 @@ export default async function LoginPage({
   const resolvedSearchParams = await searchParams;
   const queryReturnUrl = resolvedSearchParams.returnUrl;
   const inviteCode = resolvedSearchParams.invite;
+  const mode = resolvedSearchParams.mode;
   
   // Get returnUrl from query param or cookie (cookie takes precedence as it's more reliable)
   const cookieReturnUrl = cookieStore.get('loginReturnUrl')?.value;
@@ -49,7 +50,7 @@ export default async function LoginPage({
             {t('signInToAccount')}
           </p>
         </div>
-        <LoginForm returnUrl={returnUrl} inviteCode={inviteCode} />
+        <LoginForm returnUrl={returnUrl} inviteCode={inviteCode} initialMode={mode} />
       </div>
     </div>
   );

@@ -11,7 +11,15 @@ export interface AchievementRequirement {
     | 'challenge_completed'
     | 'group_challenges_created'
     | 'group_challenges_joined'
-    | 'join_large_challenge';
+    | 'join_large_challenge'
+    | 'public_habit_joined'
+    | 'public_habits_joined_count'
+    | 'public_habit_rank_1_monthly'
+    | 'public_habit_rank_1_yearly'
+    | 'public_habit_rank_1_lifetime'
+    | 'public_habit_top_3'
+    | 'public_habit_podium_all'
+    | 'public_habit_multi_streak';
   value: number;
   challengeType?: string; // Optional filter by challenge type
 }
@@ -404,6 +412,116 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
     iconEmoji: '🌐',
     requirement: { type: 'join_large_challenge', value: 5 },
     order: 230,
+  },
+
+  // Public Habit Achievements - Joining
+  {
+    id: 'ach_public_challenger',
+    code: 'PUBLIC_CHALLENGER',
+    category: 'SOCIAL',
+    tier: 'BRONZE',
+    name: 'Public Challenger',
+    nameKey: 'achievements.badges.public_challenger.name',
+    description: 'Join your first public habit',
+    descriptionKey: 'achievements.badges.public_challenger.description',
+    iconEmoji: '🌍',
+    requirement: { type: 'public_habit_joined', value: 1 },
+    order: 240,
+  },
+  {
+    id: 'ach_community_member',
+    code: 'COMMUNITY_MEMBER',
+    category: 'SOCIAL',
+    tier: 'SILVER',
+    name: 'Community Member',
+    nameKey: 'achievements.badges.community_member.name',
+    description: 'Join all 3 public habits',
+    descriptionKey: 'achievements.badges.community_member.description',
+    iconEmoji: '🌎',
+    requirement: { type: 'public_habits_joined_count', value: 3 },
+    order: 250,
+  },
+
+  // Public Habit Achievements - Leadership
+  {
+    id: 'ach_monthly_champion',
+    code: 'MONTHLY_CHAMPION',
+    category: 'CHALLENGE',
+    tier: 'GOLD',
+    name: 'Monthly Champion',
+    nameKey: 'achievements.badges.monthly_champion.name',
+    description: 'Reach #1 on any monthly leaderboard',
+    descriptionKey: 'achievements.badges.monthly_champion.description',
+    iconEmoji: '🥇',
+    requirement: { type: 'public_habit_rank_1_monthly', value: 1 },
+    order: 260,
+  },
+  {
+    id: 'ach_annual_victor',
+    code: 'ANNUAL_VICTOR',
+    category: 'CHALLENGE',
+    tier: 'PLATINUM',
+    name: 'Annual Victor',
+    nameKey: 'achievements.badges.annual_victor.name',
+    description: 'Reach #1 on any yearly leaderboard',
+    descriptionKey: 'achievements.badges.annual_victor.description',
+    iconEmoji: '🏆',
+    requirement: { type: 'public_habit_rank_1_yearly', value: 1 },
+    order: 270,
+  },
+  {
+    id: 'ach_lifetime_legend',
+    code: 'LIFETIME_LEGEND',
+    category: 'CHALLENGE',
+    tier: 'LEGENDARY',
+    name: 'Lifetime Legend',
+    nameKey: 'achievements.badges.lifetime_legend.name',
+    description: 'Reach #1 on any lifetime leaderboard',
+    descriptionKey: 'achievements.badges.lifetime_legend.description',
+    iconEmoji: '👑',
+    requirement: { type: 'public_habit_rank_1_lifetime', value: 1 },
+    order: 280,
+  },
+  {
+    id: 'ach_top_3_contender',
+    code: 'TOP_3_CONTENDER',
+    category: 'CHALLENGE',
+    tier: 'SILVER',
+    name: 'Top 3 Contender',
+    nameKey: 'achievements.badges.top_3_contender.name',
+    description: 'Reach top 3 in any timeframe',
+    descriptionKey: 'achievements.badges.top_3_contender.description',
+    iconEmoji: '🥈',
+    requirement: { type: 'public_habit_top_3', value: 3 },
+    order: 290,
+  },
+  {
+    id: 'ach_podium_regular',
+    code: 'PODIUM_REGULAR',
+    category: 'CHALLENGE',
+    tier: 'GOLD',
+    name: 'Podium Regular',
+    nameKey: 'achievements.badges.podium_regular.name',
+    description: 'Reach top 3 in all timeframes',
+    descriptionKey: 'achievements.badges.podium_regular.description',
+    iconEmoji: '🥉',
+    requirement: { type: 'public_habit_podium_all', value: 3 },
+    order: 300,
+  },
+
+  // Public Habit Achievements - Consistency
+  {
+    id: 'ach_multi_habit_hero',
+    code: 'MULTI_HABIT_HERO',
+    category: 'CONSISTENCY',
+    tier: 'GOLD',
+    name: 'Multi-Habit Hero',
+    nameKey: 'achievements.badges.multi_habit_hero.name',
+    description: 'Maintain 7+ day streaks in all 3 public habits',
+    descriptionKey: 'achievements.badges.multi_habit_hero.description',
+    iconEmoji: '⚡',
+    requirement: { type: 'public_habit_multi_streak', value: 7 },
+    order: 310,
   },
 ];
 

@@ -9,13 +9,18 @@ interface MobileMenuProps {
   navItems: Array<{ href: string; label: string; isNew?: boolean }>;
   userEmail?: string | null;
   pathname: string;
+  searchParams: ReturnType<typeof import('next/navigation').useSearchParams> | null;
 }
 
-export function MobileMenu({ navItems, userEmail, pathname }: MobileMenuProps) {
+export function MobileMenu({ navItems, userEmail, pathname, searchParams }: MobileMenuProps) {
   const t = useTranslations('auth');
   const tCommon = useTranslations('common');
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  
+  // Detect if on login page and what mode
+  const isOnLoginPage = pathname?.includes('/login');
+  const isSignupMode = searchParams?.get('mode') === 'signup';
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -156,50 +161,75 @@ export function MobileMenu({ navItems, userEmail, pathname }: MobileMenuProps) {
             ))}
           </nav>
 
-          {/* Logout Button */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="w-full px-4 py-3 text-base font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 rounded-md min-h-[44px] flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoggingOut ? (
-                <svg
-                  className="mr-2 h-5 w-5 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
+          {/* Footer: Logout for authenticated, Login/Sign Up for unauthenticated */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+            {userEmail ? (
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="w-full px-4 py-3 text-base font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 rounded-md min-h-[44px] flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoggingOut ? (
+                  <svg
+                    className="mr-2 h-5 w-5 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="mr-2 h-5 w-5"
+                    fill="none"
                     stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="mr-2 h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-              )}
-              {isLoggingOut ? t('loggingOut') : t('logout')}
-            </button>
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
+                )}
+                {isLoggingOut ? t('loggingOut') : t('logout')}
+              </button>
+            ) : (
+              <>
+                {/* Show Login button unless on login page in login mode */}
+                {(!isOnLoginPage || isSignupMode) && (
+                  <Link
+                    href={`/${pathname?.split('/')[1] || 'en'}/login`}
+                    onClick={() => setIsOpen(false)}
+                    className="w-full px-4 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-md min-h-[44px] flex items-center justify-center transition-colors"
+                  >
+                    {t('login')}
+                  </Link>
+                )}
+                {/* Show Sign Up button unless on login page in signup mode */}
+                {(!isOnLoginPage || !isSignupMode) && (
+                  <Link
+                    href={`/${pathname?.split('/')[1] || 'en'}/login?mode=signup`}
+                    onClick={() => setIsOpen(false)}
+                    className="w-full px-4 py-3 text-base font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-700 border border-blue-600 dark:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 rounded-md min-h-[44px] flex items-center justify-center transition-colors"
+                  >
+                    {t('signup')}
+                  </Link>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -141,6 +141,38 @@
       "active_community": {
         "name": "Active Community",
         "description": "Join a challenge with 5+ members"
+      },
+      "public_challenger": {
+        "name": "Public Challenger",
+        "description": "Join your first public habit"
+      },
+      "community_member": {
+        "name": "Community Member",
+        "description": "Join all 3 public habits"
+      },
+      "monthly_champion": {
+        "name": "Monthly Champion",
+        "description": "Reach #1 on any monthly leaderboard"
+      },
+      "annual_victor": {
+        "name": "Annual Victor",
+        "description": "Reach #1 on any yearly leaderboard"
+      },
+      "lifetime_legend": {
+        "name": "Lifetime Legend",
+        "description": "Reach #1 on any lifetime leaderboard"
+      },
+      "top_3_contender": {
+        "name": "Top 3 Contender",
+        "description": "Reach top 3 in any timeframe"
+      },
+      "podium_regular": {
+        "name": "Podium Regular",
+        "description": "Reach top 3 in all timeframes"
+      },
+      "multi_habit_hero": {
+        "name": "Multi-Habit Hero",
+        "description": "Maintain 7+ day streaks in all 3 public habits"
       }
     }
   },
@@ -391,7 +423,8 @@
     "viewChallenge": "View Challenge",
     "loadingChallenge": "Loading challenge...",
     "inviteWelcomeSubtitle": "Track your habits, build streaks, and compete with friends!",
-    "inviteWelcomeMessage": "You've been invited to join a challenge. Let's see what your friends are up to!"
+    "inviteWelcomeMessage": "You've been invited to join a challenge. Let's see what your friends are up to!",
+    "publicHabitWelcomeMessage": "You're about to join a community challenge! Compete with people from around the world and track your progress together."
   },
   "challengeConfirmation": {
     "noAlcohol": "No Alcohol",
@@ -462,6 +495,90 @@
   "archiveChallenge": {
     "adminWarning": "This will end the challenge for ALL participants",
     "archiveForAll": "Archive for Everyone"
+  },
+  "navigation": {
+    "publicChallenges": "Public Challenges"
+  },
+  "publicChallenges": {
+    "title": "Public Challenges",
+    "subtitle": "Join open challenges and build better habits together.",
+    "tagline": "Become 1% better every day.",
+    "join": "Join",
+    "view": "View",
+    "joining": "Joining...",
+    "participants": "{count} participants",
+    "noParticipants": "No participants yet",
+    "thisMonth": "This Month",
+    "thisYear": "This Year",
+    "lifetimeTab": "Lifetime",
+    "topThisMonth": "This month top:",
+    "habits": {
+      "zero-sugar": {
+        "title": "Zero Sugar",
+        "description": "Build a sugar-free lifestyle. Track your progress and compete with others in monthly, yearly, and lifetime rankings."
+      },
+      "zero-alcohol": {
+        "title": "Zero Alcohol",
+        "description": "Build an alcohol-free lifestyle. Track your progress and compete with others in monthly, yearly, and lifetime rankings."
+      },
+      "active-days": {
+        "title": "Active Days",
+        "description": "Build a daily exercise habit. Track your progress and compete with others in monthly, yearly, and lifetime rankings."
+      }
+    },
+    "filter": {
+      "label": "Filter by challenge type",
+      "all": "All Challenges",
+      "noSugar": "Zero Sugar",
+      "zeroAlcohol": "Zero Alcohol",
+      "activeDays": "Active Days"
+    },
+    "categories": {
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "lifetime": "Lifetime"
+    },
+    "monthly": {
+      "title": "Monthly Challenges",
+      "subtitle": "Fresh starts. Same rules. Everyone begins this month.",
+      "endsIn": "Ends in {days} days"
+    },
+    "annual": {
+      "title": "Annual Challenges",
+      "subtitle": "Long-term consistency over the year."
+    },
+    "lifetime": {
+      "title": "Lifetime Challenges",
+      "subtitle": "Build habits that last."
+    },
+    "card": {
+      "participants": "{count} participants",
+      "startDate": "Started: {date}",
+      "endDate": "Ends: {date}",
+      "resetsOn": "Resets on: {date}",
+      "endsIn": "Ends in {days} days",
+      "joinChallenge": "Join Challenge",
+      "viewChallenge": "View Challenge",
+      "joining": "Joining...",
+      "publicBadge": "Public",
+      "groupBadge": "Group"
+    },
+    "leaderboard": {
+      "rank": "Rank",
+      "participant": "Participant",
+      "score": "Score",
+      "days": "Days",
+      "currentStreak": "Current Streak",
+      "bestStreak": "Best Streak",
+      "achievements": "Achievements",
+      "monthExplanation": "Ranking based on best streak achieved within this month",
+      "yearExplanation": "Ranking based on best streak achieved within this year",
+      "lifetimeExplanation": "Ranking based on current active streak"
+    },
+    "errors": {
+      "notAuthenticated": "Please log in to join challenges",
+      "joinFailed": "Failed to join challenge"
+    }
   },
   "errors": {
     "generic": "Something went wrong",

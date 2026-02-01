@@ -1,14 +1,12 @@
 'use client';
 
-import { useLocale } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import { useState, useTransition, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
 
 export function LanguageSwitcher() {
-  const locale = useLocale();
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const languages = [
@@ -16,10 +14,15 @@ export function LanguageSwitcher() {
     { code: 'pt-BR', name: 'Português', displayCode: 'PT' },
   ];
 
+  // Parse locale from pathname - more reliable than useLocale() which can be out of sync
+  const locale = pathname?.split('/')[1] || 'en';
   const currentLanguage = languages.find((lang) => lang.code === locale) || languages[0];
 
   const switchLanguage = (newLocale: string) => {
-    // Close dropdown immediately for cleaner UX
+    // Set loading state for user feedback
+    setIsLoading(true);
+    
+    // Close dropdown
     setIsOpen(false);
     
     // Set cookie
@@ -30,9 +33,16 @@ export function LanguageSwitcher() {
       localStorage.setItem('locale', newLocale);
     }
 
-    startTransition(() => {
-      router.refresh();
-    });
+    // Build new URL with updated locale
+    // Current pathname is like "/en/dashboard", we need to replace "/en" with "/{newLocale}"
+    const segments = pathname?.split('/') || [];
+    if (segments.length > 1) {
+      segments[1] = newLocale; // Replace locale segment
+    }
+    const newPath = segments.join('/') || `/${newLocale}`;
+
+    // Use full page reload to ensure translations are fetched from server
+    window.location.href = newPath;
   };
 
   // Close dropdown when clicking outside
@@ -71,36 +81,18 @@ export function LanguageSwitcher() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        disabled={isPending}
+        disabled={isLoading}
         aria-label="Switch language"
         aria-expanded={isOpen}
         aria-haspopup="true"
         className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px] transition-colors ${
-          isPending ? 'opacity-60 cursor-not-allowed' : ''
+          isLoading ? 'opacity-60 cursor-not-allowed' : ''
         }`}
       >
-        {/* Globe Icon */}
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-          />
-        </svg>
-        
-        {/* Current Language Code */}
-        <span>{currentLanguage.displayCode}</span>
-        
-        {/* Loading Spinner or Chevron */}
-        {isPending ? (
+        {/* Globe Icon or Loading Spinner */}
+        {isLoading ? (
           <svg
-            className="w-4 h-4 animate-spin"
+            className="w-5 h-5 animate-spin"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -120,6 +112,26 @@ export function LanguageSwitcher() {
           </svg>
         ) : (
           <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+            />
+          </svg>
+        )}
+        
+        {/* Current Language Code */}
+        <span>{currentLanguage.displayCode}</span>
+        
+        {/* Chevron */}
+        {!isLoading && (
+          <svg
             className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
@@ -131,12 +143,13 @@ export function LanguageSwitcher() {
       </button>
 
       {/* Dropdown Menu */}
-      {isOpen && !isPending && (
+      {isOpen && !isLoading && (
         <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-50 animate-in fade-in slide-in-from-top-1 duration-200">
           {languages.map((lang) => (
             <button
               key={lang.code}
               onClick={() => switchLanguage(lang.code)}
+              disabled={isLoading}
               className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-md last:rounded-b-md min-h-[44px] flex items-center justify-between transition-colors ${
                 lang.code === locale
                   ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium'

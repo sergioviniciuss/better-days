@@ -9,6 +9,8 @@ export type AchievementContext =
   | 'challenge_created'
   | 'challenge_joined'
   | 'challenge_completed'
+  | 'public_habit_joined'
+  | 'public_habit_period_end'
   | 'manual_check';
 
 interface CheckAchievementsParams {
@@ -138,6 +140,22 @@ const getAchievementsForContext = (context: AchievementContext): AchievementDefi
         a.requirement.type === 'challenge_completed'
       );
     
+    case 'public_habit_joined':
+      return ACHIEVEMENT_DEFINITIONS.filter(a =>
+        a.requirement.type === 'public_habit_joined' ||
+        a.requirement.type === 'public_habits_joined_count' ||
+        a.requirement.type === 'public_habit_multi_streak'
+      );
+    
+    case 'public_habit_period_end':
+      return ACHIEVEMENT_DEFINITIONS.filter(a =>
+        a.requirement.type === 'public_habit_rank_1_monthly' ||
+        a.requirement.type === 'public_habit_rank_1_yearly' ||
+        a.requirement.type === 'public_habit_rank_1_lifetime' ||
+        a.requirement.type === 'public_habit_top_3' ||
+        a.requirement.type === 'public_habit_podium_all'
+      );
+    
     case 'manual_check':
       // Check all achievements
       return ACHIEVEMENT_DEFINITIONS;
@@ -260,6 +278,92 @@ const checkAchievementCondition = async (
         .eq('status', 'ACTIVE');
       
       return (members?.length || 0) >= requirement.value;
+    }
+
+    case 'public_habit_joined': {
+      // Check if user has joined at least one public habit
+      const supabase = await createClient();
+      const { data: memberships } = await supabase
+        .from('PublicHabitMember')
+        .select('id')
+        .eq('userId', userId)
+        .eq('status', 'ACTIVE');
+      
+      return (memberships?.length || 0) >= requirement.value;
+    }
+
+    case 'public_habits_joined_count': {
+      // Check if user has joined N public habits
+      const supabase = await createClient();
+      const { data: memberships } = await supabase
+        .from('PublicHabitMember')
+        .select('id')
+        .eq('userId', userId)
+        .eq('status', 'ACTIVE');
+      
+      return (memberships?.length || 0) >= requirement.value;
+    }
+
+    case 'public_habit_rank_1_monthly':
+    case 'public_habit_rank_1_yearly':
+    case 'public_habit_rank_1_lifetime':
+    case 'public_habit_top_3':
+    case 'public_habit_podium_all': {
+      // These are checked by the period-end award function
+      // Not checked during regular achievement checks
+      return false;
+    }
+
+    case 'public_habit_multi_streak': {
+      // Check if user has 7+ day streaks in all 3 public habits
+      const supabase = await createClient();
+      
+      // Get all public habits
+      const { data: publicHabits } = await supabase
+        .from('PublicHabit')
+        .select('id, objectiveType')
+        .eq('isPublic', true);
+      
+      if (!publicHabits || publicHabits.length < 3) return false;
+      
+      // Check if user is member of all habits
+      const { data: memberships } = await supabase
+        .from('PublicHabitMember')
+        .select('habitId')
+        .eq('userId', userId)
+        .eq('status', 'ACTIVE');
+      
+      const memberHabitIds = new Set(memberships?.map(m => m.habitId) || []);
+      const allHabitsJoined = publicHabits.every(h => memberHabitIds.has(h.id));
+      
+      if (!allHabitsJoined) return false;
+      
+      // For each habit, check if user has a 7+ day streak
+      for (const habit of publicHabits) {
+        // Get logs for this habit's objective type
+        const { data: habitLogs } = await supabase
+          .from('DailyLog')
+          .select('date, consumedSugar, confirmedAt, challenge:Challenge!inner(objectiveType)')
+          .eq('userId', userId)
+          .eq('challenge.objectiveType', habit.objectiveType)
+          .order('date', { ascending: false });
+        
+        if (!habitLogs || habitLogs.length === 0) return false;
+        
+        const streakLogs = habitLogs.map(log => ({
+          date: log.date,
+          consumedSugar: log.consumedSugar,
+          confirmedAt: log.confirmedAt,
+        }));
+        
+        const { currentStreak } = calculateStreaks(streakLogs, timezone);
+        
+        if (currentStreak < requirement.value) {
+          return false;
+        }
+      }
+      
+      return true;
     }
 
     default:
