@@ -6,6 +6,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { defaultLocale } from '@/lib/i18n/config';
 
 // Handle cache function - fallback to identity function if not available (e.g., in tests)
 const cache = typeof reactCache === 'function' ? reactCache : <T extends (...args: any[]) => any>(fn: T) => fn;
@@ -151,9 +152,12 @@ export async function signIn(formData: FormData) {
 
 export async function signOut() {
   const supabase = await createClient();
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || defaultLocale;
+  
   await supabase.auth.signOut();
   revalidatePath('/', 'layout');
-  redirect('/login');
+  redirect(`/${locale}/login`);
 }
 
 // Use React cache to deduplicate getCurrentUser calls within the same request
