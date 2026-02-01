@@ -17,8 +17,10 @@ jest.mock('./MobileMenu', () => ({
 
 // Mock next/navigation
 const mockPathname = jest.fn();
+const mockUseSearchParams = jest.fn();
 jest.mock('next/navigation', () => ({
   usePathname: () => mockPathname(),
+  useSearchParams: () => mockUseSearchParams(),
 }));
 
 const messages = {
@@ -36,6 +38,9 @@ describe('Navigation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPathname.mockReturnValue('/en/dashboard');
+    mockUseSearchParams.mockReturnValue({
+      get: jest.fn(() => null),
+    });
     
     // Mock localStorage
     localStorageMock = {};
