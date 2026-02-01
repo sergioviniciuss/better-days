@@ -470,6 +470,29 @@
     "title": "Desafios Públicos",
     "subtitle": "Participe de desafios abertos e construa melhores hábitos juntos.",
     "tagline": "Torne-se 1% melhor a cada dia.",
+    "join": "Entrar",
+    "view": "Ver",
+    "joining": "Entrando...",
+    "participants": "{count} participantes",
+    "noParticipants": "Ainda não há participantes",
+    "thisMonth": "Este Mês",
+    "thisYear": "Este Ano",
+    "lifetime": "Vitalício",
+    "topThisMonth": "Top deste mês:",
+    "habits": {
+      "zero-sugar": {
+        "title": "Zero Açúcar",
+        "description": "Construa um estilo de vida livre de açúcar. Acompanhe seu progresso e compita com outras pessoas nas classificações mensais, anuais e vitalícias."
+      },
+      "zero-alcohol": {
+        "title": "Zero Álcool",
+        "description": "Construa um estilo de vida livre de álcool. Acompanhe seu progresso e compita com outras pessoas nas classificações mensais, anuais e vitalícias."
+      },
+      "active-days": {
+        "title": "Dias Ativos",
+        "description": "Construa o hábito de se exercitar diariamente. Acompanhe seu progresso e compita com outras pessoas nas classificações mensais, anuais e vitalícias."
+      }
+    },
     "filter": {
       "label": "Filtrar por tipo de desafio",
       "all": "Todos os Desafios",
@@ -511,6 +534,7 @@
       "rank": "Posição",
       "participant": "Participante",
       "score": "Pontuação",
+      "days": "Dias",
       "currentStreak": "Sequência Atual",
       "bestStreak": "Melhor Sequência"
     },

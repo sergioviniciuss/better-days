@@ -470,6 +470,29 @@
     "title": "Public Challenges",
     "subtitle": "Join open challenges and build better habits together.",
     "tagline": "Become 1% better every day.",
+    "join": "Join",
+    "view": "View",
+    "joining": "Joining...",
+    "participants": "{count} participants",
+    "noParticipants": "No participants yet",
+    "thisMonth": "This Month",
+    "thisYear": "This Year",
+    "lifetime": "Lifetime",
+    "topThisMonth": "This month top:",
+    "habits": {
+      "zero-sugar": {
+        "title": "Zero Sugar",
+        "description": "Build a sugar-free lifestyle. Track your progress and compete with others in monthly, yearly, and lifetime rankings."
+      },
+      "zero-alcohol": {
+        "title": "Zero Alcohol",
+        "description": "Build an alcohol-free lifestyle. Track your progress and compete with others in monthly, yearly, and lifetime rankings."
+      },
+      "active-days": {
+        "title": "Active Days",
+        "description": "Build a daily exercise habit. Track your progress and compete with others in monthly, yearly, and lifetime rankings."
+      }
+    },
     "filter": {
       "label": "Filter by challenge type",
       "all": "All Challenges",
@@ -511,6 +534,7 @@
       "rank": "Rank",
       "participant": "Participant",
       "score": "Score",
+      "days": "Days",
       "currentStreak": "Current Streak",
       "bestStreak": "Best Streak"
     },
