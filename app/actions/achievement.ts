@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
 import { ACHIEVEMENT_DEFINITIONS, type AchievementDefinition, type UserAchievementData, type AchievementCategory } from '@/lib/achievement-types';
 import { getAchievementProgress } from '@/lib/achievement-detector';
+import type { Timeframe } from '@/lib/types/public-habit';
 
 /**
  * Get all achievements for a user (earned and unearned)
@@ -374,5 +375,443 @@ export const getTopAchievements = async (userId?: string) => {
   } catch (error) {
     console.error('Error in getTopAchievements:', error);
     return { error: 'Failed to get top achievements', achievements: [] };
+  }
+};
+
+// In-memory cache for tracking awarded periods
+// Key format: "habitId:timeframe:period" (e.g., "habit1:MONTH:2026-01")
+const awardedPeriodsCache = new Map<string, boolean>();
+
+/**
+ * Helper: Get current period identifier
+ */
+function getCurrentPeriod(timeframe: string): string {
+  const now = new Date();
+  
+  if (timeframe === 'MONTH') {
+    // Format: "2026-01"
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  } else if (timeframe === 'YEAR') {
+    // Format: "2026"
+    return `${now.getFullYear()}`;
+  } else {
+    // LIFETIME: use current date as period
+    return now.toISOString().split('T')[0];
+  }
+}
+
+/**
+ * Helper: Check if we should award for this period
+ * Only award monthly in first 7 days of new month, yearly in January, lifetime anytime
+ */
+function shouldAwardForPeriod(timeframe: string): boolean {
+  const now = new Date();
+  
+  if (timeframe === 'MONTH') {
+    // Only award in first 7 days of new month (grace period for viewing previous month)
+    const currentDay = now.getDate();
+    return currentDay <= 7;
+  } else if (timeframe === 'YEAR') {
+    // Only award in January (first month of new year)
+    const currentMonth = now.getMonth();
+    return currentMonth === 0; // January
+  } else {
+    // Lifetime can be awarded anytime
+    return true;
+  }
+}
+
+/**
+ * Helper: Check if period has been awarded (in-memory cache)
+ */
+function hasAwardedForPeriod(habitId: string, timeframe: string, period: string): boolean {
+  const cacheKey = `${habitId}:${timeframe}:${period}`;
+  return awardedPeriodsCache.has(cacheKey);
+}
+
+/**
+ * Helper: Mark period as awarded
+ */
+function markPeriodAwarded(habitId: string, timeframe: string, period: string): void {
+  const cacheKey = `${habitId}:${timeframe}:${period}`;
+  awardedPeriodsCache.set(cacheKey, true);
+}
+
+/**
+ * Check and award leaderboard achievements based on current standings
+ * Called on-demand when users view leaderboards
+ * 
+ * This replaces the scheduled cron job approach with event-driven awards
+ */
+export const checkAndAwardLeaderboardAchievements = async (
+  habitId: string,
+  habitSlug: string,
+  timeframe: string,
+  leaderboard: Array<{ displayName: string; rank: number }>
+) => {
+  try {
+    // Early return if not in award window
+    if (!shouldAwardForPeriod(timeframe)) {
+      return { skipped: true, reason: 'Not in award window' };
+    }
+    
+    // Get current period
+    const period = getCurrentPeriod(timeframe);
+    
+    // Check if we've already awarded for this period
+    if (hasAwardedForPeriod(habitId, timeframe, period)) {
+      return { skipped: true, reason: 'Already awarded for this period' };
+    }
+    
+    // If no users on leaderboard, nothing to award
+    if (leaderboard.length === 0) {
+      markPeriodAwarded(habitId, timeframe, period);
+      return { skipped: true, reason: 'No users on leaderboard' };
+    }
+    
+    const supabase = await createClient();
+    const awardedAchievements: Array<{ userId: string; achievementCode: string }> = [];
+    
+    // Track top 3 users for podium tracking
+    const top3DisplayNames = leaderboard.slice(0, 3).map(entry => entry.displayName);
+    
+    // Get user IDs for all leaderboard users
+    const { data: users } = await supabase
+      .from('User')
+      .select('id, email')
+      .in('email', leaderboard.map(entry => entry.displayName));
+    
+    if (!users || users.length === 0) {
+      markPeriodAwarded(habitId, timeframe, period);
+      return { skipped: true, reason: 'No matching users found' };
+    }
+    
+    const emailToUserId = new Map(users.map(u => [u.email, u.id]));
+    
+    // Award rank #1 achievements
+    const rank1User = leaderboard[0];
+    const rank1UserId = emailToUserId.get(rank1User.displayName);
+    
+    if (rank1UserId) {
+      let achievementCode = '';
+      if (timeframe === 'MONTH') {
+        achievementCode = 'MONTHLY_CHAMPION';
+      } else if (timeframe === 'YEAR') {
+        achievementCode = 'ANNUAL_VICTOR';
+      } else if (timeframe === 'LIFETIME') {
+        achievementCode = 'LIFETIME_LEGEND';
+      }
+      
+      if (achievementCode) {
+        const achievement = ACHIEVEMENT_DEFINITIONS.find(a => a.code === achievementCode);
+        if (achievement) {
+          const { data: existing } = await supabase
+            .from('UserAchievement')
+            .select('id')
+            .eq('userId', rank1UserId)
+            .eq('achievementId', achievement.id)
+            .maybeSingle();
+          
+          if (!existing) {
+            const { error: insertError } = await supabase
+              .from('UserAchievement')
+              .insert({
+                userId: rank1UserId,
+                achievementId: achievement.id,
+                earnedAt: new Date().toISOString(),
+              });
+            
+            if (!insertError) {
+              await supabase.rpc('increment_user_achievements', { user_id: rank1UserId });
+              awardedAchievements.push({ userId: rank1UserId, achievementCode });
+            }
+          }
+        }
+      }
+    }
+    
+    // Award Top 3 Contender to all users in top 3
+    const top3Achievement = ACHIEVEMENT_DEFINITIONS.find(a => a.code === 'TOP_3_CONTENDER');
+    if (top3Achievement) {
+      for (const displayName of top3DisplayNames) {
+        const userId = emailToUserId.get(displayName);
+        if (!userId) continue;
+        
+        const { data: existing } = await supabase
+          .from('UserAchievement')
+          .select('id')
+          .eq('userId', userId)
+          .eq('achievementId', top3Achievement.id)
+          .maybeSingle();
+        
+        if (!existing) {
+          const { error: insertError } = await supabase
+            .from('UserAchievement')
+            .insert({
+              userId,
+              achievementId: top3Achievement.id,
+              earnedAt: new Date().toISOString(),
+            });
+          
+          if (!insertError) {
+            await supabase.rpc('increment_user_achievements', { user_id: userId });
+            awardedAchievements.push({ userId, achievementCode: 'TOP_3_CONTENDER' });
+          }
+        }
+      }
+    }
+    
+    // Check for Podium Regular (top 3 in all timeframes)
+    // This requires checking if user is in top 3 for month, year, AND lifetime
+    const podiumAchievement = ACHIEVEMENT_DEFINITIONS.find(a => a.code === 'PODIUM_REGULAR');
+    if (podiumAchievement) {
+      // Get all 3 timeframe leaderboards for this habit
+      const { getPublicHabitDetail } = await import('./public-habit');
+      
+      const [monthDetail, yearDetail, lifetimeDetail] = await Promise.all([
+        getPublicHabitDetail(habitSlug, 'MONTH', true), // Skip award checking to prevent recursion
+        getPublicHabitDetail(habitSlug, 'YEAR', true),
+        getPublicHabitDetail(habitSlug, 'LIFETIME', true),
+      ]);
+      
+      // Get top 3 from each timeframe
+      const monthTop3 = new Set(monthDetail?.leaderboard.slice(0, 3).map(e => e.displayName) || []);
+      const yearTop3 = new Set(yearDetail?.leaderboard.slice(0, 3).map(e => e.displayName) || []);
+      const lifetimeTop3 = new Set(lifetimeDetail?.leaderboard.slice(0, 3).map(e => e.displayName) || []);
+      
+      // Find users who are in top 3 of ALL timeframes
+      for (const [email, userId] of emailToUserId.entries()) {
+        if (monthTop3.has(email) && yearTop3.has(email) && lifetimeTop3.has(email)) {
+          const { data: existing } = await supabase
+            .from('UserAchievement')
+            .select('id')
+            .eq('userId', userId)
+            .eq('achievementId', podiumAchievement.id)
+            .maybeSingle();
+          
+          if (!existing) {
+            const { error: insertError } = await supabase
+              .from('UserAchievement')
+              .insert({
+                userId,
+                achievementId: podiumAchievement.id,
+                earnedAt: new Date().toISOString(),
+              });
+            
+            if (!insertError) {
+              await supabase.rpc('increment_user_achievements', { user_id: userId });
+              awardedAchievements.push({ userId, achievementCode: 'PODIUM_REGULAR' });
+            }
+          }
+        }
+      }
+    }
+    
+    // Mark this period as awarded
+    markPeriodAwarded(habitId, timeframe, period);
+    
+    return {
+      success: true,
+      awarded: awardedAchievements,
+      period,
+      timeframe,
+    };
+  } catch (error) {
+    console.error('[Award Leaderboard] Error:', error);
+    return { error: 'Failed to award achievements' };
+  }
+};
+
+/**
+ * Legacy function kept for backfill compatibility
+ * Award public habit leaderboard achievements
+ * This should be called at end of month/year to check final leaderboard positions
+ * Can also be called manually to check current positions
+ */
+export const awardPublicHabitLeaderboardAchievements = async () => {
+  try {
+    const supabase = await createClient();
+    
+    // Get all public habits
+    const { data: publicHabits, error: habitsError } = await supabase
+      .from('PublicHabit')
+      .select('id, slug, objectiveType')
+      .eq('isPublic', true);
+    
+    if (habitsError || !publicHabits) {
+      console.error('Error fetching public habits:', habitsError);
+      return { error: 'Failed to fetch public habits', awarded: [] };
+    }
+    
+    const awardedAchievements: Array<{ userId: string; achievementCode: string; habitSlug: string }> = [];
+    
+    // Import the leaderboard calculation function
+    const { getPublicHabitDetail } = await import('./public-habit');
+    
+    // Track top 3 positions per user per timeframe for "Podium Regular" check
+    const userTimeframePositions = new Map<string, Set<Timeframe>>();
+    
+    // For each public habit
+    for (const habit of publicHabits) {
+      // Check each timeframe
+      const timeframes: Timeframe[] = ['MONTH', 'YEAR', 'LIFETIME'];
+      
+      for (const timeframe of timeframes) {
+        const habitDetail = await getPublicHabitDetail(habit.slug, timeframe, true); // Skip award checking in backfill
+        if (!habitDetail || !habitDetail.leaderboard.length) continue;
+        
+        const leaderboard = habitDetail.leaderboard;
+        
+        // Get user IDs for top positions
+        const rank1User = leaderboard[0];
+        const top3Users = leaderboard.slice(0, 3);
+        
+        // Award rank #1 achievements
+        if (rank1User) {
+          // Get userId from displayName (email)
+          const { data: rank1UserData } = await supabase
+            .from('User')
+            .select('id')
+            .eq('email', rank1User.displayName)
+            .single();
+          
+          if (rank1UserData) {
+            const userId = rank1UserData.id;
+            
+            // Determine which achievement to award based on timeframe
+            let achievementCode = '';
+            if (timeframe === 'MONTH') {
+              achievementCode = 'MONTHLY_CHAMPION';
+            } else if (timeframe === 'YEAR') {
+              achievementCode = 'ANNUAL_VICTOR';
+            } else if (timeframe === 'LIFETIME') {
+              achievementCode = 'LIFETIME_LEGEND';
+            }
+            
+            if (achievementCode) {
+              const achievement = ACHIEVEMENT_DEFINITIONS.find(a => a.code === achievementCode);
+              if (achievement) {
+                // Check if user already has this achievement
+                const { data: existing } = await supabase
+                  .from('UserAchievement')
+                  .select('id')
+                  .eq('userId', userId)
+                  .eq('achievementId', achievement.id)
+                  .maybeSingle();
+                
+                if (!existing) {
+                  // Award the achievement
+                  const { error: insertError } = await supabase
+                    .from('UserAchievement')
+                    .insert({
+                      userId,
+                      achievementId: achievement.id,
+                      earnedAt: new Date().toISOString(),
+                    });
+                  
+                  if (!insertError) {
+                    await supabase.rpc('increment_user_achievements', { user_id: userId });
+                    awardedAchievements.push({ 
+                      userId, 
+                      achievementCode, 
+                      habitSlug: habit.slug 
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // Award top 3 achievements and track for podium regular
+        for (const topUser of top3Users) {
+          const { data: topUserData } = await supabase
+            .from('User')
+            .select('id')
+            .eq('email', topUser.displayName)
+            .single();
+          
+          if (topUserData) {
+            const userId = topUserData.id;
+            
+            // Track this user has top 3 in this timeframe
+            if (!userTimeframePositions.has(userId)) {
+              userTimeframePositions.set(userId, new Set());
+            }
+            userTimeframePositions.get(userId)!.add(timeframe);
+            
+            // Award "Top 3 Contender" if they don't have it yet
+            const top3Achievement = ACHIEVEMENT_DEFINITIONS.find(a => a.code === 'TOP_3_CONTENDER');
+            if (top3Achievement) {
+              const { data: existing } = await supabase
+                .from('UserAchievement')
+                .select('id')
+                .eq('userId', userId)
+                .eq('achievementId', top3Achievement.id)
+                .maybeSingle();
+              
+              if (!existing) {
+                const { error: insertError } = await supabase
+                  .from('UserAchievement')
+                  .insert({
+                    userId,
+                    achievementId: top3Achievement.id,
+                    earnedAt: new Date().toISOString(),
+                  });
+                
+                if (!insertError) {
+                  await supabase.rpc('increment_user_achievements', { user_id: userId });
+                  awardedAchievements.push({ 
+                    userId, 
+                    achievementCode: 'TOP_3_CONTENDER', 
+                    habitSlug: habit.slug 
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Check for "Podium Regular" - users who are in top 3 in all 3 timeframes
+    const podiumAchievement = ACHIEVEMENT_DEFINITIONS.find(a => a.code === 'PODIUM_REGULAR');
+    if (podiumAchievement) {
+      for (const [userId, timeframes] of userTimeframePositions.entries()) {
+        if (timeframes.size === 3) {
+          // User is in top 3 in all timeframes
+          const { data: existing } = await supabase
+            .from('UserAchievement')
+            .select('id')
+            .eq('userId', userId)
+            .eq('achievementId', podiumAchievement.id)
+            .maybeSingle();
+          
+          if (!existing) {
+            const { error: insertError } = await supabase
+              .from('UserAchievement')
+              .insert({
+                userId,
+                achievementId: podiumAchievement.id,
+                earnedAt: new Date().toISOString(),
+              });
+            
+            if (!insertError) {
+              await supabase.rpc('increment_user_achievements', { user_id: userId });
+              awardedAchievements.push({ 
+                userId, 
+                achievementCode: 'PODIUM_REGULAR', 
+                habitSlug: 'all' 
+              });
+            }
+          }
+        }
+      }
+    }
+    
+    return { success: true, awarded: awardedAchievements };
+  } catch (error) {
+    console.error('Error in awardPublicHabitLeaderboardAchievements:', error);
+    return { error: 'Failed to award achievements', awarded: [] };
   }
 };

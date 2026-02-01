@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
 import { calculateStreaks } from '@/lib/streak-utils';
+import { checkAndAwardAchievements } from '@/lib/achievement-detector';
 import type { 
   PublicHabit, 
   PublicHabitListItem, 
@@ -61,6 +62,7 @@ export async function getPublicHabitsList(): Promise<PublicHabitListItem[]> {
           habit.objectiveType,
           'MONTH',
           habit.id,
+          habit.slug,
           3
         );
 
@@ -92,7 +94,8 @@ export async function getPublicHabitsList(): Promise<PublicHabitListItem[]> {
  */
 export async function getPublicHabitDetail(
   slug: string,
-  timeframe: Timeframe = 'MONTH'
+  timeframe: Timeframe = 'MONTH',
+  skipAwardChecking: boolean = false
 ): Promise<PublicHabitDetail | null> {
   try {
     const supabase = await createClient();
@@ -137,7 +140,9 @@ export async function getPublicHabitDetail(
       habit.objectiveType,
       timeframe,
       habit.id,
-      10
+      habit.slug,
+      50,
+      skipAwardChecking
     );
 
     return {
@@ -163,12 +168,15 @@ export async function getPublicHabitDetail(
 /**
  * Calculate leaderboard for a public habit based on objectiveType and timeframe
  * This queries DailyLog by objectiveType (NOT challengeId) to support shared logging
+ * Also checks and awards achievements on-demand when leaderboard is viewed
  */
 async function calculatePublicHabitLeaderboard(
   habitObjectiveType: string,
   timeframe: Timeframe,
   habitId: string,
-  limit: number = 10
+  habitSlug: string,
+  limit: number = 10,
+  skipAwardChecking: boolean = false
 ): Promise<LeaderboardEntry[]> {
   try {
     const supabase = await createClient();
@@ -273,13 +281,35 @@ async function calculatePublicHabitLeaderboard(
     scores.sort((a, b) => b.score - a.score);
 
     // Add ranks and limit results
-    return scores.slice(0, limit).map((entry, index) => ({
+    const leaderboard = scores.slice(0, limit).map((entry, index) => ({
       rank: index + 1,
       displayName: entry.displayName,
       score: entry.score,
       currentStreak: entry.currentStreak,
       achievementCount: entry.achievementCount,
     }));
+
+    // After calculating leaderboard, check and award achievements on-demand
+    // This replaces the need for scheduled cron jobs
+    // Skip if explicitly requested (e.g., during backfill to prevent circular calls)
+    if (!skipAwardChecking) {
+      try {
+        const { checkAndAwardLeaderboardAchievements } = await import('./achievement');
+        await checkAndAwardLeaderboardAchievements(
+          habitId,
+          habitSlug,
+          timeframe,
+          leaderboard
+        ).catch(err => {
+          // Don't fail leaderboard calculation if achievement awarding fails
+          console.error('[Leaderboard] Error checking achievements:', err);
+        });
+      } catch (err) {
+        console.error('[Leaderboard] Error loading achievement module:', err);
+      }
+    }
+
+    return leaderboard;
   } catch (error) {
     console.error('Error calculating leaderboard:', error);
     return [];
@@ -351,6 +381,13 @@ export async function joinPublicHabit(habitId: string) {
         revalidatePath('/[locale]/public-challenges', 'page');
         revalidatePath(`/[locale]/public-challenges/${habit.slug}`, 'page');
 
+        // Check and award public habit achievements (async, non-blocking)
+        checkAndAwardAchievements({
+          userId: user.id,
+          context: 'public_habit_joined',
+          timezone: user.timezone || 'UTC',
+        }).catch(err => console.error('Error checking achievements:', err));
+
         return { success: true, habitId, slug: habit.slug };
       }
     }
@@ -373,6 +410,13 @@ export async function joinPublicHabit(habitId: string) {
 
     revalidatePath('/[locale]/public-challenges', 'page');
     revalidatePath(`/[locale]/public-challenges/${habit.slug}`, 'page');
+
+    // Check and award public habit achievements (async, non-blocking)
+    checkAndAwardAchievements({
+      userId: user.id,
+      context: 'public_habit_joined',
+      timezone: user.timezone || 'UTC',
+    }).catch(err => console.error('Error checking achievements:', err));
 
     return { success: true, habitId, slug: habit.slug };
   } catch (error) {

@@ -123,7 +123,15 @@ describe('Achievement Types', () => {
         'challenge_completed',
         'group_challenges_created',
         'group_challenges_joined',
-        'join_large_challenge'
+        'join_large_challenge',
+        'public_habit_joined',
+        'public_habits_joined_count',
+        'public_habit_rank_1_monthly',
+        'public_habit_rank_1_yearly',
+        'public_habit_rank_1_lifetime',
+        'public_habit_top_3',
+        'public_habit_podium_all',
+        'public_habit_multi_streak',
       ];
 
       ACHIEVEMENT_DEFINITIONS.forEach(achievement => {

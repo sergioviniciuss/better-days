@@ -16,6 +16,9 @@ jest.mock('./auth');
 jest.mock('next/cache', () => ({
   revalidatePath: jest.fn(),
 }));
+jest.mock('@/lib/achievement-detector', () => ({
+  checkAndAwardAchievements: jest.fn().mockResolvedValue([]),
+}));
 
 describe('public-habit actions', () => {
   const mockUser = {
@@ -129,6 +132,53 @@ describe('public-habit actions', () => {
       const result = await joinPublicHabit('habit-1');
 
       expect(result).toEqual({ error: 'Habit is not public' });
+    });
+
+    it('should trigger achievement check on successful join', async () => {
+      const { checkAndAwardAchievements } = require('@/lib/achievement-detector');
+      (getCurrentUser as jest.Mock).mockResolvedValue({ ...mockUser, timezone: 'America/New_York' });
+
+      // Mock habit query
+      mockSupabase.from.mockReturnValueOnce({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({
+          data: { id: 'habit-1', isPublic: true, slug: 'zero-sugar' },
+          error: null,
+        }),
+      });
+
+      // Mock membership check (no existing membership)
+      mockSupabase.from.mockReturnValueOnce({
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: null,
+          error: null,
+        }),
+      });
+
+      // Mock insert
+      mockSupabase.from.mockReturnValueOnce({
+        insert: jest.fn().mockResolvedValue({
+          data: null,
+          error: null,
+        }),
+      });
+
+      await joinPublicHabit('habit-1');
+
+      // Wait for async achievement check
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Verify achievement check was called with correct context
+      expect(checkAndAwardAchievements).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-123',
+          context: 'public_habit_joined',
+          timezone: 'America/New_York',
+        })
+      );
     });
   });
 

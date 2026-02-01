@@ -141,6 +141,38 @@
       "active_community": {
         "name": "Active Community",
         "description": "Join a challenge with 5+ members"
+      },
+      "public_challenger": {
+        "name": "Public Challenger",
+        "description": "Join your first public habit"
+      },
+      "community_member": {
+        "name": "Community Member",
+        "description": "Join all 3 public habits"
+      },
+      "monthly_champion": {
+        "name": "Monthly Champion",
+        "description": "Reach #1 on any monthly leaderboard"
+      },
+      "annual_victor": {
+        "name": "Annual Victor",
+        "description": "Reach #1 on any yearly leaderboard"
+      },
+      "lifetime_legend": {
+        "name": "Lifetime Legend",
+        "description": "Reach #1 on any lifetime leaderboard"
+      },
+      "top_3_contender": {
+        "name": "Top 3 Contender",
+        "description": "Reach top 3 in any timeframe"
+      },
+      "podium_regular": {
+        "name": "Podium Regular",
+        "description": "Reach top 3 in all timeframes"
+      },
+      "multi_habit_hero": {
+        "name": "Multi-Habit Hero",
+        "description": "Maintain 7+ day streaks in all 3 public habits"
       }
     }
   },
