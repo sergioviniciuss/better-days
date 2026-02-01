@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { createPersonalChallenge, upgradeToGroupChallenge } from '@/app/actions/challenge';
+import { joinPublicHabit } from '@/app/actions/public-habit';
 import { ChallengeIcon } from '@/lib/challenge-icons';
 
 interface OnboardingFlowProps {
@@ -24,12 +25,18 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
   const [codeCopied, setCodeCopied] = useState(false);
   const [isInviteFlow, setIsInviteFlow] = useState(false);
   const [storedInviteCode, setStoredInviteCode] = useState<string | null>(null);
+  const [storedJoinHabitId, setStoredJoinHabitId] = useState<string | null>(null);
 
   useEffect(() => {
     const inviteCode = sessionStorage.getItem('pendingInviteCode');
+    const joinHabitId = sessionStorage.getItem('joinHabitId');
+    
     if (inviteCode) {
       setIsInviteFlow(true);
       setStoredInviteCode(inviteCode);
+    } else if (joinHabitId) {
+      setIsInviteFlow(true); // Use same simplified flow for habit joining
+      setStoredJoinHabitId(joinHabitId);
     }
   }, []);
 
@@ -108,10 +115,25 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
       // Small delay to allow session sync
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Clear and redirect to join page
+      // Handle invite code flow
       if (storedInviteCode) {
         sessionStorage.removeItem('pendingInviteCode');
         window.location.href = `/${locale}/join/${storedInviteCode}`;
+      }
+      // Handle public habit join flow
+      else if (storedJoinHabitId) {
+        sessionStorage.removeItem('joinHabitId');
+        try {
+          const result = await joinPublicHabit(storedJoinHabitId);
+          if (result.success && result.slug) {
+            window.location.href = `/${locale}/public-challenges/${result.slug}?timeframe=month`;
+          } else {
+            window.location.href = `/${locale}/public-challenges`;
+          }
+        } catch (err) {
+          console.error('Error joining public habit:', err);
+          window.location.href = `/${locale}/public-challenges`;
+        }
       }
     } catch (error) {
       console.error('Error completing onboarding:', error);
@@ -129,9 +151,24 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
     
     // Check if user was invited to join a challenge
     const pendingInviteCode = sessionStorage.getItem('pendingInviteCode');
+    const joinHabitId = sessionStorage.getItem('joinHabitId');
+    
     if (pendingInviteCode) {
       sessionStorage.removeItem('pendingInviteCode');
       router.push(`/${locale}/join/${pendingInviteCode}`);
+    } else if (joinHabitId) {
+      sessionStorage.removeItem('joinHabitId');
+      try {
+        const result = await joinPublicHabit(joinHabitId);
+        if (result.success && result.slug) {
+          router.push(`/${locale}/public-challenges/${result.slug}?timeframe=month`);
+        } else {
+          router.push(`/${locale}/public-challenges`);
+        }
+      } catch (err) {
+        console.error('Error joining public habit:', err);
+        router.push(`/${locale}/public-challenges`);
+      }
     } else {
       router.push(`/${locale}/dashboard`);
     }

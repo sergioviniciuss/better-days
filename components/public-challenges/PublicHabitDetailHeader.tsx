@@ -39,7 +39,7 @@ export const PublicHabitDetailHeader = ({ habit }: PublicHabitDetailHeaderProps)
         if (result.error === 'Not authenticated') {
           // Store habit ID for auto-join after login
           sessionStorage.setItem('joinHabitId', habit.id);
-          router.push(`/${locale}/login?returnTo=${pathname}`);
+          router.push(`/${locale}/login?returnUrl=${pathname}`);
         } else {
           setError(result.error);
           setIsJoining(false);

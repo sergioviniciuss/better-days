@@ -73,7 +73,7 @@ export const PublicChallengeCard = ({ challenge }: PublicChallengeCardProps) => 
         if (result.error === 'Not authenticated') {
           // Store challenge ID for auto-join after login
           sessionStorage.setItem('joinChallengeId', challenge.id);
-          router.push(`/${locale}/login?returnTo=${pathname}`);
+          router.push(`/${locale}/login?returnUrl=${pathname}`);
         } else {
           setError(result.error);
           setIsJoining(false);

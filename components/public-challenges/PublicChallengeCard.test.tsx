@@ -257,7 +257,7 @@ describe('PublicChallengeCard', () => {
 
       await waitFor(() => {
         expect(sessionStorage.getItem('joinChallengeId')).toBe('challenge-1');
-        expect(mockPush).toHaveBeenCalledWith('/en/login?returnTo=/en/public-challenges');
+        expect(mockPush).toHaveBeenCalledWith('/en/login?returnUrl=/en/public-challenges');
       });
     });
 

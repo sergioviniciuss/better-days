@@ -2,6 +2,12 @@ import { joinPublicHabit, leavePublicHabit } from './public-habit';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
 
+// Mock crypto.randomUUID for tests
+global.crypto = {
+  ...global.crypto,
+  randomUUID: () => 'test-uuid-123',
+} as any;
+
 // Mock dependencies
 jest.mock('@/lib/supabase/server');
 jest.mock('./auth');
@@ -59,6 +65,7 @@ describe('public-habit actions', () => {
       // Mock insert
       mockSupabase.from.mockReturnValueOnce({
         insert: jest.fn().mockResolvedValue({
+          data: null,
           error: null,
         }),
       });

@@ -156,7 +156,7 @@ describe('PublicHabitCard', () => {
 
       await waitFor(() => {
         expect(sessionStorage.getItem('joinHabitId')).toBe('habit-1');
-        expect(mockPush).toHaveBeenCalledWith('/en/login?returnTo=/en/public-challenges');
+        expect(mockPush).toHaveBeenCalledWith('/en/login?returnUrl=/en/public-challenges');
       });
     });
 

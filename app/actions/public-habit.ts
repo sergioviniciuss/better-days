@@ -343,6 +343,7 @@ export async function joinPublicHabit(habitId: string) {
     const { error: insertError } = await supabase
       .from('PublicHabitMember')
       .insert({
+        id: crypto.randomUUID(), // Generate ID since Supabase doesn't auto-generate cuid
         habitId,
         userId: user.id,
         status: 'ACTIVE',
