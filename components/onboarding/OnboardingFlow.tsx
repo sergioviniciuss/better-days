@@ -24,6 +24,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
   const [challengeId, setChallengeId] = useState<string | null>(null);
   const [codeCopied, setCodeCopied] = useState(false);
   const [isInviteFlow, setIsInviteFlow] = useState(false);
+  const [isPublicHabitFlow, setIsPublicHabitFlow] = useState(false);
   const [storedInviteCode, setStoredInviteCode] = useState<string | null>(null);
   const [storedJoinHabitId, setStoredJoinHabitId] = useState<string | null>(null);
 
@@ -35,7 +36,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
       setIsInviteFlow(true);
       setStoredInviteCode(inviteCode);
     } else if (joinHabitId) {
-      setIsInviteFlow(true); // Use same simplified flow for habit joining
+      setIsPublicHabitFlow(true);
       setStoredJoinHabitId(joinHabitId);
     }
   }, []);
@@ -190,7 +191,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex justify-center px-4 py-20">
       <div className="max-w-2xl w-full h-fit bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12">
         {/* Progress Indicator */}
-        {!isInviteFlow && (
+        {!isInviteFlow && !isPublicHabitFlow && (
           <div className="flex justify-center gap-2 mb-8">
             {[1, 2, 3, 4, 5].map((i) => (
               <div
@@ -238,8 +239,39 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
           </div>
         )}
 
+        {/* Simplified Welcome for Public Habit Flow */}
+        {isPublicHabitFlow && (
+          <div className="text-center space-y-6 animate-fade-in min-h-[400px] flex flex-col justify-between">
+            <div className="space-y-6">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+                {t('welcome')}
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300">
+                {t('inviteWelcomeSubtitle')}
+              </p>
+              
+              <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-8 my-8">
+                <div className="text-6xl mb-4">🌍</div>
+                <p className="text-lg text-gray-700 dark:text-gray-300">
+                  {t('publicHabitWelcomeMessage')}
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-8">
+              <button
+                onClick={handleFinishInviteOnboarding}
+                disabled={loading}
+                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg font-semibold text-lg transition-colors min-h-[56px] min-w-[56px]"
+              >
+                {loading ? t('loadingChallenge') : t('viewChallenge')}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Step 1: Welcome */}
-        {!isInviteFlow && step === 1 && (
+        {!isInviteFlow && !isPublicHabitFlow && step === 1 && (
           <div className="text-center space-y-6 animate-fade-in min-h-[400px] flex flex-col justify-between">
             <div className="space-y-6">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
@@ -261,7 +293,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
         )}
 
         {/* Step 2: How It Works */}
-        {!isInviteFlow && step === 2 && (
+        {!isInviteFlow && !isPublicHabitFlow && step === 2 && (
           <div className="space-y-8 animate-fade-in min-h-[400px] flex flex-col justify-between">
             <div className="space-y-8">
               <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 dark:text-white">
@@ -334,7 +366,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
         )}
 
         {/* Step 3: First Challenge */}
-        {!isInviteFlow && step === 3 && (
+        {!isInviteFlow && !isPublicHabitFlow && step === 3 && (
           <div className="text-center space-y-6 animate-fade-in min-h-[400px] flex flex-col justify-between">
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
@@ -377,7 +409,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
         )}
 
         {/* Step 4: Select Rules */}
-        {!isInviteFlow && step === 4 && (
+        {!isInviteFlow && !isPublicHabitFlow && step === 4 && (
           <div className="space-y-6 animate-fade-in min-h-[400px] flex flex-col justify-between">
             <div className="space-y-6">
               <div className="text-center">
@@ -518,7 +550,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
         )}
 
         {/* Step 5: Invite Friends (Optional) */}
-        {!isInviteFlow && step === 5 && !inviteChoice && (
+        {!isInviteFlow && !isPublicHabitFlow && step === 5 && !inviteChoice && (
           <div className="text-center space-y-6 animate-fade-in min-h-[400px] flex flex-col justify-between">
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
@@ -555,7 +587,7 @@ export function OnboardingFlow({ userId, locale }: OnboardingFlowProps) {
         )}
 
         {/* Step 5b: Show Invite Code if generated */}
-        {!isInviteFlow && step === 5 && inviteChoice === 'yes' && inviteCode && (
+        {!isInviteFlow && !isPublicHabitFlow && step === 5 && inviteChoice === 'yes' && inviteCode && (
           <div className="text-center space-y-6 animate-fade-in min-h-[400px] flex flex-col justify-between">
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">

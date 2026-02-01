@@ -423,7 +423,8 @@
     "viewChallenge": "Ver Desafio",
     "loadingChallenge": "Carregando desafio...",
     "inviteWelcomeSubtitle": "Acompanhe seus hábitos, construa sequências e compita com amigos!",
-    "inviteWelcomeMessage": "Você foi convidado para entrar em um desafio. Vamos ver o que seus amigos estão fazendo!"
+    "inviteWelcomeMessage": "Você foi convidado para entrar em um desafio. Vamos ver o que seus amigos estão fazendo!",
+    "publicHabitWelcomeMessage": "Você está prestes a participar de um desafio comunitário! Compete com pessoas do mundo todo e acompanhe seu progresso juntos."
   },
   "challengeConfirmation": {
     "noAlcohol": "Sem Álcool",

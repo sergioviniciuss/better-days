@@ -454,7 +454,16 @@ export async function joinChallengeByCode(inviteCode: string) {
   }
 }
 
-export async function createPersonalChallenge(userId: string, rules: string[] = []) {
+/**
+ * Helper function to create a personal challenge with any objectiveType
+ * Used by both onboarding flow and public habit auto-creation
+ */
+export async function createPersonalChallengeForObjective(
+  userId: string, 
+  name: string,
+  objectiveType: string,
+  rules: string[] = []
+) {
   try {
     const supabase = await createClient();
 
@@ -491,18 +500,19 @@ export async function createPersonalChallenge(userId: string, rules: string[] = 
     }
 
     if (!shortIdUnique) {
+      console.error('[createPersonalChallengeForObjective] Failed to generate unique short ID after 10 attempts');
       return { error: 'Failed to generate unique short ID' };
     }
 
-    // Create personal "No Sugar Challenge"
+    // Create personal challenge
     const { data: challenge, error: challengeError } = await supabase
       .from('Challenge')
       .insert({
         ownerUserId: userId,
-        name: 'No Sugar Challenge',
-        objectiveType: 'NO_SUGAR_STREAK',
+        name,
+        objectiveType,
         challengeType: 'PERSONAL',
-        rules: rules,
+        rules,
         startDate: today,
         shortId,
         createdAt: new Date().toISOString(),
@@ -511,9 +521,20 @@ export async function createPersonalChallenge(userId: string, rules: string[] = 
       .single();
 
     if (challengeError || !challenge) {
-      console.error('Error creating personal challenge:', challengeError);
-      return { error: 'Failed to create personal challenge' };
+      console.error('[createPersonalChallengeForObjective] Error creating challenge:', {
+        error: challengeError,
+        userId,
+        name,
+        objectiveType,
+      });
+      return { error: 'Failed to create personal challenge', details: challengeError };
     }
+
+    console.log('[createPersonalChallengeForObjective] Challenge created successfully:', {
+      challengeId: challenge.id,
+      name: challenge.name,
+      objectiveType: challenge.objectiveType,
+    });
 
     // Add user as owner/member
     const { error: memberError } = await supabase
@@ -526,15 +547,25 @@ export async function createPersonalChallenge(userId: string, rules: string[] = 
       });
 
     if (memberError) {
-      console.error('Error adding user to personal challenge:', memberError);
-      return { error: 'Failed to add user to personal challenge' };
+      console.error('[createPersonalChallengeForObjective] Error adding user as member:', memberError);
+      return { error: 'Failed to add user to personal challenge', details: memberError };
     }
 
     return { success: true, challengeId: challenge.id };
   } catch (error) {
-    console.error('Error creating personal challenge:', error);
-    return { error: 'Failed to create personal challenge' };
+    console.error('[createPersonalChallengeForObjective] Unexpected error:', error);
+    return { error: 'Failed to create personal challenge', details: error };
   }
+}
+
+export async function createPersonalChallenge(userId: string, rules: string[] = []) {
+  // Use the helper function with default "No Sugar Challenge" settings
+  return createPersonalChallengeForObjective(
+    userId,
+    'No Sugar Challenge',
+    'NO_SUGAR_STREAK',
+    rules
+  );
 }
 
 export async function upgradeToGroupChallenge(challengeId: string) {

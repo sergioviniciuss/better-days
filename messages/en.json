@@ -423,7 +423,8 @@
     "viewChallenge": "View Challenge",
     "loadingChallenge": "Loading challenge...",
     "inviteWelcomeSubtitle": "Track your habits, build streaks, and compete with friends!",
-    "inviteWelcomeMessage": "You've been invited to join a challenge. Let's see what your friends are up to!"
+    "inviteWelcomeMessage": "You've been invited to join a challenge. Let's see what your friends are up to!",
+    "publicHabitWelcomeMessage": "You're about to join a community challenge! Compete with people from around the world and track your progress together."
   },
   "challengeConfirmation": {
     "noAlcohol": "No Alcohol",

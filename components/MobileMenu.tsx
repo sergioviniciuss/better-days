@@ -9,13 +9,18 @@ interface MobileMenuProps {
   navItems: Array<{ href: string; label: string; isNew?: boolean }>;
   userEmail?: string | null;
   pathname: string;
+  searchParams: ReturnType<typeof import('next/navigation').useSearchParams> | null;
 }
 
-export function MobileMenu({ navItems, userEmail, pathname }: MobileMenuProps) {
+export function MobileMenu({ navItems, userEmail, pathname, searchParams }: MobileMenuProps) {
   const t = useTranslations('auth');
   const tCommon = useTranslations('common');
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  
+  // Detect if on login page and what mode
+  const isOnLoginPage = pathname?.includes('/login');
+  const isSignupMode = searchParams?.get('mode') === 'signup';
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -203,20 +208,26 @@ export function MobileMenu({ navItems, userEmail, pathname }: MobileMenuProps) {
               </button>
             ) : (
               <>
-                <Link
-                  href={`/${pathname.split('/')[1]}/login`}
-                  onClick={() => setIsOpen(false)}
-                  className="w-full px-4 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-md min-h-[44px] flex items-center justify-center transition-colors"
-                >
-                  {t('login')}
-                </Link>
-                <Link
-                  href={`/${pathname.split('/')[1]}/login`}
-                  onClick={() => setIsOpen(false)}
-                  className="w-full px-4 py-3 text-base font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-700 border border-blue-600 dark:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 rounded-md min-h-[44px] flex items-center justify-center transition-colors"
-                >
-                  {t('signup')}
-                </Link>
+                {/* Show Login button unless on login page in login mode */}
+                {(!isOnLoginPage || isSignupMode) && (
+                  <Link
+                    href={`/${pathname?.split('/')[1] || 'en'}/login`}
+                    onClick={() => setIsOpen(false)}
+                    className="w-full px-4 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-md min-h-[44px] flex items-center justify-center transition-colors"
+                  >
+                    {t('login')}
+                  </Link>
+                )}
+                {/* Show Sign Up button unless on login page in signup mode */}
+                {(!isOnLoginPage || !isSignupMode) && (
+                  <Link
+                    href={`/${pathname?.split('/')[1] || 'en'}/login?mode=signup`}
+                    onClick={() => setIsOpen(false)}
+                    className="w-full px-4 py-3 text-base font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-700 border border-blue-600 dark:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 rounded-md min-h-[44px] flex items-center justify-center transition-colors"
+                  >
+                    {t('signup')}
+                  </Link>
+                )}
               </>
             )}
           </div>

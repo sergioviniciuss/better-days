@@ -378,6 +378,56 @@ export async function joinPublicHabit(habitId: string) {
           return { error: 'Failed to rejoin habit' };
         }
 
+    // Auto-create a private challenge for logging if user doesn't have one
+    // This allows users to log progress for the public habit
+    try {
+      const { data: habitWithType, error: habitTypeError } = await supabase
+        .from('PublicHabit')
+        .select('objectiveType, title')
+        .eq('id', habitId)
+        .single();
+
+      if (habitWithType && !habitTypeError) {
+        // Check if user already has a challenge with this objectiveType
+        const { data: existingChallenge } = await supabase
+          .from('Challenge')
+          .select('id')
+          .eq('ownerUserId', user.id)
+          .eq('objectiveType', habitWithType.objectiveType)
+          .maybeSingle();
+
+        if (!existingChallenge) {
+          console.log(`[joinPublicHabit] Auto-creating challenge for user ${user.id}, objectiveType: ${habitWithType.objectiveType}`);
+          
+          // Set default rules based on objective type
+          const defaultRules = habitWithType.objectiveType === 'NO_SUGAR_STREAK' 
+            ? ['addedSugarCounts', 'fruitDoesNotCount']
+            : [];
+
+          // Use the proper challenge creation helper
+          const { createPersonalChallengeForObjective } = await import('./challenge');
+          const result = await createPersonalChallengeForObjective(
+            user.id,
+            `My ${habitWithType.title}`,
+            habitWithType.objectiveType,
+            defaultRules
+          );
+
+          if (result.error) {
+            console.error('[joinPublicHabit] Failed to create auto-challenge:', result);
+            // Don't fail the rejoin if challenge creation fails
+          } else {
+            console.log('[joinPublicHabit] Auto-challenge created successfully:', result.challengeId);
+          }
+        } else {
+          console.log(`[joinPublicHabit] User already has a challenge for objectiveType: ${habitWithType.objectiveType}`);
+        }
+      }
+    } catch (err) {
+      console.error('[joinPublicHabit] Error in auto-challenge creation:', err);
+      // Don't fail the rejoin
+    }
+
         revalidatePath('/[locale]/public-challenges', 'page');
         revalidatePath(`/[locale]/public-challenges/${habit.slug}`, 'page');
 
@@ -406,6 +456,56 @@ export async function joinPublicHabit(habitId: string) {
     if (insertError) {
       console.error('Error creating membership:', insertError);
       return { error: 'Failed to join habit' };
+    }
+
+    // Auto-create a private challenge for logging if user doesn't have one
+    // This allows users to log progress for the public habit
+    try {
+      const { data: habitWithType, error: habitTypeError } = await supabase
+        .from('PublicHabit')
+        .select('objectiveType, title')
+        .eq('id', habitId)
+        .single();
+
+      if (habitWithType && !habitTypeError) {
+        // Check if user already has a challenge with this objectiveType
+        const { data: existingChallenge } = await supabase
+          .from('Challenge')
+          .select('id')
+          .eq('ownerUserId', user.id)
+          .eq('objectiveType', habitWithType.objectiveType)
+          .maybeSingle();
+
+        if (!existingChallenge) {
+          console.log(`[joinPublicHabit] Auto-creating challenge for user ${user.id}, objectiveType: ${habitWithType.objectiveType}`);
+          
+          // Set default rules based on objective type
+          const defaultRules = habitWithType.objectiveType === 'NO_SUGAR_STREAK' 
+            ? ['addedSugarCounts', 'fruitDoesNotCount']
+            : [];
+
+          // Use the proper challenge creation helper
+          const { createPersonalChallengeForObjective } = await import('./challenge');
+          const result = await createPersonalChallengeForObjective(
+            user.id,
+            `My ${habitWithType.title}`,
+            habitWithType.objectiveType,
+            defaultRules
+          );
+
+          if (result.error) {
+            console.error('[joinPublicHabit] Failed to create auto-challenge:', result);
+            // Don't fail the join if challenge creation fails
+          } else {
+            console.log('[joinPublicHabit] Auto-challenge created successfully:', result.challengeId);
+          }
+        } else {
+          console.log(`[joinPublicHabit] User already has a challenge for objectiveType: ${habitWithType.objectiveType}`);
+        }
+      }
+    } catch (err) {
+      console.error('[joinPublicHabit] Error in auto-challenge creation:', err);
+      // Don't fail the join
     }
 
     revalidatePath('/[locale]/public-challenges', 'page');

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -21,10 +21,15 @@ export function Navigation({ userEmail }: NavigationProps) {
   const tCommon = useTranslations('common');
   const t = useTranslations('auth');
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [showAchievementsBadge, setShowAchievementsBadge] = useState(false);
   
   // Parse locale from pathname - more reliable than useParams() which can fail during SSR
-  const locale = pathname.split('/')[1] || 'en';
+  const locale = pathname?.split('/')[1] || 'en';
+  
+  // Detect if on login page and what mode
+  const isOnLoginPage = pathname?.includes('/login');
+  const isSignupMode = searchParams?.get('mode') === 'signup';
 
   // Check if user has visited achievements page
   useEffect(() => {
@@ -94,25 +99,31 @@ export function Navigation({ userEmail }: NavigationProps) {
                 <UserProfileMenu userEmail={userEmail} />
               ) : (
                 <>
-                  <Link
-                    href={`/${locale}/login`}
-                    className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md transition-colors min-h-[44px] flex items-center"
-                  >
-                    {t('login')}
-                  </Link>
-                  <Link
-                    href={`/${locale}/login`}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-md transition-colors min-h-[44px] flex items-center"
-                  >
-                    {t('signup')}
-                  </Link>
+                  {/* Show Login button unless on login page in login mode */}
+                  {(!isOnLoginPage || isSignupMode) && (
+                    <Link
+                      href={`/${locale}/login`}
+                      className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md transition-colors min-h-[44px] flex items-center"
+                    >
+                      {t('login')}
+                    </Link>
+                  )}
+                  {/* Show Sign Up button unless on login page in signup mode */}
+                  {(!isOnLoginPage || !isSignupMode) && (
+                    <Link
+                      href={`/${locale}/login?mode=signup`}
+                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-md transition-colors min-h-[44px] flex items-center"
+                    >
+                      {t('signup')}
+                    </Link>
+                  )}
                 </>
               )}
             </div>
             
             {/* Mobile: Hamburger Menu - Show for all users if nav items exist */}
             {navItems.length > 0 && (
-              <MobileMenu navItems={navItems} userEmail={userEmail} pathname={pathname} />
+              <MobileMenu navItems={navItems} userEmail={userEmail} pathname={pathname} searchParams={searchParams} />
             )}
           </div>
         </div>

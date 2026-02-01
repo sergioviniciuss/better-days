@@ -12,12 +12,13 @@ import { joinPublicHabit } from '@/app/actions/public-habit';
 interface LoginFormProps {
   returnUrl?: string;
   inviteCode?: string;
+  initialMode?: string;
 }
 
-export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode }: LoginFormProps) {
+export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode, initialMode }: LoginFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -39,6 +40,11 @@ export function LoginForm({ returnUrl: propReturnUrl, inviteCode: propInviteCode
     return { returnUrl, inviteCode, joinChallengeId, joinHabitId };
   };
   
+  // Update form mode when initialMode prop changes
+  React.useEffect(() => {
+    setIsSignUp(initialMode === 'signup');
+  }, [initialMode]);
+
   // Store invite code and returnUrl in sessionStorage on mount
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
