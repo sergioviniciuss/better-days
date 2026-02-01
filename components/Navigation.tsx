@@ -19,6 +19,7 @@ export function Navigation({ userEmail }: NavigationProps) {
   const tAchievements = useTranslations('achievements');
   const tNavigation = useTranslations('navigation');
   const tCommon = useTranslations('common');
+  const t = useTranslations('auth');
   const pathname = usePathname();
   const [showAchievementsBadge, setShowAchievementsBadge] = useState(false);
   
@@ -87,9 +88,26 @@ export function Navigation({ userEmail }: NavigationProps) {
             {/* Language Switcher - Visible on all screens */}
             <LanguageSwitcher />
             
-            {/* Desktop: User Profile Menu */}
-            <div className="hidden md:block">
-              <UserProfileMenu userEmail={userEmail} />
+            {/* Desktop: Show Login/Sign Up for unauthenticated, UserProfileMenu for authenticated */}
+            <div className="hidden md:flex md:items-center md:space-x-2">
+              {userEmail ? (
+                <UserProfileMenu userEmail={userEmail} />
+              ) : (
+                <>
+                  <Link
+                    href={`/${locale}/login`}
+                    className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md transition-colors min-h-[44px] flex items-center"
+                  >
+                    {t('login')}
+                  </Link>
+                  <Link
+                    href={`/${locale}/login`}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-md transition-colors min-h-[44px] flex items-center"
+                  >
+                    {t('signup')}
+                  </Link>
+                </>
+              )}
             </div>
             
             {/* Mobile: Hamburger Menu - Show for all users if nav items exist */}
