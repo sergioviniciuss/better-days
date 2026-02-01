@@ -502,9 +502,10 @@ describe('ChallengeDetailContent - Rules Display', () => {
       expect(screen.getByText('Invite Friends')).toBeVisible();
     });
 
-    xit('should not show invite section for challenges with 1 member', () => {
+    it('should not show invite section for individual challenges', () => {
       const individualChallenge = {
         ...mockChallenge,
+        challengeType: 'INDIVIDUAL',
         members: [
           {
             userId: 'user-123',
